@@ -134,10 +134,10 @@ onBeforeMount(() => {
   plan.value = planService.createPlan("", planJson, queryText.value)
   const content = plan.value.content
   planStats.executionTime =
-    (content["Execution Time"] as number) ||
-    (content["Total Runtime"] as number) ||
-    NaN
-  planStats.planningTime = (content["Planning Time"] as number) || NaN
+    // (content["Execution Time"] as number) ||
+    // (content["Total Runtime"] as number) ||
+    (content["timing"] as number) || NaN
+  // planStats.planningTime = (content["Planning Time"] as number) || NaN
   planStats.maxRows = content.maxRows || NaN
   planStats.maxCost = content.maxCost || NaN
   planStats.maxDuration = content.maxDuration || NaN
@@ -145,8 +145,8 @@ onBeforeMount(() => {
   planStats.maxIo = content.maxIo || NaN
   planStats.maxEstimateFactor = content.maxEstimateFactor || NaN
   planStats.triggers = content.Triggers || []
-  planStats.jitTime =
-    (content.JIT && content.JIT.Timing && content.JIT.Timing.Total) || NaN
+  // planStats.jitTime =
+  //   (content.JIT && content.JIT.Timing && content.JIT.Timing.Total) || NaN
   planStats.settings = content.Settings as Settings
   plan.value.planStats = planStats
 
