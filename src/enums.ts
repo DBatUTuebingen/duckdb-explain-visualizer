@@ -46,19 +46,46 @@ export enum CenterMode {
 
 export enum NodeProp {
   // plan property keys
-  NODE_TYPE = "Node Type",
-  ACTUAL_ROWS = "Actual Rows",
+  NODE_TYPE = "operator_type",
+  ACTUAL_ROWS = "operator_cardinality",
+  ACTUAL_TOTAL_TIME = "operator_timing",
+  PLANS = "children",
+  // --------------------------------------------------------------
+  // BRAUCH ICH WAHRSCHEINLICH ALLES NICHT - wird erstmal drin gelasen
   PLAN_ROWS = "Plan Rows",
   PLAN_WIDTH = "Plan Width",
   ROWS_REMOVED_BY_FILTER = "Rows Removed by Filter",
   ROWS_REMOVED_BY_JOIN_FILTER = "Rows Removed by Join Filter",
   ACTUAL_STARTUP_TIME = "Actual Startup Time",
-  ACTUAL_TOTAL_TIME = "Actual Total Time",
   ACTUAL_LOOPS = "Actual Loops",
   STARTUP_COST = "Startup Cost",
   TOTAL_COST = "Total Cost",
-  PLANS = "Plans",
-  RELATION_NAME = "Relation Name",
+  // --------------------------------------------------------------
+
+  // NEW DUCKDB KEYS:
+  CPU_TIME = "cpu_time",
+  CUMULATIVE_CARDINALITY = "cumulative_cardinality",
+  CUMULATIVE_ROWS_SCANNED = "cumulative_rows_scanned",
+  OPERATOR_ROWS_SCANNED = "operator_rows_scanned",
+  RESULT_SET_SIZE = "result_set_size",
+
+  // EXTRA INFO KEYS
+  EXTRA_INFO = "extra_info",
+  RELATION_NAME = "Text",
+  PROJECTIONS = "Projections",
+  ESTIMATED_ROWS = "Estimated Cardinality",
+  AGGREGATES = "Aggregates",
+  TABLE_INDEX = "Table Index",
+  GROUPS = "Groups",
+  JOIN_TYPE = "Join Type",
+  CONDITIONS = "Conditions",
+  CTE_INDEX = "CTE Index",
+  FILTER = "Expression",
+  DELIM_INDEX = "Delim Index",
+  FUNCTION = "Function",
+
+  // --------------------------------------------------------------
+  // BRAUCH ICH WAHRSCHEINLICH ALLES NICHT - wird erstmal drin gelasen
   SCHEMA = "Schema",
   ALIAS = "Alias",
   GROUP_KEY = "Group Key",
@@ -66,14 +93,13 @@ export enum NodeProp {
   SORT_METHOD = "Sort Method",
   SORT_SPACE_TYPE = "Sort Space Type",
   SORT_SPACE_USED = "Sort Space Used",
-  JOIN_TYPE = "Join Type",
   INDEX_NAME = "Index Name",
   HASH_CONDITION = "Hash Cond",
-  PARENT_RELATIONSHIP = "Parent Relationship",
-  SUBPLAN_NAME = "Subplan Name",
+  PARENT_RELATIONSHIP = "Parent Relationship", // MAYBE NOT NEEDED FOR DDB
+  SUBPLAN_NAME = "Subplan Name", // MAYBE NOT NEEDED FOR DDB
   PARALLEL_AWARE = "Parallel Aware",
   WORKERS = "Workers",
-  WORKERS_PLANNED = "Workers Planned",
+  WORKERS_PLANNED = "Workers Planned", // MAYBE NOT NEEDED FOR DDB
   WORKERS_LAUNCHED = "Workers Launched",
   SHARED_HIT_BLOCKS = "Shared Hit Blocks",
   SHARED_READ_BLOCKS = "Shared Read Blocks",
@@ -95,8 +121,8 @@ export enum NodeProp {
   FULL_SORT_GROUPS = "Full-sort Groups",
   PRE_SORTED_GROUPS = "Pre-sorted Groups",
   PRESORTED_KEY = "Presorted Key",
-  FILTER = "Filter",
-  STRATEGY = "Strategy",
+  STRATEGY = "Strategy", // MAYBE NOT NEEDED FOR DDB
+  // --------------------------------------------------------------
 
   // computed by pev
   NODE_ID = "nodeId",
@@ -126,11 +152,11 @@ export enum NodeProp {
   AVERAGE_IO_READ_TIME = "*I/O Read Speed (exclusive)",
   AVERAGE_IO_WRITE_TIME = "*I/O Write Speed (exclusive)",
 
-  WORKERS_PLANNED_BY_GATHER = "*Workers Planned By Gather",
+  WORKERS_PLANNED_BY_GATHER = "*Workers Planned By Gather", // MAYBE NOT NEEDED FOR DDB
 
   CTE_SCAN = "CTE Scan",
-  CTE_NAME = "CTE Name",
-  FUNCTION_NAME = "Function Name",
+  CTE_NAME = "CTE Name", // gehört zu extra_info keys
+  FUNCTION_NAME = "Name", // GEÄNDERT - gehört zu extra_info keys
 
   ARRAY_INDEX_KEY = "arrayIndex",
 
@@ -158,6 +184,12 @@ export enum PropType {
 export const nodePropTypes: { [key: string]: PropType } = {}
 
 nodePropTypes[NodeProp.ACTUAL_ROWS] = PropType.rows
+nodePropTypes[NodeProp.CUMULATIVE_CARDINALITY] = PropType.rows
+nodePropTypes[NodeProp.CUMULATIVE_ROWS_SCANNED] = PropType.rows
+nodePropTypes[NodeProp.OPERATOR_ROWS_SCANNED] = PropType.rows
+nodePropTypes[NodeProp.CPU_TIME] = PropType.duration
+// nodePropTypes[NodeProp.RESULT_SET_SIZE] = ??? // was soll das sein???
+
 nodePropTypes[NodeProp.ACTUAL_LOOPS] = PropType.loops
 nodePropTypes[NodeProp.PLAN_ROWS] = PropType.rows
 nodePropTypes[NodeProp.PLAN_WIDTH] = PropType.bytes

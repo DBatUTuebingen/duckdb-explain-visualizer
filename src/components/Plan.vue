@@ -130,13 +130,15 @@ onBeforeMount(() => {
     plan.value = undefined
     return
   }
-  queryText.value = planJson["Query Text"] || props.planQuery
+  console.log(planJson)
+  queryText.value = planJson["query_name"] || props.planQuery
+  console.log(queryText.value)
   plan.value = planService.createPlan("", planJson, queryText.value)
   const content = plan.value.content
   planStats.executionTime =
     // (content["Execution Time"] as number) ||
     // (content["Total Runtime"] as number) ||
-    (content["timing"] as number) || NaN
+    (content["cpu_time"] as number) || NaN
   // planStats.planningTime = (content["Planning Time"] as number) || NaN
   planStats.maxRows = content.maxRows || NaN
   planStats.maxCost = content.maxCost || NaN
@@ -250,7 +252,7 @@ onMounted(() => {
                 Math.max(
                   minScale,
                   0.8 /
-                    Math.max((x1 - x0) / rect.width, (y1 - y0) / rect.height)
+                  Math.max((x1 - x0) / rect.width, (y1 - y0) / rect.height)
                 )
               )
             )
@@ -459,7 +461,7 @@ function updateNodeSize(node: Node, size: [number, number]) {
             href="https://github.com/dalibo/pev2/issues/new?template=parsing_error.md&labels=parsing&title=Failed+to+parse+plan"
             target="_blank"
             class="btn btn-primary ms-auto"
-            >Open an issue on Github</a
+          >Open an issue on Github</a
           >
         </div>
       </div>
@@ -477,7 +479,7 @@ function updateNodeSize(node: Node, size: [number, number]) {
             class="nav-link px-2 py-0"
             :class="{ active: activeTab === 'plan' }"
             href="#plan"
-            >Plan</a
+          >Plan</a
           >
         </li>
         <li class="nav-item p-1">
@@ -485,7 +487,7 @@ function updateNodeSize(node: Node, size: [number, number]) {
             class="nav-link px-2 py-0 position-relative"
             :class="{ active: activeTab === 'grid' }"
             href="#grid"
-            >Grid
+          >Grid
             <span
               class="badge bg-info"
               style="font-size: 0.6em"
@@ -500,7 +502,7 @@ function updateNodeSize(node: Node, size: [number, number]) {
             class="nav-link px-2 py-0"
             :class="{ active: activeTab === 'raw' }"
             href="#raw"
-            >Raw</a
+          >Raw</a
           >
         </li>
         <li class="nav-item p-1">
@@ -508,7 +510,7 @@ function updateNodeSize(node: Node, size: [number, number]) {
             class="nav-link px-2 py-0"
             :class="{ active: activeTab === 'query', disabled: !queryText }"
             href="#query"
-            >Query</a
+          >Query</a
           >
         </li>
         <li class="nav-item p-1">
@@ -516,7 +518,7 @@ function updateNodeSize(node: Node, size: [number, number]) {
             class="nav-link px-2 py-0"
             :class="{ active: activeTab === 'stats' }"
             href="#stats"
-            >Stats</a
+          >Stats</a
           >
         </li>
       </ul>

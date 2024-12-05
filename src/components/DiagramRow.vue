@@ -139,7 +139,7 @@ watch(
             width:
               (node[NodeProp.EXCLUSIVE_DURATION] /
                 (plan.planStats.executionTime ||
-                  plan.content.Plan[NodeProp.ACTUAL_TOTAL_TIME])) *
+                  plan.content[NodeProp.ACTUAL_TOTAL_TIME])) *
                 100 +
               '%',
           }"
@@ -156,7 +156,7 @@ watch(
               ((node[NodeProp.ACTUAL_TOTAL_TIME] -
                 node[NodeProp.EXCLUSIVE_DURATION]) /
                 (plan.planStats.executionTime ||
-                  plan.content.Plan[NodeProp.ACTUAL_TOTAL_TIME])) *
+                  plan.content[NodeProp.ACTUAL_TOTAL_TIME])) *
                 100 +
               '%',
           }"
@@ -492,8 +492,8 @@ watch(
         style="height: 5px"
         v-else-if="
           diagramViewOptions.metric == Metric.io &&
-          (plan.content.Plan[NodeProp['IO_READ_TIME']] ||
-            plan.content.Plan[NodeProp['IO_WRITE_TIME']])
+          (plan.content[NodeProp['IO_READ_TIME']] ||
+            plan.content[NodeProp['IO_WRITE_TIME']])
         "
       >
         <div

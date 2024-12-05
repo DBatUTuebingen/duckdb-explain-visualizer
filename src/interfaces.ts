@@ -14,8 +14,8 @@ export interface IPlan {
   planStats: IPlanStats
   formattedQuery?: string
   ctes: Node[]
-  isAnalyze: boolean
-  isVerbose: boolean
+  isAnalyze: boolean //NOT NEEDED FOR DDB
+  isVerbose: boolean //NOT NEEDED FOR DDB
 }
 
 export interface IPlanContent {
@@ -27,8 +27,8 @@ export interface IPlanContent {
   maxBlocks?: IBlocksStats
   maxIo?: number
   maxEstimateFactor?: number
-  Triggers?: ITrigger[]
-  JIT?: JIT
+  Triggers?: ITrigger[] //NOT NEEDED FOR DDB
+  JIT?: JIT //NOT NEEDED FOR DDB
   "Query Text"?: string
   [k: string]:
     | Node
@@ -41,6 +41,7 @@ export interface IPlanContent {
 }
 
 export interface ITrigger {
+  // MAYBE NOT NEEDED FOR DDB
   "Trigger Name": string
   Relation?: string
   Time: number
@@ -48,6 +49,7 @@ export interface ITrigger {
 }
 
 export interface IPlanStats {
+  // MAYBE NOT NEEDED FOR DDB
   executionTime?: number
   planningTime?: number
   maxRows: number
@@ -62,23 +64,51 @@ export interface IPlanStats {
 }
 
 export type IBlocksStats = {
+  // MAYBE NOT NEEDED FOR DDB
   [key in BufferLocation]: number
 }
 
 import { EstimateDirection, NodeProp } from "@/enums"
 
-// Class to create nodes when parsing text
+// Class to create nodes when parsing text for DuckDB Explain Plans
 export class Node {
   nodeId!: number
   size!: [number, number];
+
+  // DuckDB specific properties
+  [NodeProp.NODE_TYPE]?: string; // Type of operation in DuckDB (e.g., "Filter", "Scan")
+  [NodeProp.ACTUAL_TOTAL_TIME]?: number; // Actual timing for the node if available
+  [NodeProp.ACTUAL_ROWS]?: number; // Estimated number of rows
+  [NodeProp.PLANS]: Node[];
+  [NodeProp.CPU_TIME]: number;
+  [NodeProp.CUMULATIVE_CARDINALITY]: number;
+  [NodeProp.CUMULATIVE_ROWS_SCANNED]: number;
+  [NodeProp.OPERATOR_ROWS_SCANNED]: number;
+  [NodeProp.RESULT_SET_SIZE]: number;
+
+  // Optional properties for advanced DuckDB Explain plans
+  [NodeProp.EXTRA_INFO]: JSON;
+  [NodeProp.RELATION_NAME]?: string;
+  [NodeProp.PROJECTIONS]?: string | string[];
+  [NodeProp.ESTIMATED_ROWS]?: string;
+  [NodeProp.AGGREGATES]?: string | string[];
+  [NodeProp.TABLE_INDEX]?: string;
+  [NodeProp.GROUPS]?: string | string[];
+  [NodeProp.JOIN_TYPE]?: string;
+  [NodeProp.CONDITIONS]?: string | string[];
+  [NodeProp.CTE_INDEX]?: string;
+  [NodeProp.FILTER]?: string;
+  [NodeProp.DELIM_INDEX]?: string;
+  [NodeProp.FUNCTION]?: string;
+
+  // --------------------------------------------------------------
+  // BRAUCH ICH WAHRSCHEINLICH ALLES NICHT - wird erstmal drin gelasen
   ["Options"]?: Options;
   ["Timing"]?: Timing;
   ["Settings"]?: Settings;
   [NodeProp.ACTUAL_LOOPS]: number;
-  [NodeProp.ACTUAL_ROWS]: number;
   [NodeProp.ACTUAL_ROWS_REVISED]: number;
   [NodeProp.ACTUAL_STARTUP_TIME]?: number;
-  [NodeProp.ACTUAL_TOTAL_TIME]: number;
   [NodeProp.EXCLUSIVE_COST]: number;
   [NodeProp.EXCLUSIVE_DURATION]: number;
   [NodeProp.EXCLUSIVE_LOCAL_DIRTIED_BLOCKS]: number;
@@ -91,13 +121,10 @@ export class Node {
   [NodeProp.EXCLUSIVE_SHARED_WRITTEN_BLOCKS]: number;
   [NodeProp.EXCLUSIVE_TEMP_READ_BLOCKS]: number;
   [NodeProp.EXCLUSIVE_TEMP_WRITTEN_BLOCKS]: number;
-  [NodeProp.FILTER]: string;
   [NodeProp.PLANNER_ESTIMATE_DIRECTION]?: EstimateDirection;
   [NodeProp.PLANNER_ESTIMATE_FACTOR]?: number;
   [NodeProp.INDEX_NAME]?: string;
-  [NodeProp.NODE_TYPE]: string;
   [NodeProp.PARALLEL_AWARE]: boolean;
-  [NodeProp.PLANS]: Node[];
   [NodeProp.PLAN_ROWS]: number;
   [NodeProp.PLAN_ROWS_REVISED]?: number;
   [NodeProp.ROWS_REMOVED_BY_FILTER_REVISED]?: number;
@@ -108,11 +135,12 @@ export class Node {
   [NodeProp.WORKERS_LAUNCHED]?: number;
   [NodeProp.WORKERS_PLANNED]?: number;
   [NodeProp.WORKERS_PLANNED_BY_GATHER]?: number;
-  [NodeProp.WORKERS_PLANNED_BY_GATHER]?: number;
   [NodeProp.EXCLUSIVE_IO_READ_TIME]: number;
   [NodeProp.EXCLUSIVE_IO_WRITE_TIME]: number;
   [NodeProp.AVERAGE_IO_READ_TIME]: number;
   [NodeProp.AVERAGE_IO_WRITE_TIME]: number;
+  // --------------------------------------------------------------
+
   [k: string]:
     | Node[]
     | Options
@@ -123,8 +151,10 @@ export class Node {
     | number
     | string
     | string[]
+    | JSON
     | undefined
     | [number, number]
+
   constructor(type?: string) {
     if (!type) {
       return

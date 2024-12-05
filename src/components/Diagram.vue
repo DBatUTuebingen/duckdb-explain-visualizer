@@ -54,7 +54,7 @@ onBeforeMount((): void => {
   if (savedOptions) {
     _.assignIn(viewOptions, JSON.parse(savedOptions))
   }
-  flatten(plans[0], 0, plan.value.content.Plan, true, [])
+  flatten(plans[0], 0, plan.value.content, true, [])
 
   _.each(plan.value.ctes, (cte) => {
     const flat: Row[] = []
@@ -132,7 +132,8 @@ const dataAvailable = computed((): boolean => {
 })
 
 function isCTE(node: Node): boolean {
-  return _.startsWith(node[NodeProp.SUBPLAN_NAME], "CTE")
+  // return _.startsWith(node[NodeProp.SUBPLAN_NAME], "CTE")
+  return node[NodeProp.NODE_TYPE].includes("CTE")
 }
 
 function scrollTo(el: Element) {
@@ -285,17 +286,17 @@ provide("scrollTo", scrollTo)
         :class="{ highlight: !!highlightedNodeId }"
       >
         <tbody v-for="(flat, index) in plans" :key="index">
-          <tr v-if="index === 0 && plans.length > 1">
-            <th colspan="3" class="subplan">Main Query Plan</th>
-          </tr>
-          <template v-for="(row, index) in flat" :key="index">
-            <tr v-if="row[1][NodeProp.SUBPLAN_NAME]">
-              <td></td>
-              <td
-                class="subplan pe-2"
-                :class="{ 'fw-bold': isCTE(row[1]) }"
-                :colspan="isCTE(row[1]) ? 3 : 2"
-              >
+        <tr v-if="index === 0 && plans.length > 1">
+          <th colspan="3" class="subplan">Main Query Plan</th>
+        </tr>
+        <template v-for="(row, index) in flat" :key="index">
+          <tr v-if="row[1][NodeProp.SUBPLAN_NAME]">
+            <td></td>
+            <td
+              class="subplan pe-2"
+              :class="{ 'fw-bold': isCTE(row[1]) }"
+              :colspan="isCTE(row[1]) ? 3 : 2"
+            >
                 <span class="tree-lines">
                   <template v-for="i in _.range(row[0])">
                     <template v-if="_.indexOf(row[3], i) != -1">│</template
@@ -304,25 +305,25 @@ provide("scrollTo", scrollTo)
                     row[2] ? "└" : "├"
                   }}</template>
                 </span>
-                <a
-                  class="fst-italic text-reset"
-                  href=""
-                  @click.prevent="selectNode(row[1].nodeId, true)"
-                >
-                  {{ row[1][NodeProp.SUBPLAN_NAME] }}
-                </a>
-              </td>
-            </tr>
-            <diagram-row
-              :node="row[1]"
-              :isSubplan="!!row[1][NodeProp.SUBPLAN_NAME]"
-              :isLastChild="!!row[2]"
-              :level="row[0]"
-              :branches="row[3]"
-              :index="index"
-              :viewOptions="viewOptions"
-            ></diagram-row>
-          </template>
+              <a
+                class="fst-italic text-reset"
+                href=""
+                @click.prevent="selectNode(row[1].nodeId, true)"
+              >
+                {{ row[1][NodeProp.SUBPLAN_NAME] }}
+              </a>
+            </td>
+          </tr>
+          <diagram-row
+            :node="row[1]"
+            :isSubplan="!!row[1][NodeProp.SUBPLAN_NAME]"
+            :isLastChild="!!row[2]"
+            :level="row[0]"
+            :branches="row[3]"
+            :index="index"
+            :viewOptions="viewOptions"
+          ></diagram-row>
+        </template>
         </tbody>
       </table>
       <div class="p-2 text-center text-secondary" v-else>

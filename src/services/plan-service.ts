@@ -45,7 +45,8 @@ export class PlanService {
     // '$1 ' reuse group 1 and and a single space
     planQuery = planQuery.replace(/(\S)(?!$)(\s{2,})/gm, "$1 ")
 
-    if (!planContent.Plan) {
+    console.log(planContent.children[0])
+    if (!planContent.children[0]) {
       throw new Error("Invalid plan")
     }
 
@@ -53,46 +54,50 @@ export class PlanService {
       id: NodeProp.PEV_PLAN_TAG + new Date().getTime().toString(),
       name: planName || "plan created on " + new Date().toDateString(),
       createdOn: new Date(),
-      content: planContent,
+      content: planContent.children[0],
       query: planQuery,
       planStats: {} as IPlanStats,
-      ctes: [],
-      isAnalyze: _.has(planContent.Plan, NodeProp.ACTUAL_ROWS),
-      isVerbose: this.findOutputProperty(planContent.Plan),
+      ctes: [], //,
+      // isAnalyze: _.has(planContent.Plan, NodeProp.ACTUAL_ROWS),  //NOT NEEDED FOR DDB
+      // isVerbose: this.findOutputProperty(planContent.Plan),      //NOT NEEDED FOR DDB
     }
 
     this.nodeId = 1
-    this.processNode(planContent.Plan, plan)
-    this.calculateMaximums(plan)
+    this.processNode(planContent.children[0], plan)
+    // this.calculateMaximums(plan) //NOT NEEDED FOR DDB
     return plan
   }
 
   public isCTE(node: Node) {
-    return (
-      node[NodeProp.PARENT_RELATIONSHIP] === "InitPlan" &&
-      _.startsWith(node[NodeProp.SUBPLAN_NAME], "CTE")
-    )
+    // return (
+    //   node[NodeProp.PARENT_RELATIONSHIP] === "InitPlan" &&
+    //   _.startsWith(node[NodeProp.SUBPLAN_NAME], "CTE")
+    // )
+    return node[NodeProp.NODE_TYPE].includes("CTE")
   }
 
   // recursively walk down the plan to compute various metrics
   public processNode(node: Node, plan: IPlan) {
     node.nodeId = this.nodeId++
-    this.calculatePlannerEstimate(node)
+    // this.calculatePlannerEstimate(node) // MAYBE NOT NEEDED FOR DDB
 
     _.each(node[NodeProp.PLANS], (child) => {
       // Disseminate workers planned info to parallel nodes (ie. Gather children)
-      if (
-        !this.isCTE(child) &&
-        child[NodeProp.PARENT_RELATIONSHIP] !== "InitPlan" &&
-        child[NodeProp.PARENT_RELATIONSHIP] !== "SubPlan"
-      ) {
-        child[NodeProp.WORKERS_PLANNED_BY_GATHER] =
-          node[NodeProp.WORKERS_PLANNED] ||
-          node[NodeProp.WORKERS_PLANNED_BY_GATHER]
-      }
+      // MAYBE NOT NEEDED FOR DDB:
+      // if (
+      //   !this.isCTE(child) &&
+      //   child[NodeProp.PARENT_RELATIONSHIP] !== "InitPlan" &&
+      //   child[NodeProp.PARENT_RELATIONSHIP] !== "SubPlan"
+      // ) {
+      //   child[NodeProp.WORKERS_PLANNED_BY_GATHER] =
+      //     node[NodeProp.WORKERS_PLANNED] ||
+      //     node[NodeProp.WORKERS_PLANNED_BY_GATHER]
+      // }
       if (this.isCTE(child)) {
+        console.log("CTEEEEEEEEEE ISCH DAAA")
         plan.ctes.push(child)
       }
+      console.log("keine CTE für dich :(")
       this.processNode(child, plan)
     })
 
@@ -100,10 +105,10 @@ export class PlanService {
 
     // calculate actuals after processing child nodes so that actual duration
     // takes loops into account
-    this.calculateActuals(node)
-    this.calculateExclusives(node)
-    this.calculateIoTimingsAverage(node)
-    this.convertNodeType(node)
+    // this.calculateActuals(node) // NOT NEEDED FOR DDB
+    // this.calculateExclusives(node) // NOT NEEDED FOR DDB
+    // this.calculateIoTimingsAverage(node) // NOT NEEDED FOR DDB
+    // this.convertNodeType(node) // NOT NEEDED FOR DDB
   }
 
   public calculateMaximums(plan: IPlan) {
@@ -580,28 +585,28 @@ export class PlanService {
        */
       const nodeRegex = new RegExp(
         prefixRegex +
-          typeRegex +
-          "\\s*" +
-          nonCapturingGroupOpen +
-          (nonCapturingGroupOpen +
-            estimationRegex +
-            "\\s+" +
-            openParenthesisRegex +
-            actualRegex +
-            closeParenthesisRegex +
-            nonCapturingGroupClose) +
-          "|" +
-          nonCapturingGroupOpen +
+        typeRegex +
+        "\\s*" +
+        nonCapturingGroupOpen +
+        (nonCapturingGroupOpen +
           estimationRegex +
-          nonCapturingGroupClose +
-          "|" +
-          nonCapturingGroupOpen +
+          "\\s+" +
           openParenthesisRegex +
           actualRegex +
           closeParenthesisRegex +
-          nonCapturingGroupClose +
-          nonCapturingGroupClose +
-          "\\s*$",
+          nonCapturingGroupClose) +
+        "|" +
+        nonCapturingGroupOpen +
+        estimationRegex +
+        nonCapturingGroupClose +
+        "|" +
+        nonCapturingGroupOpen +
+        openParenthesisRegex +
+        actualRegex +
+        closeParenthesisRegex +
+        nonCapturingGroupClose +
+        nonCapturingGroupClose +
+        "\\s*$",
         "gm"
       )
       const nodeMatches = nodeRegex.exec(line)
@@ -638,12 +643,12 @@ export class PlanService {
        */
       const workerRegex = new RegExp(
         /^(\s*)Worker\s+(\d+):\s+/.source +
-          nonCapturingGroupOpen +
-          actualRegex +
-          nonCapturingGroupClose +
-          optionalGroup +
-          "(.*)" +
-          "\\s*$",
+        nonCapturingGroupOpen +
+        actualRegex +
+        nonCapturingGroupClose +
+        optionalGroup +
+        "(.*)" +
+        "\\s*$",
         "g"
       )
       const workerMatches = workerRegex.exec(line)
@@ -1205,7 +1210,7 @@ export class PlanService {
         property) as keyof typeof NodeProp
       const nodeProp = NodeProp[
         exclusivePropertyString
-      ] as unknown as keyof typeof Node
+        ] as unknown as keyof typeof Node
       node[nodeProp] = (node[NodeProp[property]] as number) - sum
     })
   }
