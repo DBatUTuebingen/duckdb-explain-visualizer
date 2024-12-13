@@ -46,9 +46,10 @@ export enum CenterMode {
 
 export enum NodeProp {
   // plan property keys
-  NODE_TYPE = "operator_type",
-  ACTUAL_ROWS = "operator_cardinality",
-  ACTUAL_TOTAL_TIME = "operator_timing",
+  NODE_TYPE = "operator_type", // the name of each operator
+  ACTUAL_ROWS = "operator_cardinality", // the number of rows it returns to its parent
+  ACTUAL_TOTAL_TIME = "operator_timing", // the time taken by each operator
+  BLOCKED_THREAD_TIME = "blocked_thread_time", // the total time threads are blocked
   PLANS = "children",
   // --------------------------------------------------------------
   // BRAUCH ICH WAHRSCHEINLICH ALLES NICHT - wird erstmal drin gelasen
@@ -66,11 +67,11 @@ export enum NodeProp {
   CPU_TIME = "cpu_time",
   CUMULATIVE_CARDINALITY = "cumulative_cardinality",
   CUMULATIVE_ROWS_SCANNED = "cumulative_rows_scanned",
-  OPERATOR_ROWS_SCANNED = "operator_rows_scanned",
-  RESULT_SET_SIZE = "result_set_size",
+  OPERATOR_ROWS_SCANNED = "operator_rows_scanned", // The total rows scanned by each operator.
+  RESULT_SET_SIZE = "result_set_size", // The size of the result.
 
   // EXTRA INFO KEYS
-  EXTRA_INFO = "extra_info",
+  EXTRA_INFO = "extra_info", // Unique operator metrics
   RELATION_NAME = "Text",
   PROJECTIONS = "Projections",
   ESTIMATED_ROWS = "Estimated Cardinality",
@@ -188,7 +189,8 @@ nodePropTypes[NodeProp.CUMULATIVE_CARDINALITY] = PropType.rows
 nodePropTypes[NodeProp.CUMULATIVE_ROWS_SCANNED] = PropType.rows
 nodePropTypes[NodeProp.OPERATOR_ROWS_SCANNED] = PropType.rows
 nodePropTypes[NodeProp.CPU_TIME] = PropType.duration
-// nodePropTypes[NodeProp.RESULT_SET_SIZE] = ??? // was soll das sein???
+nodePropTypes[NodeProp.BLOCKED_THREAD_TIME] = PropType.duration
+nodePropTypes[NodeProp.RESULT_SET_SIZE] = PropType.bytes
 
 nodePropTypes[NodeProp.ACTUAL_LOOPS] = PropType.loops
 nodePropTypes[NodeProp.PLAN_ROWS] = PropType.rows
