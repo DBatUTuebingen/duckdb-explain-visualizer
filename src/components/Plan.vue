@@ -138,13 +138,16 @@ onBeforeMount(() => {
   planStats.executionTime =
     // (content["Execution Time"] as number) ||
     // (content["Total Runtime"] as number) ||
-    (content["cpu_time"] as number) || NaN
+    (content[NodeProp.CPU_TIME] as number) || NaN
+  planStats.operatorTiming = content[NodeProp.ACTUAL_TOTAL_TIME]
+  planStats.scannedRows = content[NodeProp.CUMULATIVE_ROWS_SCANNED]
+  planStats.operatorRows = content[NodeProp.ESTIMATED_ROWS]
   // planStats.planningTime = (content["Planning Time"] as number) || NaN
   planStats.maxRows = content.maxRows || NaN
-  planStats.maxCost = content.maxCost || NaN
+  // planStats.maxCost = content.maxCost || NaN
   planStats.maxDuration = content.maxDuration || NaN
-  planStats.maxBlocks = content.maxBlocks || ({} as IBlocksStats)
-  planStats.maxIo = content.maxIo || NaN
+  // planStats.maxBlocks = content.maxBlocks || ({} as IBlocksStats)
+  // planStats.maxIo = content.maxIo || NaN
   planStats.maxEstimateFactor = content.maxEstimateFactor || NaN
   // planStats.triggers = content.Triggers || []
   // planStats.jitTime =
@@ -626,7 +629,7 @@ function updateNodeSize(node: Node, size: [number, number]) {
                         stroke="#B3D7D7"
                         :stroke-width="
                           edgeWeight(
-                            link.target.data[NodeProp.ACTUAL_ROWS_REVISED]
+                            link.target.data[NodeProp.ESTIMATED_ROWS]
                           )
                         "
                         fill="none"
@@ -641,7 +644,7 @@ function updateNodeSize(node: Node, size: [number, number]) {
                         stroke="grey"
                         :stroke-width="
                           edgeWeight(
-                            link.target.data[NodeProp.ACTUAL_ROWS_REVISED]
+                            link.target.data[NodeProp.ESTIMATED_ROWS]
                           )
                         "
                         stroke-linecap="square"
@@ -687,7 +690,7 @@ function updateNodeSize(node: Node, size: [number, number]) {
                           stroke="grey"
                           :stroke-width="
                             edgeWeight(
-                              link.target.data[NodeProp.ACTUAL_ROWS_REVISED]
+                              link.target.data[NodeProp.ESTIMATED_ROWS]
                             )
                           "
                           stroke-linecap="square"

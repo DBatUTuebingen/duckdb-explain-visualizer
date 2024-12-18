@@ -57,7 +57,7 @@ export class PlanService {
       content: planContent.children[0],
       query: planQuery,
       planStats: {} as IPlanStats,
-      ctes: [], //,
+      ctes: [] //,
       // isAnalyze: _.has(planContent.Plan, NodeProp.ACTUAL_ROWS),  //NOT NEEDED FOR DDB
       // isVerbose: this.findOutputProperty(planContent.Plan),      //NOT NEEDED FOR DDB
     }
@@ -122,98 +122,98 @@ export class PlanService {
       flat = flat.concat(_.flattenDeep(recurse([cte as Node])))
     })
 
-    const largest = _.maxBy(flat, NodeProp.ACTUAL_ROWS_REVISED)
+    const largest = _.maxBy(flat, NodeProp.ESTIMATED_ROWS)
     if (largest) {
-      plan.content.maxRows = largest[NodeProp.ACTUAL_ROWS_REVISED] as number
+      plan.content.maxRows = largest[NodeProp.ESTIMATED_ROWS] as number
     }
 
-    const costliest = _.maxBy(flat, NodeProp.EXCLUSIVE_COST)
-    if (costliest) {
-      plan.content.maxCost = costliest[NodeProp.EXCLUSIVE_COST] as number
-    }
+    // const costliest = _.maxBy(flat, NodeProp.EXCLUSIVE_COST)
+    // if (costliest) {
+    //   plan.content.maxCost = costliest[NodeProp.EXCLUSIVE_COST] as number
+    // }
 
-    const totalCostliest = _.maxBy(flat, NodeProp.TOTAL_COST)
-    if (totalCostliest) {
-      plan.content.maxTotalCost = totalCostliest[NodeProp.TOTAL_COST] as number
-    }
+    // const totalCostliest = _.maxBy(flat, NodeProp.TOTAL_COST)
+    // if (totalCostliest) {
+    //   plan.content.maxTotalCost = totalCostliest[NodeProp.TOTAL_COST] as number
+    // }
 
-    const slowest = _.maxBy(flat, NodeProp.EXCLUSIVE_DURATION)
+    const slowest = _.maxBy(flat, NodeProp.ACTUAL_TOTAL_TIME)
     if (slowest) {
-      plan.content.maxDuration = slowest[NodeProp.EXCLUSIVE_DURATION] as number
+      plan.content.maxDuration = slowest[NodeProp.ACTUAL_TOTAL_TIME] as number
     }
 
-    if (!plan.content.maxBlocks) {
-      plan.content.maxBlocks = {} as IBlocksStats
-    }
-
-    function sumShared(o: Node): number {
-      return (
-        (o[NodeProp.EXCLUSIVE_SHARED_HIT_BLOCKS] as number) +
-        (o[NodeProp.EXCLUSIVE_SHARED_READ_BLOCKS] as number) +
-        (o[NodeProp.EXCLUSIVE_SHARED_DIRTIED_BLOCKS] as number) +
-        (o[NodeProp.EXCLUSIVE_SHARED_WRITTEN_BLOCKS] as number)
-      )
-    }
-    const highestShared = _.maxBy(flat, (o) => {
-      return sumShared(o)
-    }) as Node
-    if (highestShared && sumShared(highestShared)) {
-      plan.content.maxBlocks[BufferLocation.shared] = sumShared(highestShared)
-    }
-
-    function sumTemp(o: Node): number {
-      return (
-        (o[NodeProp.EXCLUSIVE_TEMP_READ_BLOCKS] as number) +
-        (o[NodeProp.EXCLUSIVE_TEMP_WRITTEN_BLOCKS] as number)
-      )
-    }
-    const highestTemp = _.maxBy(flat, (o) => {
-      return sumTemp(o)
-    }) as Node
-    if (highestTemp && sumTemp(highestTemp)) {
-      plan.content.maxBlocks[BufferLocation.temp] = sumTemp(highestTemp)
-    }
-
-    function sumLocal(o: Node) {
-      return (
-        (o[NodeProp.EXCLUSIVE_LOCAL_HIT_BLOCKS] as number) +
-        (o[NodeProp.EXCLUSIVE_LOCAL_READ_BLOCKS] as number) +
-        (o[NodeProp.EXCLUSIVE_LOCAL_DIRTIED_BLOCKS] as number) +
-        (o[NodeProp.EXCLUSIVE_LOCAL_WRITTEN_BLOCKS] as number)
-      )
-    }
-    const highestLocal = _.maxBy(flat, (o) => {
-      return sumLocal(o)
-    })
-    if (highestLocal && sumLocal(highestLocal)) {
-      plan.content.maxBlocks[BufferLocation.local] = sumLocal(highestLocal)
-    }
-
-    if (!plan.content.maxIo) {
-      plan.content.maxIo = 0
-    }
-    function sumIo(o: Node) {
-      return (
-        (o[NodeProp.EXCLUSIVE_IO_READ_TIME] as number) +
-        (o[NodeProp.EXCLUSIVE_IO_WRITE_TIME] as number)
-      )
-    }
-    const highestIo = _.maxBy(flat, (o) => {
-      return sumIo(o)
-    })
-    if (highestIo && sumIo(highestIo)) {
-      plan.content.maxIo = sumIo(highestIo)
-    }
-
-    const highestEstimateFactor = _.max(
-      _.map(flat, (node) => {
-        const f = node[NodeProp.PLANNER_ESTIMATE_FACTOR]
-        if (f !== Infinity) {
-          return f
-        }
-      })
-    ) as number
-    plan.content.maxEstimateFactor = highestEstimateFactor * 2 || 1
+    // if (!plan.content.maxBlocks) {
+    //   plan.content.maxBlocks = {} as IBlocksStats
+    // }
+    //
+    // function sumShared(o: Node): number {
+    //   return (
+    //     (o[NodeProp.EXCLUSIVE_SHARED_HIT_BLOCKS] as number) +
+    //     (o[NodeProp.EXCLUSIVE_SHARED_READ_BLOCKS] as number) +
+    //     (o[NodeProp.EXCLUSIVE_SHARED_DIRTIED_BLOCKS] as number) +
+    //     (o[NodeProp.EXCLUSIVE_SHARED_WRITTEN_BLOCKS] as number)
+    //   )
+    // }
+    // const highestShared = _.maxBy(flat, (o) => {
+    //   return sumShared(o)
+    // }) as Node
+    // if (highestShared && sumShared(highestShared)) {
+    //   plan.content.maxBlocks[BufferLocation.shared] = sumShared(highestShared)
+    // }
+    //
+    // function sumTemp(o: Node): number {
+    //   return (
+    //     (o[NodeProp.EXCLUSIVE_TEMP_READ_BLOCKS] as number) +
+    //     (o[NodeProp.EXCLUSIVE_TEMP_WRITTEN_BLOCKS] as number)
+    //   )
+    // }
+    // const highestTemp = _.maxBy(flat, (o) => {
+    //   return sumTemp(o)
+    // }) as Node
+    // if (highestTemp && sumTemp(highestTemp)) {
+    //   plan.content.maxBlocks[BufferLocation.temp] = sumTemp(highestTemp)
+    // }
+    //
+    // function sumLocal(o: Node) {
+    //   return (
+    //     (o[NodeProp.EXCLUSIVE_LOCAL_HIT_BLOCKS] as number) +
+    //     (o[NodeProp.EXCLUSIVE_LOCAL_READ_BLOCKS] as number) +
+    //     (o[NodeProp.EXCLUSIVE_LOCAL_DIRTIED_BLOCKS] as number) +
+    //     (o[NodeProp.EXCLUSIVE_LOCAL_WRITTEN_BLOCKS] as number)
+    //   )
+    // }
+    // const highestLocal = _.maxBy(flat, (o) => {
+    //   return sumLocal(o)
+    // })
+    // if (highestLocal && sumLocal(highestLocal)) {
+    //   plan.content.maxBlocks[BufferLocation.local] = sumLocal(highestLocal)
+    // }
+    //
+    // if (!plan.content.maxIo) {
+    //   plan.content.maxIo = 0
+    // }
+    // function sumIo(o: Node) {
+    //   return (
+    //     (o[NodeProp.EXCLUSIVE_IO_READ_TIME] as number) +
+    //     (o[NodeProp.EXCLUSIVE_IO_WRITE_TIME] as number)
+    //   )
+    // }
+    // const highestIo = _.maxBy(flat, (o) => {
+    //   return sumIo(o)
+    // })
+    // if (highestIo && sumIo(highestIo)) {
+    //   plan.content.maxIo = sumIo(highestIo)
+    // }
+    //
+    // const highestEstimateFactor = _.max(
+    //   _.map(flat, (node) => {
+    //     const f = node[NodeProp.PLANNER_ESTIMATE_FACTOR]
+    //     if (f !== Infinity) {
+    //       return f
+    //     }
+    //   })
+    // ) as number
+    // plan.content.maxEstimateFactor = highestEstimateFactor * 2 || 1
   }
 
   // actual duration and actual cost are calculated by subtracting child values from the total

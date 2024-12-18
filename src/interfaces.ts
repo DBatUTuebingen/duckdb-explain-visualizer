@@ -51,15 +51,18 @@ export interface ITrigger {
 export interface IPlanStats {
   // MAYBE NOT NEEDED FOR DDB
   executionTime?: number
-  planningTime?: number
+  scannedRows: number
+  operatorRows: number
+  operatorTiming: number
+  // planningTime?: number // NOT NEEDED FOR DDB
   maxRows: number
-  maxCost: number
+  // maxCost: number // NOT NEEDED FOR DDB
   maxDuration: number
-  maxBlocks: IBlocksStats
-  maxIo: number
+  // maxBlocks: IBlocksStats // NOT NEEDED FOR DDB
+  // maxIo: number // NOT NEEDED FOR DDB
   maxEstimateFactor: number
-  triggers?: ITrigger[]
-  jitTime?: number
+  // triggers?: ITrigger[] // NOT NEEDED FOR DDB
+  // jitTime?: number // NOT NEEDED FOR DDB
   settings?: Settings
 }
 
