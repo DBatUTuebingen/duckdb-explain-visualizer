@@ -63,7 +63,7 @@ const parsed = ref<boolean>(false)
 const plan = ref<IPlan>()
 const planEl = ref()
 let planStats = reactive<IPlanStats>({} as IPlanStats)
-const rootNode = computed(() => plan.value && plan.value.content.Plan)
+const rootNode = computed(() => plan.value && plan.value.content)
 const selectedNodeId = ref<number>(NaN)
 const selectedNode = ref<Node | undefined>(undefined)
 const highlightedNodeId = ref<number>(NaN)
@@ -132,28 +132,17 @@ onBeforeMount(() => {
   }
   console.log(planJson)
   queryText.value = planJson["query_name"] || props.planQuery
-  console.log(queryText.value)
+  console.log("Query Name: " + queryText.value)
   plan.value = planService.createPlan("", planJson, queryText.value)
   const content = plan.value.content
-  planStats.executionTime =
-    // (content["Execution Time"] as number) ||
-    // (content["Total Runtime"] as number) ||
-    (content[NodeProp.CPU_TIME] as number) || NaN
-  planStats.operatorTiming = content[NodeProp.ACTUAL_TOTAL_TIME]
-  planStats.scannedRows = content[NodeProp.CUMULATIVE_ROWS_SCANNED]
-  planStats.operatorRows = content[NodeProp.ESTIMATED_ROWS]
-  // planStats.planningTime = (content["Planning Time"] as number) || NaN
+  planStats.executionTime = (content[NodeProp.CPU_TIME] as number) || NaN
   planStats.maxRows = content.maxRows || NaN
-  // planStats.maxCost = content.maxCost || NaN
+  planStats.maxRowsScanned = content.maxRowsScanned || NaN
+  planStats.maxEstimatedRows = content.maxEstimatedRows || NaN
   planStats.maxDuration = content.maxDuration || NaN
-  // planStats.maxBlocks = content.maxBlocks || ({} as IBlocksStats)
-  // planStats.maxIo = content.maxIo || NaN
-  planStats.maxEstimateFactor = content.maxEstimateFactor || NaN
-  // planStats.triggers = content.Triggers || []
-  // planStats.jitTime =
-  //   (content.JIT && content.JIT.Timing && content.JIT.Timing.Total) || NaN
   planStats.settings = content.Settings as Settings
   plan.value.planStats = planStats
+  console.log(plan.value.planStats)
 
   nextTick(() => {
     onHashChange()
@@ -434,6 +423,8 @@ function updateNodeSize(node: Node, size: [number, number]) {
 }
 </script>
 
+
+<!-- TODO: template anpassen -->
 <template>
   <div v-if="!parsed" class="flex-grow-1 d-flex justify-content-center">
     <div class="card align-self-center border-danger w-50">
@@ -585,7 +576,7 @@ function updateNodeSize(node: Node, size: [number, number]) {
                         v-on:click="
                           viewOptions.highlightType = HighlightType.DURATION
                         "
-                        :disabled="!plan.isAnalyze"
+                        :disabled="false/*!plan.isAnalyze*/"
                       >
                         duration
                       </button>

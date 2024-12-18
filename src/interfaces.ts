@@ -19,16 +19,18 @@ export interface IPlan {
 }
 
 export interface IPlanContent {
-  Plan: Node
+  // Plan: Node //NOT NEEDED FOR DDB
   maxRows?: number
-  maxCost?: number
-  maxTotalCost?: number
+  maxRowsScanned ?: number
+  maxEstimatedRows ?: number
+  // maxCost?: number //NOT NEEDED FOR DDB
+  // maxTotalCost?: number //NOT NEEDED FOR DDB
   maxDuration?: number
-  maxBlocks?: IBlocksStats
-  maxIo?: number
-  maxEstimateFactor?: number
-  Triggers?: ITrigger[] //NOT NEEDED FOR DDB
-  JIT?: JIT //NOT NEEDED FOR DDB
+  // maxBlocks?: IBlocksStats //NOT NEEDED FOR DDB
+  // maxIo?: number //NOT NEEDED FOR DDB
+  // maxEstimateFactor?: number //NOT NEEDED FOR DDB
+  // Triggers?: ITrigger[] //NOT NEEDED FOR DDB
+  // JIT?: JIT //NOT NEEDED FOR DDB
   "Query Text"?: string
   [k: string]:
     | Node
@@ -49,18 +51,16 @@ export interface ITrigger {
 }
 
 export interface IPlanStats {
-  // MAYBE NOT NEEDED FOR DDB
   executionTime?: number
-  scannedRows: number
-  operatorRows: number
-  operatorTiming: number
   // planningTime?: number // NOT NEEDED FOR DDB
   maxRows: number
+  maxRowsScanned: number
+  maxEstimatedRows: number
   // maxCost: number // NOT NEEDED FOR DDB
   maxDuration: number
   // maxBlocks: IBlocksStats // NOT NEEDED FOR DDB
   // maxIo: number // NOT NEEDED FOR DDB
-  maxEstimateFactor: number
+  // maxEstimateFactor: number // NOT NEEDED FOR DDB
   // triggers?: ITrigger[] // NOT NEEDED FOR DDB
   // jitTime?: number // NOT NEEDED FOR DDB
   settings?: Settings

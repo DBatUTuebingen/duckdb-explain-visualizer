@@ -64,8 +64,7 @@ export class PlanService {
     this.nodeId = 1
     this.processNode(planContent.children[0], plan)
     this.calculateMaximums(plan)
-    console.log("maxRows: " + plan.content.maxRows)
-    console.log("maxDuration: " + plan.content.maxDuration)
+    this.calculateExecutionTime(plan)
     return plan
   }
 
@@ -95,10 +94,8 @@ export class PlanService {
       //     node[NodeProp.WORKERS_PLANNED_BY_GATHER]
       // }
       if (this.isCTE(child)) {
-        console.log("CTEEEEEEEEEE ISCH DAAA")
         plan.ctes.push(child)
       }
-      console.log("keine CTE für dich :(")
       this.processNode(child, plan)
     })
 
@@ -125,7 +122,17 @@ export class PlanService {
       flat = flat.concat(_.flattenDeep(recurse([cte as Node])))
     })
 
-    const largest = _.maxBy(flat, function(node) {
+    const largest = _.maxBy(flat, NodeProp.ACTUAL_ROWS)
+    if (largest) {
+      plan.content.maxRows = largest[NodeProp.ACTUAL_ROWS] as number
+    }
+
+    const largestScanned = _.maxBy(flat, NodeProp.OPERATOR_ROWS_SCANNED)
+    if (largestScanned) {
+      plan.content.maxRowsScanned = largestScanned[NodeProp.OPERATOR_ROWS_SCANNED] as number
+    }
+
+    const largestEstimate = _.maxBy(flat, function(node) {
       const cardinality: number = node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS]
       if (cardinality != null) {
         return cardinality
@@ -133,14 +140,20 @@ export class PlanService {
         return 0
       }
     })
-    if (largest) {
-      plan.content.maxRows = largest[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] as number
+    if (largestEstimate) {
+      plan.content.maxEstimatedRows = parseInt(
+        largestEstimate[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS]
+      ) as number
     }
 
     const slowest = _.maxBy(flat, NodeProp.ACTUAL_TOTAL_TIME)
     if (slowest) {
       plan.content.maxDuration = slowest[NodeProp.ACTUAL_TOTAL_TIME] as number
     }
+  }
+
+  public calculateExecutionTime(plan: IPlan) {
+    // TODO: implement
   }
 
   // actual duration and actual cost are calculated by subtracting child values from the total
