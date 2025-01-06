@@ -130,11 +130,14 @@ onBeforeMount(() => {
     plan.value = undefined
     return
   }
-  console.log(planJson)
+  // console.log("PARSED JSON: ")
+  // console.log(planJson)
   queryText.value = planJson["query_name"] || props.planQuery
-  console.log("Query Name: " + queryText.value)
+  // console.log("Query Name: " + queryText.value)
   plan.value = planService.createPlan("", planJson, queryText.value)
   const content = plan.value.content
+  console.log("CREATED PLAN: ")
+  console.log(content)
   planStats.executionTime = (content[NodeProp.CPU_TIME] as number) || NaN
   planStats.maxRows = content.maxRows || NaN
   planStats.maxRowsScanned = content.maxRowsScanned || NaN
@@ -142,18 +145,18 @@ onBeforeMount(() => {
   planStats.maxDuration = content.maxDuration || NaN
   planStats.settings = content.Settings as Settings
   plan.value.planStats = planStats
-  console.log(plan.value.planStats)
+  // console.log(plan.value.planStats)
 
   nextTick(() => {
     onHashChange()
   })
   window.addEventListener("hashchange", onHashChange)
   if (rootNode.value) {
-    tree.value = layout.hierarchy(rootNode.value, (v: Node) => v.Plans)
+    tree.value = layout.hierarchy(rootNode.value, (node: Node) => node[NodeProp.PLANS])
   }
   ctes.value = []
   _.each(plan.value?.ctes, (cte) => {
-    const tree = layout.hierarchy(cte, (v: Node) => v.Plans)
+    const tree = layout.hierarchy(cte, (node: Node) => node[NodeProp.PLANS])
     ctes.value.push(tree)
   })
   doLayout()
