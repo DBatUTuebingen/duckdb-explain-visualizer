@@ -181,44 +181,45 @@ function doLayout() {
     offset[0] += currentWidth + padding * 2
   })
 
-  // compute links from node to CTE
-  toCteLinks.value = []
-  _.each(layoutRootNode.value.descendants(), (source) => {
-    if (_.has(source.data, NodeProp.CTE_NAME)) {
-      const cte = _.find(ctes.value, (cteNode) => {
-        return (
-          cteNode.data[NodeProp.SUBPLAN_NAME] ==
-          "CTE " + source.data[NodeProp.CTE_NAME]
-        )
-      })
-      if (cte) {
-        toCteLinks.value.push({
-          source: source,
-          target: cte,
-        })
-      }
-    }
-  })
-
-  // compute links from node in CTE to other CTE
-  _.each(ctes.value, (cte) => {
-    _.each(cte.descendants(), (sourceCte) => {
-      if (_.has(sourceCte.data, NodeProp.CTE_NAME)) {
-        const targetCte = _.find(ctes.value, (cteNode) => {
-          return (
-            cteNode.data[NodeProp.SUBPLAN_NAME] ==
-            "CTE " + sourceCte.data[NodeProp.CTE_NAME]
-          )
-        })
-        if (targetCte) {
-          toCteLinks.value.push({
-            source: sourceCte,
-            target: targetCte,
-          })
-        }
-      }
-    })
-  })
+  // TESTING WITHOUT IT, BECAUSE MAYBE NOT NEEDED FOR DUCKDB
+  //// compute links from node to CTE
+  // toCteLinks.value = []
+  // _.each(layoutRootNode.value.descendants(), (source) => {
+  //   if (_.has(source.data, NodeProp.CTE_NAME)) {
+  //     const cte = _.find(ctes.value, (cteNode) => {
+  //       return (
+  //         cteNode.data[NodeProp.SUBPLAN_NAME] ==
+  //         "CTE " + source.data[NodeProp.CTE_NAME]
+  //       )
+  //     })
+  //     if (cte) {
+  //       toCteLinks.value.push({
+  //         source: source,
+  //         target: cte,
+  //       })
+  //     }
+  //   }
+  // })
+  //
+  // // compute links from node in CTE to other CTE
+  // _.each(ctes.value, (cte) => {
+  //   _.each(cte.descendants(), (sourceCte) => {
+  //     if (_.has(sourceCte.data, NodeProp.CTE_NAME)) {
+  //       const targetCte = _.find(ctes.value, (cteNode) => {
+  //         return (
+  //           cteNode.data[NodeProp.SUBPLAN_NAME] ==
+  //           "CTE " + sourceCte.data[NodeProp.CTE_NAME]
+  //         )
+  //       })
+  //       if (targetCte) {
+  //         toCteLinks.value.push({
+  //           source: sourceCte,
+  //           target: targetCte,
+  //         })
+  //       }
+  //     }
+  //   })
+  // })
 }
 
 onMounted(() => {
@@ -396,6 +397,7 @@ function getLayoutExtent(
 }
 
 function isNeverExecuted(node: Node): boolean {
+  // TODO: maybe needed to be changed
   return !!planStats.executionTime && !node[NodeProp.ACTUAL_LOOPS]
 }
 

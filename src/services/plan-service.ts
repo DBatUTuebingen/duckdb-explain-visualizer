@@ -93,13 +93,14 @@ export class PlanService {
       //     node[NodeProp.WORKERS_PLANNED] ||
       //     node[NodeProp.WORKERS_PLANNED_BY_GATHER]
       // }
-      if (this.isCTE(child)) {
-        plan.ctes.push(child)
-      }
+      // TESTING WITHOUT IT, BECAUSE MAYBE NOT NEEDED FOR DUCKDB (*)
+      // if (this.isCTE(child)) {
+      //   plan.ctes.push(child)
+      // }
       this.processNode(child, plan)
     })
-
-    _.remove(node[NodeProp.PLANS], (child) => this.isCTE(child))
+    // TESTING WITHOUT IT, BECAUSE MAYBE NOT NEEDED FOR DUCKDB (*)
+    // _.remove(node[NodeProp.PLANS], (child) => this.isCTE(child))
 
     // calculate actuals after processing child nodes so that actual duration
     // takes loops into account
