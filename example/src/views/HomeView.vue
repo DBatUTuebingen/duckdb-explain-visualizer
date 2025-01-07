@@ -51,20 +51,21 @@ interface Sample extends Array<string> {
 }
 
 const samples = ref<Sample[]>([
-  ["Example 1 TEXT", plan1_source, plan1_query],
-  ["Example 1 JSON", plan1_source_json, plan1_query],
-  ["Example 2", plan2_source, plan2_query],
-  ["Example 3", plan3_source, plan3_query],
-  ["Example 5", plan5_source, plan5_query],
-  ["With subplan", plan6_source, ""],
-  ["With Buffers", plan7_source, plan7_query],
-  ["With CTE", plan9_source, plan9_query],
-  ["With CTEs", plan4_source, ""],
-  ["Very large plan", plan8_source, ""],
-  ["With trigger", plan_trigger_2_source, plan_trigger_2_query],
-  ["With trigger (plain text)", plan_trigger_source, plan_trigger_query],
-  ["Parallel (verbose)", plan_parallel_source, ""],
-  ["Parallel (4 workers)", plan_parallel_2_source, plan_parallel_2_query],
+  ["NO SAMPLES YET", null, null]
+  // ["Example 1 TEXT", plan1_source, plan1_query],
+  // ["Example 1 JSON", plan1_source_json, plan1_query],
+  // ["Example 2", plan2_source, plan2_query],
+  // ["Example 3", plan3_source, plan3_query],
+  // ["Example 5", plan5_source, plan5_query],
+  // ["With subplan", plan6_source, ""],
+  // ["With Buffers", plan7_source, plan7_query],
+  // ["With CTE", plan9_source, plan9_query],
+  // ["With CTEs", plan4_source, ""],
+  // ["Very large plan", plan8_source, ""],
+  // ["With trigger", plan_trigger_2_source, plan_trigger_2_query],
+  // ["With trigger (plain text)", plan_trigger_source, plan_trigger_query],
+  // ["Parallel (verbose)", plan_parallel_source, ""],
+  // ["Parallel (4 workers)", plan_parallel_2_source, plan_parallel_2_query],
 ])
 
 function submitPlan() {
@@ -154,23 +155,19 @@ function handleDrop(event: DragEvent) {
     <div class="container">
       <div class="alert alert-warning">
         This is the demo application for
-        <a href="https://github.com/dalibo/pev2">PEV2</a>. It is serverless and
-        doesn't store your plans.
+        <a href="https://github.com/DBatUTuebingen/pev2">DEV</a>. It is serverless and
+        only stores your plans local.
         <br />
-        Please consider using
-        <a href="https://explain.dalibo.com">explain.dalibo.com</a> instead if
-        you want to save or share your plans.
       </div>
       <div class="row mb-3">
         <div class="col d-flex">
           <div class="text-secondary">
-            For best results, use
-            <code>
-              EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON)
-            </code>
-            <br />
-            <em>psql</em> users can export the plan to a file using
-            <code>psql -XqAt -f explain.sql > analyze.json</code>
+            Generate a json query plan using
+            the following lines in any terminal running the DuckDB CLI: <br>
+            <code>PRAGMA enable_profiling = 'json';</code> <br>
+            <code>EXPLAIN ANALYZE [your-query-here];</code> <br>
+            It is recommend submitting a (decently formatted) SQL query that generated
+            the plan.
           </div>
           <div class="dropdown ms-auto">
             <button
@@ -202,7 +199,7 @@ function handleDrop(event: DragEvent) {
           <form v-on:submit.prevent="submitPlan">
             <div class="mb-3">
               <label for="planInput" class="form-label">
-                Plan <span class="small text-secondary">(text or JSON)</span>
+                Plan <span class="small text-secondary">(<!--text or -->JSON)</span>
               </label>
               <textarea
                 :class="['form-control', draggingPlan ? 'dropzone-over' : '']"
@@ -218,7 +215,7 @@ function handleDrop(event: DragEvent) {
             </div>
             <div class="mb-3">
               <label for="queryInput" class="form-label">
-                Query <span class="small text-secondary">(optional)</span>
+                Query <span class="small text-secondary">(<!--optional-->does not work yet)</span>
               </label>
               <textarea
                 :class="['form-control', draggingQuery ? 'dropzone-over' : '']"
