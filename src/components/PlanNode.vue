@@ -168,19 +168,21 @@ function centerCte() {
           <div class="text-start font-monospace">
             <div
               v-if="
-                node[NodeProp.RELATION_NAME] || node[NodeProp.FUNCTION_NAME]
+                node[NodeProp.EXTRA_INFO][NodeProp.RELATION_NAME]
               "
               :class="{ 'line-clamp-2': !showDetails }"
             >
-              <span class="text-secondary">on</span>
-              <span v-if="node[NodeProp.SCHEMA]"
-                >{{ node[NodeProp.SCHEMA] }}.</span
-              >{{ node[NodeProp.RELATION_NAME] }}
-              {{ node[NodeProp.FUNCTION_NAME] }}
-              <span v-if="node[NodeProp.ALIAS]">
-                <span class="text-secondary">as</span>
-                {{ node[NodeProp.ALIAS] }}
-              </span>
+              <span class="text-secondary">on </span>
+              {{ node[NodeProp.EXTRA_INFO][NodeProp.RELATION_NAME] }}
+            </div>
+            <div
+              v-if="
+                node[NodeProp.EXTRA_INFO][NodeProp.FUNCTION]
+              "
+              :class="{ 'line-clamp-2': !showDetails }"
+            >
+              <span class="text-secondary">with </span>
+              {{ node[NodeProp.EXTRA_INFO][NodeProp.FUNCTION] }}
             </div>
             <div
               v-else-if="node[NodeProp.ALIAS]"
@@ -192,12 +194,12 @@ function centerCte() {
               ></span>
             </div>
             <div
-              v-if="node[NodeProp.GROUP_KEY]"
+              v-if="node[NodeProp.EXTRA_INFO][NodeProp.GROUPS]"
               :class="{ 'line-clamp-2': !showDetails }"
             >
               <span class="text-secondary">by</span>
               <span
-                v-html="keysToString(node[NodeProp.GROUP_KEY] as string)"
+                v-html="keysToString(node[NodeProp.EXTRA_INFO][NodeProp.GROUPS] as string)"
               ></span>
             </div>
             <div
@@ -214,36 +216,37 @@ function centerCte() {
                 "
               ></span>
             </div>
-            <div v-if="node[NodeProp.JOIN_TYPE]">
-              {{ node[NodeProp.JOIN_TYPE] }}
+            <div v-if="node[NodeProp.EXTRA_INFO][NodeProp.JOIN_TYPE]">
+              {{ node[NodeProp.EXTRA_INFO][NodeProp.JOIN_TYPE] }}
               <span class="text-secondary">join</span>
             </div>
             <div
-              v-if="node[NodeProp.INDEX_NAME]"
+              v-if="node[NodeProp.EXTRA_INFO][NodeProp.PROJECTIONS]"
               :class="{ 'line-clamp-2': !showDetails }"
             >
-              <span class="text-secondary">using</span>
-              <span
-                v-html="keysToString(node[NodeProp.INDEX_NAME] as string)"
-              ></span>
+              <span class="text-secondary">projects</span>
+            {{ node[NodeProp.EXTRA_INFO][NodeProp.PROJECTIONS] }}
+            </div>
+            <div v-if="node[NodeProp.EXTRA_INFO][NodeProp.FUNCTION_NAME]">
+              {{ node[NodeProp.EXTRA_INFO][NodeProp.FUNCTION_NAME] }}
             </div>
             <div
-              v-if="node[NodeProp.HASH_CONDITION]"
+              v-if="node[NodeProp.EXTRA_INFO][NodeProp.CONDITIONS]"
               :class="{ 'line-clamp-2': !showDetails }"
             >
               <span class="text-secondary">on</span>
               <span
-                v-html="keysToString(node[NodeProp.HASH_CONDITION] as string)"
+                v-html="keysToString(node[NodeProp.EXTRA_INFO][NodeProp.CONDITIONS] as string)"
               ></span>
             </div>
-            <div v-if="node[NodeProp.CTE_NAME]">
+            <div v-if="node[NodeProp.EXTRA_INFO][NodeProp.CTE_NAME]">
               <a class="text-reset" href="" @click.prevent.stop="centerCte">
                 <FontAwesomeIcon
                   :icon="faSearch"
                   class="text-secondary"
                 ></FontAwesomeIcon>
                 <span class="text-secondary">CTE</span>
-                {{ node[NodeProp.CTE_NAME] }}
+                {{ node[NodeProp.EXTRA_INFO][NodeProp.CTE_NAME] }}
               </a>
             </div>
           </div>
