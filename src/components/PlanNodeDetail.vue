@@ -143,18 +143,6 @@ watch(activeTab, () => {
       </li>
       <li class="nav-item">
         <a
-          class="nav-link text-nowrap"
-          :class="{
-            active: activeTab === 'iobuffer',
-            disabled: !shouldShowIoBuffers,
-          }"
-          @click.prevent.stop="activeTab = 'iobuffer'"
-          href=""
-          >IO & Buffers</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
           class="nav-link"
           :class="{
             active: activeTab === 'output',
@@ -163,21 +151,6 @@ watch(activeTab, () => {
           @click.prevent.stop="activeTab = 'output'"
           href=""
           >Output</a
-        >
-      </li>
-      <li class="nav-item">
-        <a
-          class="nav-link"
-          :class="{
-            active: activeTab === 'workers',
-            disabled: !(
-              node[NodeProp.WORKERS_PLANNED] ||
-              node[NodeProp.WORKERS_PLANNED_BY_GATHER]
-            ),
-          }"
-          @click.prevent.stop="activeTab = 'workers'"
-          href=""
-          >Workers</a
         >
       </li>
       <li class="nav-item">
@@ -194,7 +167,7 @@ watch(activeTab, () => {
   <div class="card-body tab-content">
     <div class="tab-pane" :class="{ 'show active': activeTab === 'general' }">
       <!-- general -->
-      <div v-if="plan.isAnalyze">
+      <div v-if="true">
         <FontAwesomeIcon
           fixed-width
           :icon="faClock"
@@ -204,7 +177,7 @@ watch(activeTab, () => {
         <span
           class="p-0 px-1 rounded alert"
           :class="durationClass"
-          v-html="formattedProp('EXCLUSIVE_DURATION')"
+          v-html="formattedProp('ACTUAL_TOTAL_TIME')"
         ></span>
         <template v-if="executionTimePercent !== Infinity">
           |
@@ -219,12 +192,10 @@ watch(activeTab, () => {
           class="text-secondary"
         ></FontAwesomeIcon>
         <b>Rows:</b>
-        <span class="px-1">{{
-          tilde + formattedProp("ACTUAL_ROWS_REVISED")
-        }}</span>
-        <span class="text-secondary" v-if="node[NodeProp.PLAN_ROWS]"
-          >(Planned: {{ tilde + formattedProp("PLAN_ROWS_REVISED") }})</span
-        >
+        <span class="px-1">{{ tilde + formattedProp("ACTUAL_ROWS") }}</span>
+        <span class="text-secondary" v-if="node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS]"
+          >(Estimated: {{ tilde + node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] }})</span>
+        <span class="text-secondary">(Scanned: {{ tilde + node[NodeProp.CUMULATIVE_ROWS_SCANNED] }})</span>
         <span
           v-if="
             plannerRowEstimateDirection !== EstimateDirection.none &&
@@ -308,120 +279,7 @@ watch(activeTab, () => {
           >(Total: {{ formattedProp("TOTAL_COST") }})</span
         >
       </div>
-      <div v-if="node[NodeProp.ACTUAL_LOOPS] > 1">
-        <FontAwesomeIcon
-          fixed-width
-          :icon="faUndo"
-          class="text-secondary"
-        ></FontAwesomeIcon>
-        <b>Loops:</b>
-        <span class="px-1">{{ formattedProp("ACTUAL_LOOPS") }} </span>
-      </div>
       <!-- general tab -->
-    </div>
-    <div class="tab-pane" :class="{ 'show active': activeTab === 'iobuffer' }">
-      <!-- iobuffer tab -->
-      <dl
-        v-if="
-          node[NodeProp.EXCLUSIVE_IO_READ_TIME] ||
-          node[NodeProp.EXCLUSIVE_IO_WRITE_TIME]
-        "
-        class="mb-2 list-inline"
-      >
-        <dt class="list-inline-item align-top">
-          <b> I/O Timings: </b>
-        </dt>
-        <dd class="list-inline-item">
-          <span v-if="node[NodeProp.EXCLUSIVE_IO_READ_TIME]" class="ms-2">
-            <b>Read:&nbsp;</b>
-            {{ formattedProp("EXCLUSIVE_IO_READ_TIME") }}
-            <small>~{{ formattedProp("AVERAGE_IO_READ_TIME") }}</small>
-          </span>
-          <br />
-          <span v-if="node[NodeProp.EXCLUSIVE_IO_WRITE_TIME]" class="ms-2">
-            <b>Write:&nbsp;</b>
-            {{ formattedProp("EXCLUSIVE_IO_WRITE_TIME") }}
-            <small>~{{ formattedProp("AVERAGE_IO_WRITE_TIME") }}</small>
-          </span>
-        </dd>
-      </dl>
-      <b> Blocks: </b>
-      <table class="table table-sm">
-        <tr>
-          <td></td>
-          <th class="text-end" width="25%">Hit</th>
-          <th class="text-end" width="25%">Read</th>
-          <th class="text-end" width="25%">Dirtied</th>
-          <th class="text-end" width="25%">Written</th>
-        </tr>
-        <tr>
-          <th>Shared</th>
-          <td
-            class="text-end"
-            v-html="formattedProp('EXCLUSIVE_SHARED_HIT_BLOCKS') || '-'"
-          ></td>
-          <td
-            class="text-end"
-            v-html="formattedProp('EXCLUSIVE_SHARED_READ_BLOCKS') || '-'"
-          ></td>
-          <td
-            class="text-end"
-            v-html="formattedProp('EXCLUSIVE_SHARED_DIRTIED_BLOCKS') || '-'"
-          ></td>
-          <td
-            class="text-end"
-            v-html="formattedProp('EXCLUSIVE_SHARED_WRITTEN_BLOCKS') || '-'"
-          ></td>
-        </tr>
-        <tr>
-          <th>Temp</th>
-          <td class="text-end bg-hatched"></td>
-          <td
-            class="text-end"
-            v-html="formattedProp('EXCLUSIVE_TEMP_READ_BLOCKS') || '-'"
-          ></td>
-          <td class="text-end bg-hatched"></td>
-          <td
-            class="text-end"
-            v-html="formattedProp('EXCLUSIVE_TEMP_WRITTEN_BLOCKS') || '-'"
-          ></td>
-        </tr>
-        <tr>
-          <th>Local</th>
-          <td
-            class="text-end"
-            v-html="formattedProp('EXCLUSIVE_LOCAL_HIT_BLOCKS') || '-'"
-          ></td>
-          <td
-            class="text-end"
-            v-html="formattedProp('EXCLUSIVE_LOCAL_READ_BLOCKS') || '-'"
-          ></td>
-          <td
-            class="text-end"
-            v-html="formattedProp('EXCLUSIVE_LOCAL_DIRTIED_BLOCKS') || '-'"
-          ></td>
-          <td
-            class="text-end"
-            v-html="formattedProp('EXCLUSIVE_LOCAL_WRITTEN_BLOCKS') || '-'"
-          ></td>
-        </tr>
-      </table>
-      <div
-        v-if="node[NodeProp.WAL_RECORDS] || node[NodeProp.WAL_BYTES]"
-        class="mb-2"
-      >
-        <b>
-          <span class="more-info" v-tippy="'Write-Ahead Logging'">WAL</span>:
-        </b>
-        {{ formattedProp("WAL_RECORDS") }} records
-        <small>({{ formattedProp("WAL_BYTES") }})</small>
-        <span v-if="node[NodeProp.WAL_FPI]">
-          -
-          <span class="more-info" v-tippy="'WAL Full Page Images'">FPI</span>:
-          {{ formattedProp("WAL_FPI") }}
-        </span>
-      </div>
-      <!-- iobuffer tab -->
     </div>
     <div
       class="tab-pane overflow-auto font-monospace"
@@ -430,17 +288,6 @@ watch(activeTab, () => {
       style="max-height: 200px"
       @mousewheel.stop
     ></div>
-    <div
-      class="tab-pane"
-      :class="{ 'show active': activeTab === 'workers' }"
-      v-if="
-        node[NodeProp.WORKERS_PLANNED] ||
-        node[NodeProp.WORKERS_PLANNED_BY_GATHER]
-      "
-    >
-      <!-- workers tab -->
-      <workers-detail :node="node" />
-    </div>
     <div class="tab-pane" :class="{ 'show active': activeTab === 'misc' }">
       <!-- misc tab -->
       <misc-detail :node="node" />
