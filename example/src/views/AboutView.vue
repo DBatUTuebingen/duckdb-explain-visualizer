@@ -7,45 +7,48 @@ import MainLayout from "../layouts/MainLayout.vue"
     <div class="container">
       <h2>Disclaimer</h2>
       <p>
-        This project is a rewrite of the excellent
-        <a href="https://github.com/AlexTatiyants/pev"
-          >Postgres Explain Visualizer (pev)</a
-        >. Kudos go to Alex Tatiyants.
+        This project is based on
+        <a href="https://github.com/dalibo/pev2"
+          >Postgres Explain Visualizer 2 (pev2)</a
+        >. Kudos go to
+        <a href="https://github.com/pgiraud"
+          >Pierre Giraud</a>.
       </p>
 
-      <p>
-        The pev project was initialy written in early 2016 but seem to be
-        abandonned since then. There was no activity at all for more than
-        <a href="https://github.com/AlexTatiyants/pev/issues/42"
-          >3 years and counting</a
-        >
-        though there are
-        <a href="https://github.com/AlexTatiyants/pev/issues"
-          >several issues open</a
-        >
-        and relevant pull requests pending.
-      </p>
+<!--      <p>-->
+<!--        The pev project was initialy written in early 2016 but seem to be-->
+<!--        abandonned since then. There was no activity at all for more than-->
+<!--        <a href="https://github.com/AlexTatiyants/pev/issues/42"-->
+<!--          >3 years and counting</a-->
+<!--        >-->
+<!--        though there are-->
+<!--        <a href="https://github.com/AlexTatiyants/pev/issues"-->
+<!--          >several issues open</a-->
+<!--        >-->
+<!--        and relevant pull requests pending.-->
+<!--      </p>-->
 
-      <h2>Usage tips</h2>
+      <h2>How To Use</h2>
       <p>
-        To get the most out of it, we recommend generating a query plan using
-        the following line:
-        <code>EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON)</code>. It
-        is recommend submitting a (decently formatted) SQL query that generated
+        Generate a json query plan using
+        the following lines in any terminal running the DuckDB CLI: <br>
+        <code>PRAGMA enable_profiling = 'json';</code> <br>
+        <code>EXPLAIN ANALYZE [your-query-here];</code> <br>
+        It is recommend submitting a (decently formatted) SQL query that generated
         the plan.
       </p>
-      <p>
-        PEV2 can also parse text although the JSON format usually has better
-        support.
-      </p>
+<!--      <p>-->
+<!--        DEV can also parse text although the JSON format usually has better-->
+<!--        support.-->
+<!--      </p>-->
 
-      <h2>Help improve PEV2</h2>
-      <p>You can help us.</p>
+<!--      <h2>Help improve DEV</h2>-->
+<!--      <p>You can help us.</p>-->
 
-      <p>
-        Report issues or contribute to the code on
-        <a href="https://github.com/dalibo/pev2">Github</a>.
-      </p>
+<!--      <p>-->
+<!--        Report issues or contribute to the code on-->
+<!--        <a href="https://github.com/DBatUTuebingen/pev2">Github</a>.-->
+<!--      </p>-->
 
       <hr />
       <div class="text-center text-secondary">
