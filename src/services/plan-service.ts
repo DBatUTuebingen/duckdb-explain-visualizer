@@ -157,99 +157,99 @@ export class PlanService {
     // TODO: implement
   }
 
-  // actual duration and actual cost are calculated by subtracting child values from the total
-  public calculateActuals(node: Node) {
-    if (!_.isUndefined(node[NodeProp.ACTUAL_TOTAL_TIME])) {
-      // since time is reported for an invidual loop, actual duration must be adjusted by number of loops
-      // number of workers is also taken into account
-      const workers = (node[NodeProp.WORKERS_PLANNED_BY_GATHER] || 0) + 1
-      node[NodeProp.ACTUAL_TOTAL_TIME] =
-        ((node[NodeProp.ACTUAL_TOTAL_TIME] as number) *
-          (node[NodeProp.ACTUAL_LOOPS] as number)) /
-        workers
-      node[NodeProp.ACTUAL_STARTUP_TIME] =
-        ((node[NodeProp.ACTUAL_STARTUP_TIME] as number) *
-          (node[NodeProp.ACTUAL_LOOPS] as number)) /
-        workers
-      node[NodeProp.EXCLUSIVE_DURATION] = node[NodeProp.ACTUAL_TOTAL_TIME]
+  // // actual duration and actual cost are calculated by subtracting child values from the total
+  // public calculateActuals(node: Node) {
+  //   if (!_.isUndefined(node[NodeProp.ACTUAL_TOTAL_TIME])) {
+  //     // since time is reported for an invidual loop, actual duration must be adjusted by number of loops
+  //     // number of workers is also taken into account
+  //     const workers = (node[NodeProp.WORKERS_PLANNED_BY_GATHER] || 0) + 1
+  //     node[NodeProp.ACTUAL_TOTAL_TIME] =
+  //       ((node[NodeProp.ACTUAL_TOTAL_TIME] as number) *
+  //         (node[NodeProp.ACTUAL_LOOPS] as number)) /
+  //       workers
+  //     node[NodeProp.ACTUAL_STARTUP_TIME] =
+  //       ((node[NodeProp.ACTUAL_STARTUP_TIME] as number) *
+  //         (node[NodeProp.ACTUAL_LOOPS] as number)) /
+  //       workers
+  //     node[NodeProp.EXCLUSIVE_DURATION] = node[NodeProp.ACTUAL_TOTAL_TIME]
+  //
+  //     const duration =
+  //       (node[NodeProp.EXCLUSIVE_DURATION] as number) -
+  //       this.childrenDuration(node, 0)
+  //     node[NodeProp.EXCLUSIVE_DURATION] = duration > 0 ? duration : 0
+  //   }
+  //
+  //   if (node[NodeProp.TOTAL_COST]) {
+  //     node[NodeProp.EXCLUSIVE_COST] = node[NodeProp.TOTAL_COST]
+  //   }
+  //
+  //   _.each(node[NodeProp.PLANS], (subPlan) => {
+  //     if (
+  //       subPlan[NodeProp.PARENT_RELATIONSHIP] !== "InitPlan" &&
+  //       subPlan[NodeProp.TOTAL_COST]
+  //     ) {
+  //       node[NodeProp.EXCLUSIVE_COST] =
+  //         (node[NodeProp.EXCLUSIVE_COST] as number) -
+  //         (subPlan[NodeProp.TOTAL_COST] as number)
+  //     }
+  //   })
+  //
+  //   if ((node[NodeProp.EXCLUSIVE_COST] as number) < 0) {
+  //     node[NodeProp.EXCLUSIVE_COST] = 0
+  //   }
+  //
+  //   _.each(
+  //     [
+  //       "ACTUAL_ROWS",
+  //       "PLAN_ROWS",
+  //       "ROWS_REMOVED_BY_FILTER",
+  //       "ROWS_REMOVED_BY_JOIN_FILTER",
+  //     ],
+  //     (prop: keyof typeof NodeProp) => {
+  //       if (!_.isUndefined(node[NodeProp[prop]])) {
+  //         const revisedProp = (prop + "_REVISED") as keyof typeof NodeProp
+  //         const loops = node[NodeProp.ACTUAL_LOOPS] || 1
+  //         const revised = <number>node[NodeProp[prop]] * loops
+  //         node[NodeProp[revisedProp] as unknown as keyof typeof Node] = revised
+  //       }
+  //     }
+  //   )
+  // }
 
-      const duration =
-        (node[NodeProp.EXCLUSIVE_DURATION] as number) -
-        this.childrenDuration(node, 0)
-      node[NodeProp.EXCLUSIVE_DURATION] = duration > 0 ? duration : 0
-    }
+  // // recursive function to get the sum of actual durations of a a node children
+  // public childrenDuration(node: Node, duration: number) {
+  //   _.each(node[NodeProp.PLANS], (child) => {
+  //     // Subtract sub plans duration from this node except for InitPlans
+  //     // (ie. CTE)
+  //     if (child[NodeProp.PARENT_RELATIONSHIP] !== "InitPlan") {
+  //       duration += child[NodeProp.EXCLUSIVE_DURATION] || 0 // Duration may not be set
+  //       duration = this.childrenDuration(child, duration)
+  //     }
+  //   })
+  //   return duration
+  // }
 
-    if (node[NodeProp.TOTAL_COST]) {
-      node[NodeProp.EXCLUSIVE_COST] = node[NodeProp.TOTAL_COST]
-    }
-
-    _.each(node[NodeProp.PLANS], (subPlan) => {
-      if (
-        subPlan[NodeProp.PARENT_RELATIONSHIP] !== "InitPlan" &&
-        subPlan[NodeProp.TOTAL_COST]
-      ) {
-        node[NodeProp.EXCLUSIVE_COST] =
-          (node[NodeProp.EXCLUSIVE_COST] as number) -
-          (subPlan[NodeProp.TOTAL_COST] as number)
-      }
-    })
-
-    if ((node[NodeProp.EXCLUSIVE_COST] as number) < 0) {
-      node[NodeProp.EXCLUSIVE_COST] = 0
-    }
-
-    _.each(
-      [
-        "ACTUAL_ROWS",
-        "PLAN_ROWS",
-        "ROWS_REMOVED_BY_FILTER",
-        "ROWS_REMOVED_BY_JOIN_FILTER",
-      ],
-      (prop: keyof typeof NodeProp) => {
-        if (!_.isUndefined(node[NodeProp[prop]])) {
-          const revisedProp = (prop + "_REVISED") as keyof typeof NodeProp
-          const loops = node[NodeProp.ACTUAL_LOOPS] || 1
-          const revised = <number>node[NodeProp[prop]] * loops
-          node[NodeProp[revisedProp] as unknown as keyof typeof Node] = revised
-        }
-      }
-    )
-  }
-
-  // recursive function to get the sum of actual durations of a a node children
-  public childrenDuration(node: Node, duration: number) {
-    _.each(node[NodeProp.PLANS], (child) => {
-      // Subtract sub plans duration from this node except for InitPlans
-      // (ie. CTE)
-      if (child[NodeProp.PARENT_RELATIONSHIP] !== "InitPlan") {
-        duration += child[NodeProp.EXCLUSIVE_DURATION] || 0 // Duration may not be set
-        duration = this.childrenDuration(child, duration)
-      }
-    })
-    return duration
-  }
-
-  // figure out order of magnitude by which the planner mis-estimated how many rows would be
-  // invloved in this node
-  public calculatePlannerEstimate(node: Node) {
-    if (
-      node[NodeProp.ACTUAL_ROWS] !== undefined &&
-      node[NodeProp.PLAN_ROWS] !== undefined
-    ) {
-      node[NodeProp.PLANNER_ESTIMATE_FACTOR] =
-        node[NodeProp.ACTUAL_ROWS] / node[NodeProp.PLAN_ROWS]
-      node[NodeProp.PLANNER_ESTIMATE_DIRECTION] = EstimateDirection.none
-
-      if (node[NodeProp.ACTUAL_ROWS] > node[NodeProp.PLAN_ROWS]) {
-        node[NodeProp.PLANNER_ESTIMATE_DIRECTION] = EstimateDirection.under
-      }
-      if (node[NodeProp.ACTUAL_ROWS] < node[NodeProp.PLAN_ROWS]) {
-        node[NodeProp.PLANNER_ESTIMATE_DIRECTION] = EstimateDirection.over
-        node[NodeProp.PLANNER_ESTIMATE_FACTOR] =
-          node[NodeProp.PLAN_ROWS] / node[NodeProp.ACTUAL_ROWS]
-      }
-    }
-  }
+  // // figure out order of magnitude by which the planner mis-estimated how many rows would be
+  // // invloved in this node
+  // public calculatePlannerEstimate(node: Node) {
+  //   if (
+  //     node[NodeProp.ACTUAL_ROWS] !== undefined &&
+  //     node[NodeProp.PLAN_ROWS] !== undefined
+  //   ) {
+  //     node[NodeProp.PLANNER_ESTIMATE_FACTOR] =
+  //       node[NodeProp.ACTUAL_ROWS] / node[NodeProp.PLAN_ROWS]
+  //     node[NodeProp.PLANNER_ESTIMATE_DIRECTION] = EstimateDirection.none
+  //
+  //     if (node[NodeProp.ACTUAL_ROWS] > node[NodeProp.PLAN_ROWS]) {
+  //       node[NodeProp.PLANNER_ESTIMATE_DIRECTION] = EstimateDirection.under
+  //     }
+  //     if (node[NodeProp.ACTUAL_ROWS] < node[NodeProp.PLAN_ROWS]) {
+  //       node[NodeProp.PLANNER_ESTIMATE_DIRECTION] = EstimateDirection.over
+  //       node[NodeProp.PLANNER_ESTIMATE_FACTOR] =
+  //         node[NodeProp.PLAN_ROWS] / node[NodeProp.ACTUAL_ROWS]
+  //     }
+  //   }
+  // }
 
   public cleanupSource(source: string) {
     // Remove frames around, handles |, ║,
