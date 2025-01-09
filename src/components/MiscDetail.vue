@@ -43,8 +43,4 @@ function calculateProps() {
       </tr>
     </template>
   </table>
-
-  <div class="text-secondary text-end">
-    <em>* Calculated value</em>
-  </div>
 </template>
