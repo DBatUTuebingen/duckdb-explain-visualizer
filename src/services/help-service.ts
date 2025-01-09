@@ -298,6 +298,9 @@ export function findNodeBySubplanName(
 // the main panel or in other detailed tabs.
 const notMiscProperties: string[] = [
   NodeProp.NODE_TYPE,
+  NodeProp.EXTRA_INFO,
+  NodeProp.ACTUAL_TOTAL_TIME,
+  NodeProp.OPERATOR_ROWS_SCANNED,
   NodeProp.CTE_NAME,
   NodeProp.EXCLUSIVE_DURATION,
   NodeProp.EXCLUSIVE_COST,

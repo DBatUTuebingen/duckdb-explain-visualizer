@@ -95,8 +95,8 @@ export default function useNode(
     // use the first node total time if plan execution time is not available
     const executionTime =
       (plan.value.planStats.executionTime as number) ||
-      (plan.value.content?.Plan?.[NodeProp.ACTUAL_TOTAL_TIME] as number)
-    const duration = node[NodeProp.EXCLUSIVE_DURATION] as number
+      (plan.value.content?.Plan?.[NodeProp.CPU_TIME] as number)
+    const duration = node[NodeProp.ACTUAL_TOTAL_TIME] as number
     executionTimePercent.value = _.round((duration / executionTime) * 100)
   }
 

@@ -195,7 +195,7 @@ watch(activeTab, () => {
         <span class="px-1">{{ tilde + formattedProp("ACTUAL_ROWS") }}</span>
         <span class="text-secondary" v-if="node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS]"
           >(Estimated: {{ tilde + node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] }})</span>
-        <span class="text-secondary">(Scanned: {{ tilde + node[NodeProp.CUMULATIVE_ROWS_SCANNED] }})</span>
+        <span class="text-secondary">(Scanned: {{ tilde + node[NodeProp.OPERATOR_ROWS_SCANNED] }})</span>
         <span
           v-if="
             plannerRowEstimateDirection !== EstimateDirection.none &&

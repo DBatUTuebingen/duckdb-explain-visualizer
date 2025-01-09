@@ -165,7 +165,8 @@ function handleDrop(event: DragEvent) {
             Generate a json query plan using
             the following lines in any terminal running the DuckDB CLI: <br>
             <code>PRAGMA enable_profiling = 'json';</code> <br>
-            <code>EXPLAIN ANALYZE [your-query-here];</code> <br>
+            <code>PRAGMA profiling_output = '/path/to/file.json';</code> <br>
+            <code>[your-query-here]</code> <br>
             It is recommend submitting a (decently formatted) SQL query that generated
             the plan.
           </div>

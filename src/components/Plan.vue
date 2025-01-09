@@ -400,7 +400,7 @@ function getLayoutExtent(
 }
 
 function isNeverExecuted(node: Node): boolean {
-  return !!planStats.executionTime /*&& !node[NodeProp.ACTUAL_LOOPS]*/
+  return !!planStats.executionTime && (!node[NodeProp.ACTUAL_TOTAL_TIME])
 }
 
 watch(
@@ -430,7 +430,6 @@ function updateNodeSize(node: Node, size: [number, number]) {
 }
 </script>
 
-<!-- TODO: template anpassen -->
 <template>
   <div v-if="!parsed" class="flex-grow-1 d-flex justify-content-center">
     <div class="card align-self-center border-danger w-50">
