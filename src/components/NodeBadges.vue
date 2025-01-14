@@ -5,10 +5,8 @@ import { directive as vTippy } from "vue-tippy"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import {
   faClock,
-  faDollarSign,
-  faThumbsDown,
-  faFilter,
-  faExchangeAlt,
+  faMemory,
+  faThumbsDown
 } from "@fortawesome/free-solid-svg-icons"
 import useNode from "@/node"
 import type { IPlan, Node, ViewOptions } from "@/interfaces"
@@ -22,13 +20,9 @@ const plan = inject(PlanKey) as Ref<IPlan>
 const viewOptions = inject(ViewOptionsKey) as ViewOptions
 
 const {
-  rowsRemoved,
   resultClass,
   durationClass,
-  estimationClass,
-  rowsRemovedClass,
-  heapFetchesClass,
-  filterTooltip,
+  rowsClass
 } = useNode(plan, node, viewOptions)
 </script>
 <template>
@@ -41,47 +35,15 @@ const {
   <span
     v-if="resultClass"
     :class="'p-0  d-inline-block mb-0 ms-1 text-nowrap alert ' + resultClass"
-    v-tippy="'Cost is high'"
-    ><FontAwesomeIcon fixed-width :icon="faDollarSign"></FontAwesomeIcon
+    v-tippy="'Result is big'"
+    ><FontAwesomeIcon fixed-width :icon="faMemory"></FontAwesomeIcon
   ></span>
   <span
-    v-if="estimationClass"
+    v-if="rowsClass"
     :class="
-      'p-0  d-inline-block mb-0 ms-1 text-nowrap alert ' + estimationClass
+      'p-0  d-inline-block mb-0 ms-1 text-nowrap alert ' + rowsClass
     "
-    v-tippy="'Bad estimation for number of rows'"
+    v-tippy="'Many rows'"
     ><FontAwesomeIcon fixed-width :icon="faThumbsDown"></FontAwesomeIcon
   ></span>
-  <span
-    v-if="rowsRemovedClass"
-    :class="
-      'p-0  d-inline-block mb-0 ms-1 text-nowrap alert ' + rowsRemovedClass
-    "
-    v-tippy="filterTooltip"
-  >
-    <FontAwesomeIcon fixed-width :icon="faFilter"></FontAwesomeIcon>
-  </span>
-  <span
-    v-if="heapFetchesClass"
-    :class="
-      'p-0  d-inline-block mb-0 ms-1 text-nowrap alert ' + heapFetchesClass
-    "
-    v-tippy="{
-      arrow: true,
-      content: 'Heap Fetches number is high',
-    }"
-  >
-    <FontAwesomeIcon fixed-width :icon="faExchangeAlt"></FontAwesomeIcon>
-  </span>
-  <span
-    v-if="rowsRemoved && !rowsRemovedClass"
-    class="p-0 d-inline-block mb-0 ms-1 text-nowrap"
-    v-tippy="filterTooltip"
-  >
-    <FontAwesomeIcon
-      fixed-width
-      :icon="faFilter"
-      class="text-secondary"
-    ></FontAwesomeIcon>
-  </span>
 </template>
