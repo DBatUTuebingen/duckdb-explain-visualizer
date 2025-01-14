@@ -20,7 +20,7 @@ export default function useNode(
   const executionTimePercent = ref<number>(NaN)
   // UI flags
   // calculated properties
-  const costPercent = ref<number>(NaN)
+  const resultPercent = ref<number>(NaN)
   const barWidth = ref<number>(0)
   const highlightValue = ref<string | null>(null)
   const plannerRowEstimateValue = ref<number>()
@@ -32,7 +32,7 @@ export default function useNode(
   onBeforeMount(() => {
     calculateBar()
     calculateDuration()
-    calculateCost()
+    calculateResult()
     calculateRowsRemoved()
     plannerRowEstimateDirection.value =
       node[NodeProp.PLANNER_ESTIMATE_DIRECTION]
@@ -45,7 +45,7 @@ export default function useNode(
     let value: number | undefined
     switch (viewOptions.highlightType) {
       case HighlightType.DURATION:
-        value = node[NodeProp.EXCLUSIVE_DURATION]
+        value = node[NodeProp.ACTUAL_TOTAL_TIME]
         if (value === undefined) {
           highlightValue.value = null
           break
@@ -56,7 +56,7 @@ export default function useNode(
         highlightValue.value = duration(value)
         break
       case HighlightType.ROWS:
-        value = node[NodeProp.ACTUAL_ROWS_REVISED]
+        value = node[NodeProp.ACTUAL_ROWS]
         if (value === undefined) {
           highlightValue.value = null
           break
@@ -67,14 +67,14 @@ export default function useNode(
           ) || 0
         highlightValue.value = rows(value)
         break
-      case HighlightType.COST:
-        value = node[NodeProp.EXCLUSIVE_COST]
+      case HighlightType.RESULT:
+        value = node[NodeProp.RESULT_SET_SIZE]
         if (value === undefined) {
           highlightValue.value = null
           break
         }
         barWidth.value = Math.round(
-          (value / (plan.value.planStats.maxCost as number)) * 100
+          (value / (plan.value.planStats.maxResult as number)) * 100
         )
         highlightValue.value = cost(value)
         break
@@ -100,10 +100,10 @@ export default function useNode(
     executionTimePercent.value = _.round((duration / executionTime) * 100)
   }
 
-  function calculateCost() {
-    const maxTotalCost = plan.value.content.maxTotalCost as number
-    const cost = node[NodeProp.EXCLUSIVE_COST] as number
-    costPercent.value = _.round((cost / maxTotalCost) * 100)
+  function calculateResult() {
+    const maxResult = plan.value.content.maxResult as number
+    const result = node[NodeProp.RESULT_SET_SIZE] as number
+    resultPercent.value = _.round((result / maxResult) * 100)
   }
 
   type NodePropStrings = keyof typeof NodeProp
@@ -171,7 +171,7 @@ export default function useNode(
 
   const costClass = computed(() => {
     let c
-    const i = costPercent.value
+    const i = resultPercent.value
     if (i > 90) {
       c = 4
     } else if (i > 40) {
@@ -527,7 +527,7 @@ export default function useNode(
     barWidth,
     buffersByLocationTooltip,
     buffersByMetricTooltip,
-    costClass,
+    resultClass: costClass,
     costTooltip,
     durationClass,
     estimateFactorPercent,

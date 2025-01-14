@@ -23,6 +23,7 @@ export interface IPlanContent {
   maxRows?: number
   maxRowsScanned ?: number
   maxEstimatedRows ?: number
+  maxResult ?: number
   // maxCost?: number //NOT NEEDED FOR DDB
   // maxTotalCost?: number //NOT NEEDED FOR DDB
   maxDuration?: number
@@ -56,6 +57,7 @@ export interface IPlanStats {
   maxRows: number
   maxRowsScanned: number
   maxEstimatedRows: number
+  maxResult: number
   // maxCost: number // NOT NEEDED FOR DDB
   maxDuration: number
   // maxBlocks: IBlocksStats // NOT NEEDED FOR DDB

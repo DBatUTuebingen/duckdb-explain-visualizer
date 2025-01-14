@@ -24,7 +24,7 @@ export class HighlightType {
   public static NONE = "none"
   public static DURATION = "duration"
   public static ROWS = "rows"
-  public static COST = "cost"
+  public static RESULT = "result"
 }
 
 export enum SortDirection {

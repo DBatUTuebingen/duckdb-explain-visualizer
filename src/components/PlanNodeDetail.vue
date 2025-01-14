@@ -49,7 +49,7 @@ const helpService = new HelpService()
 const getNodeTypeDescription = helpService.getNodeTypeDescription
 
 const {
-  costClass,
+  resultClass,
   durationClass,
   estimationClass,
   executionTimePercent,
@@ -272,7 +272,7 @@ watch(activeTab, () => {
           class="text-secondary"
         ></FontAwesomeIcon>
         <b>Cost:</b>
-        <span class="p-0 px-1 me-1 alert" :class="costClass">{{
+        <span class="p-0 px-1 me-1 alert" :class="resultClass">{{
           formattedProp("EXCLUSIVE_COST")
         }}</span>
         <span class="text-secondary"

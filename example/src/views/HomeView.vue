@@ -216,7 +216,7 @@ function handleDrop(event: DragEvent) {
             </div>
             <div class="mb-3">
               <label for="queryInput" class="form-label">
-                Query <span class="small text-secondary">(<!--optional-->does not work yet)</span>
+                Query <span class="small text-secondary">(optional)</span>
               </label>
               <textarea
                 :class="['form-control', draggingQuery ? 'dropzone-over' : '']"

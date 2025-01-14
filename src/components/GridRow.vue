@@ -45,7 +45,7 @@ const activeTab = ref<string>("misc")
 
 const {
   buffersByMetricTooltip,
-  costClass,
+  resultClass,
   costTooltip,
   durationClass,
   estimationClass,
@@ -215,8 +215,8 @@ function formattedProp(propName: keyof typeof NodeProp) {
         v-tippy="{ content: costTooltip, allowHTML: true }"
       >
         <severity-bullet
-          :severity="costClass"
-          v-if="costClass"
+          :severity="resultClass"
+          v-if="resultClass"
         ></severity-bullet>
         <span class="flex-grow-1">
           {{ cost(node[NodeProp.EXCLUSIVE_COST]) }}

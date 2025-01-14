@@ -23,7 +23,7 @@ const viewOptions = inject(ViewOptionsKey) as ViewOptions
 
 const {
   rowsRemoved,
-  costClass,
+  resultClass,
   durationClass,
   estimationClass,
   rowsRemovedClass,
@@ -39,8 +39,8 @@ const {
     ><FontAwesomeIcon fixed-width :icon="faClock"></FontAwesomeIcon>
   </span>
   <span
-    v-if="costClass"
-    :class="'p-0  d-inline-block mb-0 ms-1 text-nowrap alert ' + costClass"
+    v-if="resultClass"
+    :class="'p-0  d-inline-block mb-0 ms-1 text-nowrap alert ' + resultClass"
     v-tippy="'Cost is high'"
     ><FontAwesomeIcon fixed-width :icon="faDollarSign"></FontAwesomeIcon
   ></span>

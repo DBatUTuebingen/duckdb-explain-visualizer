@@ -133,6 +133,11 @@ export class PlanService {
       plan.content.maxRowsScanned = largestScanned[NodeProp.OPERATOR_ROWS_SCANNED] as number
     }
 
+    const largestResult = _.maxBy(flat, NodeProp.RESULT_SET_SIZE)
+    if (largestResult) {
+      plan.content.maxResult = largestResult[NodeProp.RESULT_SET_SIZE] as number
+    }
+
     const largestEstimate = _.maxBy(flat, function(node) {
       const cardinality: number = node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS]
       if (cardinality != null) {

@@ -141,6 +141,7 @@ onBeforeMount(() => {
   planStats.executionTime = (content[NodeProp.CPU_TIME] as number) || NaN
   planStats.maxRows = content.maxRows || NaN
   planStats.maxRowsScanned = content.maxRowsScanned || NaN
+  planStats.maxResult = content.maxResult || NaN
   planStats.maxEstimatedRows = content.maxEstimatedRows || NaN
   planStats.maxDuration = content.maxDuration || NaN
   planStats.settings = content.Settings as Settings
@@ -600,6 +601,22 @@ function updateNodeSize(node: Node, size: [number, number]) {
                         "
                       >
                         rows
+                      </button>
+                      <button
+                        class="btn btn-outline-secondary"
+                        :class="{
+                          active:
+                            viewOptions.highlightType === HighlightType.RESULT,
+                        }"
+                        v-on:click="
+                          viewOptions.highlightType = HighlightType.RESULT
+                        "
+                        :disabled="
+                          !rootNode ||
+                          rootNode[NodeProp.CPU_TIME] === undefined
+                        "
+                      >
+                        result
                       </button>
                     </div>
                   </div>
