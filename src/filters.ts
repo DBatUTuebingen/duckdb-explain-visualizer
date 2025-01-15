@@ -5,8 +5,6 @@ import SortGroup from "@/components/SortGroup.vue"
 import hljs from "highlight.js/lib/core"
 import pgsql from "highlight.js/lib/languages/pgsql"
 hljs.registerLanguage("pgsql", pgsql)
-// import duckdb from "highlight.js/lib/languages/duckdb"
-// hljs.registerLanguage("duckdb", duckdb)
 
 import json from "highlight.js/lib/languages/json"
 hljs.registerLanguage("json", json)
@@ -232,11 +230,6 @@ export function durationClass(i: number): string {
 export function pgsql_(text: string) {
   return hljs.highlight(text, { language: "pgsql" }).value
 }
-
-// export function duckdb_(text: string) {
-//   return hljs.highlight(text, { language: "duckdb" }).value
-// }
-
 export function json_(text: string) {
   return hljs.highlight(text, { language: "json" }).value
 }
