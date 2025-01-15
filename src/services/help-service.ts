@@ -299,7 +299,7 @@ export function findNodeBySubplanName(
 const notMiscProperties: string[] = [
   NodeProp.NODE_TYPE,
   NodeProp.EXTRA_INFO,
-  NodeProp.ACTUAL_TOTAL_TIME,
+  NodeProp.ACTUAL_TIME,
   NodeProp.OPERATOR_ROWS_SCANNED,
   NodeProp.CTE_NAME,
   NodeProp.EXCLUSIVE_DURATION,

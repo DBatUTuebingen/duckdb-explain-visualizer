@@ -100,14 +100,14 @@ function formattedProp(propName: keyof typeof NodeProp) {
         :percentage="
           (node[NodeProp.EXCLUSIVE_DURATION] /
             (plan.planStats.executionTime ||
-              plan.content.Plan[NodeProp.ACTUAL_TOTAL_TIME])) *
+              plan.content.Plan[NodeProp.ACTUAL_TIME])) *
           100
         "
         :percentage2="
-          ((node[NodeProp.ACTUAL_TOTAL_TIME] -
+          ((node[NodeProp.ACTUAL_TIME] -
             node[NodeProp.EXCLUSIVE_DURATION]) /
             (plan.planStats.executionTime ||
-              plan.content.Plan[NodeProp.ACTUAL_TOTAL_TIME])) *
+              plan.content.Plan[NodeProp.ACTUAL_TIME])) *
           100
         "
       ></GridProgressBar>

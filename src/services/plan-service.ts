@@ -152,9 +152,9 @@ export class PlanService {
       ) as number
     }
 
-    const slowest = _.maxBy(flat, NodeProp.ACTUAL_TOTAL_TIME)
+    const slowest = _.maxBy(flat, NodeProp.ACTUAL_TIME)
     if (slowest) {
-      plan.content.maxDuration = slowest[NodeProp.ACTUAL_TOTAL_TIME] as number
+      plan.content.maxDuration = slowest[NodeProp.ACTUAL_TIME] as number
     }
   }
 
@@ -637,7 +637,7 @@ export class PlanService {
           newNode[NodeProp.ACTUAL_STARTUP_TIME] = parseFloat(
             nodeMatches[7] || nodeMatches[18]
           )
-          newNode[NodeProp.ACTUAL_TOTAL_TIME] = parseFloat(
+          newNode[NodeProp.ACTUAL_TIME] = parseFloat(
             nodeMatches[8] || nodeMatches[19]
           )
         }
@@ -660,7 +660,7 @@ export class PlanService {
         if (neverExecuted) {
           newNode[NodeProp.ACTUAL_LOOPS] = 0
           newNode[NodeProp.ACTUAL_ROWS] = 0
-          newNode[NodeProp.ACTUAL_TOTAL_TIME] = 0
+          newNode[NodeProp.ACTUAL_TIME] = 0
         }
         const element = {
           node: newNode,
@@ -740,7 +740,7 @@ export class PlanService {
         }
         if (workerMatches[3] && workerMatches[4]) {
           worker[NodeProp.ACTUAL_STARTUP_TIME] = parseFloat(workerMatches[3])
-          worker[NodeProp.ACTUAL_TOTAL_TIME] = parseFloat(workerMatches[4])
+          worker[NodeProp.ACTUAL_TIME] = parseFloat(workerMatches[4])
           worker[NodeProp.ACTUAL_ROWS] = parseInt(workerMatches[5], 0)
           worker[NodeProp.ACTUAL_LOOPS] = parseInt(workerMatches[6], 0)
         }

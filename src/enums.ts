@@ -48,7 +48,7 @@ export enum NodeProp {
   // plan property keys
   NODE_TYPE = "operator_type", // the name of each operator
   ACTUAL_ROWS = "operator_cardinality", // the number of rows it returns to its parent
-  ACTUAL_TOTAL_TIME = "operator_timing", // the time taken by each operator
+  ACTUAL_TIME = "operator_timing", // the time taken by each operator
   BLOCKED_THREAD_TIME = "blocked_thread_time", // the total time threads are blocked
   PLANS = "children",
   // --------------------------------------------------------------
@@ -197,7 +197,7 @@ nodePropTypes[NodeProp.PLAN_ROWS] = PropType.rows
 nodePropTypes[NodeProp.PLAN_WIDTH] = PropType.bytes
 nodePropTypes[NodeProp.ACTUAL_ROWS_REVISED] = PropType.rows
 nodePropTypes[NodeProp.PLAN_ROWS_REVISED] = PropType.rows
-nodePropTypes[NodeProp.ACTUAL_TOTAL_TIME] = PropType.duration
+nodePropTypes[NodeProp.ACTUAL_TIME] = PropType.duration
 nodePropTypes[NodeProp.ACTUAL_STARTUP_TIME] = PropType.duration
 nodePropTypes[NodeProp.STARTUP_COST] = PropType.cost
 nodePropTypes[NodeProp.TOTAL_COST] = PropType.cost

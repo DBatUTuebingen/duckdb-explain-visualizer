@@ -139,7 +139,7 @@ watch(
             width:
               (node[NodeProp.EXCLUSIVE_DURATION] /
                 (plan.planStats.executionTime ||
-                  plan.content[NodeProp.ACTUAL_TOTAL_TIME])) *
+                  plan.content[NodeProp.ACTUAL_TIME])) *
                 100 +
               '%',
           }"
@@ -153,10 +153,10 @@ watch(
           style="height: 5px"
           :style="{
             width:
-              ((node[NodeProp.ACTUAL_TOTAL_TIME] -
+              ((node[NodeProp.ACTUAL_TIME] -
                 node[NodeProp.EXCLUSIVE_DURATION]) /
                 (plan.planStats.executionTime ||
-                  plan.content[NodeProp.ACTUAL_TOTAL_TIME])) *
+                  plan.content[NodeProp.ACTUAL_TIME])) *
                 100 +
               '%',
           }"

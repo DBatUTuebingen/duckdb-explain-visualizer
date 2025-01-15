@@ -17,7 +17,7 @@ const plan = inject(PlanKey) as Ref<IPlan>
 onBeforeMount(() => {
   executionTime.value =
     plan.value.planStats.executionTime ||
-    (plan.value.content.Plan?.[NodeProp.ACTUAL_TOTAL_TIME] as number)
+    (plan.value.content.Plan?.[NodeProp.ACTUAL_TIME] as number)
   if (plan.value.content.Plan) {
     flatten(nodes, plan.value.content.Plan)
     _.each(plan.value.ctes, (cte) => {

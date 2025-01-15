@@ -225,7 +225,7 @@ function centerCte() {
               :class="{ 'line-clamp-2': !showDetails }"
             >
               <span class="text-secondary">projects</span>
-            {{ node[NodeProp.EXTRA_INFO][NodeProp.PROJECTIONS] }}
+            {{ keysToString(node[NodeProp.EXTRA_INFO][NodeProp.PROJECTIONS]) }}
             </div>
             <div v-if="node[NodeProp.EXTRA_INFO][NodeProp.FUNCTION_NAME]">
               {{ node[NodeProp.EXTRA_INFO][NodeProp.FUNCTION_NAME] }}

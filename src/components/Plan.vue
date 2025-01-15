@@ -401,7 +401,7 @@ function getLayoutExtent(
 }
 
 function isNeverExecuted(node: Node): boolean {
-  return !!planStats.executionTime && (!node[NodeProp.ACTUAL_TOTAL_TIME])
+  return !!planStats.executionTime && (!node[NodeProp.ACTUAL_TIME])
 }
 
 watch(

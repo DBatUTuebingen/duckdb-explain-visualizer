@@ -179,7 +179,7 @@ watch(activeTab, () => {
         <span
           class="p-0 px-1 rounded alert"
           :class="durationClass"
-          v-html="formattedProp('ACTUAL_TOTAL_TIME')"
+          v-html="formattedProp('ACTUAL_TIME')"
         ></span>
         <template v-if="executionTimePercent !== Infinity">
           |

@@ -82,7 +82,7 @@ export class Node {
 
   // DuckDB specific properties
   [NodeProp.NODE_TYPE]?: string; // Type of operation in DuckDB (e.g., "Filter", "Scan")
-  [NodeProp.ACTUAL_TOTAL_TIME]?: number; // Actual timing for the node if available
+  [NodeProp.ACTUAL_TIME]?: number; // Actual timing for the node if available
   [NodeProp.ACTUAL_ROWS]?: number; // Estimated number of rows
   [NodeProp.PLANS]: Node[];
   [NodeProp.CPU_TIME]: number;

@@ -44,7 +44,7 @@ export default function useNode(
     let value: number | undefined
     switch (viewOptions.highlightType) {
       case HighlightType.DURATION:
-        value = node[NodeProp.ACTUAL_TOTAL_TIME]
+        value = node[NodeProp.ACTUAL_TIME]
         if (value === undefined) {
           highlightValue.value = null
           break
@@ -95,7 +95,7 @@ export default function useNode(
     const executionTime =
       (plan.value.planStats.executionTime as number) ||
       (plan.value.content?.Plan?.[NodeProp.CPU_TIME] as number)
-    const duration = node[NodeProp.ACTUAL_TOTAL_TIME] as number
+    const duration = node[NodeProp.ACTUAL_TIME] as number
     executionTimePercent.value = _.round((duration / executionTime) * 100)
   }
 
@@ -147,10 +147,8 @@ export default function useNode(
     const i = executionTimePercent.value
     if (i > 90) {
       c = 4
-    } else if (i > 40) {
+    } else if (i > 50) {
       c = 3
-    } else if (i > 10) {
-      c = 2
     }
     if (c) {
       return "c-" + c
@@ -163,10 +161,8 @@ export default function useNode(
     const i = rowsPercent.value
     if (i > 90) {
       c = 4
-    } else if (i > 40) {
+    } else if (i > 50) {
       c = 3
-    } else if (i > 10) {
-      c = 2
     }
     if (c) {
       return "c-" + c
@@ -179,10 +175,8 @@ export default function useNode(
     const i = resultPercent.value
     if (i > 90) {
       c = 4
-    } else if (i > 40) {
+    } else if (i > 50) {
       c = 3
-    } else if (i > 10) {
-      c = 2
     }
     if (c) {
       return "c-" + c
@@ -238,7 +232,7 @@ export default function useNode(
   // })
 
   const isNeverExecuted = computed((): boolean => {
-    return !!plan.value.planStats.executionTime && !node[NodeProp.ACTUAL_TOTAL_TIME]
+    return !!plan.value.planStats.executionTime && !node[NodeProp.ACTUAL_TIME]
   })
 
   // const isParallelAware = computed((): boolean => {
@@ -361,7 +355,7 @@ export default function useNode(
   const timeTooltip = computed((): string => {
     return [
       "Duration: <br>Actual Time: ",
-      duration(node[NodeProp.ACTUAL_TOTAL_TIME]),
+      duration(node[NodeProp.ACTUAL_TIME]),
       ", CPU Time: ",
       duration(node[NodeProp.CPU_TIME]),
     ].join("")
