@@ -1,10 +1,10 @@
 export enum Metric {
   time,
   rows,
-  cost,
-  buffers,
-  estimate_factor,
-  io,
+  result,
+  // buffers,
+  // estimate_factor,
+  // io,
 }
 
 export enum BufferLocation {

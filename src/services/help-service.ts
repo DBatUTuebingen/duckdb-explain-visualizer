@@ -243,30 +243,31 @@ export function splitBalanced(input: string, split: string) {
 
 export function findNodeById(plan: IPlan, id: number): Node | undefined {
   let o: Node | undefined = undefined
-  const root = plan.content.Plan
+  const root = plan.content
+  console.log(root[NodeProp.NODE_TYPE])
   if (root.nodeId == id) {
     return root
   }
-  if (root && root.Plans) {
-    root.Plans.some(function iter(child: Node): boolean | undefined {
+  if (root && root[NodeProp.PLANS]) {
+    root[NodeProp.PLANS].some(function iter(child: Node): boolean | undefined {
       if (child.nodeId === id) {
         o = child
         return true
       }
-      return child.Plans && child.Plans.some(iter)
+      return child[NodeProp.PLANS] && child[NodeProp.PLANS].some(iter)
     })
     if (!o && plan.ctes) {
       _.each(plan.ctes, (cte) => {
         if (cte.nodeId == id) {
           o = cte
           return false
-        } else if (cte.Plans) {
-          cte.Plans.some(function iter(child: Node): boolean | undefined {
+        } else if (cte[NodeProp.PLANS]) {
+          cte[NodeProp.PLANS].some(function iter(child: Node): boolean | undefined {
             if (child.nodeId === id) {
               o = child
               return true
             }
-            return child.Plans && child.Plans.some(iter)
+            return child[NodeProp.PLANS] && child[NodeProp.PLANS].some(iter)
           })
           if (o) {
             return false
@@ -285,7 +286,7 @@ export function findNodeBySubplanName(
   let o: Node | undefined = undefined
   if (plan.ctes) {
     _.each(plan.ctes, (cte) => {
-      if (cte[NodeProp.SUBPLAN_NAME] == "CTE " + subplanName) {
+      if (cte[NodeProp.EXTRA_INFO][NodeProp.CTE_NAME] == "CTE " + subplanName) {
         o = cte
         return false
       }

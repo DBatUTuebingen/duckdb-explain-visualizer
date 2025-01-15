@@ -108,12 +108,12 @@ function flatten(
     branches.push(level)
   }
 
-  _.each(node.Plans, (subnode) => {
+  _.each(node[NodeProp.PLANS], (subnode) => {
     flatten(
       output,
       level + 1,
       subnode,
-      subnode === _.last(node.Plans),
+      subnode === _.last(node[NodeProp.PLANS]),
       branches
     )
   })
@@ -167,32 +167,39 @@ provide("scrollTo", scrollTo)
           </button>
           <button
             class="btn btn-outline-secondary"
-            :class="{ active: viewOptions.metric === Metric.estimate_factor }"
-            v-on:click="viewOptions.metric = Metric.estimate_factor"
+            :class="{ active: viewOptions.metric === Metric.result }"
+            v-on:click="viewOptions.metric = Metric.result"
           >
-            estimation
+            result
           </button>
-          <button
-            class="btn btn-outline-secondary"
-            :class="{ active: viewOptions.metric === Metric.cost }"
-            v-on:click="viewOptions.metric = Metric.cost"
-          >
-            cost
-          </button>
-          <button
-            class="btn btn-outline-secondary"
-            :class="{ active: viewOptions.metric === Metric.buffers }"
-            v-on:click="viewOptions.metric = Metric.buffers"
-          >
-            buffers
-          </button>
-          <button
-            class="btn btn-outline-secondary"
-            :class="{ active: viewOptions.metric === Metric.io }"
-            v-on:click="viewOptions.metric = Metric.io"
-          >
-            IO
-          </button>
+<!--          <button-->
+<!--            class="btn btn-outline-secondary"-->
+<!--            :class="{ active: viewOptions.metric === Metric.estimate_factor }"-->
+<!--            v-on:click="viewOptions.metric = Metric.estimate_factor"-->
+<!--          >-->
+<!--            estimation-->
+<!--          </button>-->
+<!--          <button-->
+<!--            class="btn btn-outline-secondary"-->
+<!--            :class="{ active: viewOptions.metric === Metric.cost }"-->
+<!--            v-on:click="viewOptions.metric = Metric.cost"-->
+<!--          >-->
+<!--            cost-->
+<!--          </button>-->
+<!--          <button-->
+<!--            class="btn btn-outline-secondary"-->
+<!--            :class="{ active: viewOptions.metric === Metric.buffers }"-->
+<!--            v-on:click="viewOptions.metric = Metric.buffers"-->
+<!--          >-->
+<!--            buffers-->
+<!--          </button>-->
+<!--          <button-->
+<!--            class="btn btn-outline-secondary"-->
+<!--            :class="{ active: viewOptions.metric === Metric.io }"-->
+<!--            v-on:click="viewOptions.metric = Metric.io"-->
+<!--          >-->
+<!--            IO-->
+<!--          </button>-->
         </div>
       </div>
       <div class="text-center my-1" v-if="viewOptions.metric == Metric.buffers">
