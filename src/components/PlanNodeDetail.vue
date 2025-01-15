@@ -147,7 +147,8 @@ watch(activeTab, () => {
           class="nav-link"
           :class="{
             active: activeTab === 'output',
-            disabled: !node[NodeProp.OUTPUT],
+            disabled: !node[NodeProp.EXTRA_INFO][NodeProp.PROJECTIONS]
+                      && !node[NodeProp.EXTRA_INFO][NodeProp.AGGREGATES]
           }"
           @click.prevent.stop="activeTab = 'output'"
           href=""
@@ -285,7 +286,7 @@ watch(activeTab, () => {
     <div
       class="tab-pane overflow-auto font-monospace"
       :class="{ 'show active': activeTab === 'output' }"
-      v-html="formattedProp('OUTPUT')"
+      v-html="node[NodeProp.EXTRA_INFO][NodeProp.PROJECTIONS] || node[NodeProp.EXTRA_INFO][NodeProp.AGGREGATES]"
       style="max-height: 200px"
       @mousewheel.stop
     ></div>

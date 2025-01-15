@@ -76,6 +76,7 @@ export enum NodeProp {
   PROJECTIONS = "Projections",
   ESTIMATED_ROWS = "Estimated Cardinality",
   AGGREGATES = "Aggregates",
+  CTE_NAME = "CTE Name", // gehört zu extra_info keys
   TABLE_INDEX = "Table Index",
   GROUPS = "Groups",
   JOIN_TYPE = "Join Type",
@@ -84,6 +85,7 @@ export enum NodeProp {
   FILTER = "Expression",
   DELIM_INDEX = "Delim Index",
   FUNCTION = "Function",
+  FUNCTION_NAME = "Name", // GEÄNDERT - gehört zu extra_info keys
 
   // --------------------------------------------------------------
   // BRAUCH ICH WAHRSCHEINLICH ALLES NICHT - wird erstmal drin gelasen
@@ -156,8 +158,6 @@ export enum NodeProp {
   WORKERS_PLANNED_BY_GATHER = "*Workers Planned By Gather", // MAYBE NOT NEEDED FOR DDB
 
   CTE_SCAN = "CTE Scan",
-  CTE_NAME = "CTE Name", // gehört zu extra_info keys
-  FUNCTION_NAME = "Name", // GEÄNDERT - gehört zu extra_info keys
 
   ARRAY_INDEX_KEY = "arrayIndex",
 

@@ -91,7 +91,7 @@ watch(selectedNodeId, () => {
 function centerCte() {
   const cteNode = findNodeBySubplanName(
     plan.value,
-    node[NodeProp.CTE_NAME] as string
+    node[NodeProp.EXTRA_INFO][NodeProp.CTE_NAME] as string
   )
   cteNode && selectNode?.(cteNode.nodeId, true)
 }
@@ -197,7 +197,7 @@ function centerCte() {
               v-if="node[NodeProp.EXTRA_INFO][NodeProp.GROUPS]"
               :class="{ 'line-clamp-2': !showDetails }"
             >
-              <span class="text-secondary">by</span>
+              <span class="text-secondary">group by</span>
               <span
                 v-html="keysToString(node[NodeProp.EXTRA_INFO][NodeProp.GROUPS] as string)"
               ></span>
@@ -237,6 +237,15 @@ function centerCte() {
               <span class="text-secondary">on</span>
               <span
                 v-html="keysToString(node[NodeProp.EXTRA_INFO][NodeProp.CONDITIONS] as string)"
+              ></span>
+            </div>
+            <div
+              v-if="node[NodeProp.EXTRA_INFO][NodeProp.FILTER]"
+              :class="{ 'line-clamp-2': !showDetails }"
+            >
+              <span class="text-secondary">on</span>
+              <span
+                v-html="keysToString(node[NodeProp.EXTRA_INFO][NodeProp.FILTER] as string)"
               ></span>
             </div>
             <div v-if="node[NodeProp.EXTRA_INFO][NodeProp.CTE_NAME]">
