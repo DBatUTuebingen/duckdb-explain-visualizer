@@ -98,14 +98,14 @@ function formattedProp(propName: keyof typeof NodeProp) {
     >
       <GridProgressBar
         :percentage="
-          (node[NodeProp.EXCLUSIVE_DURATION] /
+          (node[NodeProp.ACTUAL_TIME] /
             (plan.planStats.executionTime ||
               plan.content.Plan[NodeProp.ACTUAL_TIME])) *
           100
         "
         :percentage2="
           ((node[NodeProp.ACTUAL_TIME] -
-            node[NodeProp.EXCLUSIVE_DURATION]) /
+            node[NodeProp.CPU_TIME]) /
             (plan.planStats.executionTime ||
               plan.content.Plan[NodeProp.ACTUAL_TIME])) *
           100
@@ -121,11 +121,11 @@ function formattedProp(propName: keyof typeof NodeProp) {
           v-if="durationClass"
         ></severity-bullet>
         <span class="flex-grow-1">
-          {{ Math.round(node[NodeProp.EXCLUSIVE_DURATION]).toLocaleString() }}
+          {{ Math.round(node[NodeProp.ACTUAL_TIME]).toLocaleString() }}
         </span>
       </div>
       <div v-if="showDetails" class="small text-body-secondary">
-        {{ duration(node[NodeProp.EXCLUSIVE_DURATION]) }}
+        {{ duration(node[NodeProp.ACTUAL_TIME]) }}
         <br />
         <template v-if="executionTimePercent !== Infinity">
           {{ executionTimePercent }}%
@@ -138,7 +138,7 @@ function formattedProp(propName: keyof typeof NodeProp) {
     >
       <GridProgressBar
         :percentage="
-          (node[NodeProp.ACTUAL_ROWS_REVISED] / plan.planStats.maxRows) * 100
+          (node[NodeProp.ACTUAL_ROWS] / plan.planStats.maxRows) * 100
         "
       ></GridProgressBar>
       <!-- rows -->
@@ -146,7 +146,7 @@ function formattedProp(propName: keyof typeof NodeProp) {
         class="position-relative"
         v-tippy="{ content: rowsTooltip, allowHTML: true }"
       >
-        {{ tilde + node[NodeProp.ACTUAL_ROWS_REVISED]?.toLocaleString() }}
+        {{ node[NodeProp.ACTUAL_ROWS]?.toLocaleString() }}
       </div>
     </td>
     <td
@@ -200,12 +200,12 @@ function formattedProp(propName: keyof typeof NodeProp) {
     </td>
     <td
       class="text-end grid-progress-cell text-nowrap"
-      v-if="columns.includes('cost')"
+      v-if="columns.includes('result')"
     >
       <GridProgressBar
         :percentage="
           Math.round(
-            (node[NodeProp.EXCLUSIVE_COST] / plan.planStats.maxCost) * 100
+            (node[NodeProp.RESULT_SET_SIZE] / plan.planStats.maxResult) * 100
           )
         "
       ></GridProgressBar>
@@ -219,15 +219,9 @@ function formattedProp(propName: keyof typeof NodeProp) {
           v-if="resultClass"
         ></severity-bullet>
         <span class="flex-grow-1">
-          {{ cost(node[NodeProp.EXCLUSIVE_COST]) }}
+          {{ cost(node[NodeProp.RESULT_SET_SIZE]) }}
         </span>
       </div>
-    </td>
-    <td class="text-end text-nowrap" v-if="columns.includes('loops')">
-      <!-- loops -->
-      <span v-if="node[NodeProp.ACTUAL_LOOPS] != 1">
-        {{ node[NodeProp.ACTUAL_LOOPS].toLocaleString() }}
-      </span>
     </td>
     <td
       class="text-end grid-progress-cell text-nowrap"
@@ -380,26 +374,11 @@ function formattedProp(propName: keyof typeof NodeProp) {
                 class="nav-link px-2 py-1"
                 :class="{
                   active: activeTab === 'output',
-                  disabled: !node[NodeProp.OUTPUT],
+                  disabled: !node[NodeProp.EXTRA_INFO][NodeProp.AGGREGATES]
                 }"
                 @click.prevent.stop="activeTab = 'output'"
                 href=""
                 >Output</a
-              >
-            </li>
-            <li class="nav-item">
-              <a
-                class="nav-link px-2 py-1"
-                :class="{
-                  active: activeTab === 'workers',
-                  disabled: !(
-                    node[NodeProp.WORKERS_PLANNED] ||
-                    node[NodeProp.WORKERS_PLANNED_BY_GATHER]
-                  ),
-                }"
-                @click.prevent.stop="activeTab = 'workers'"
-                href=""
-                >Workers</a
               >
             </li>
           </ul>
@@ -414,210 +393,12 @@ function formattedProp(propName: keyof typeof NodeProp) {
             <div
               class="tab-pane p-1 border border-top-0 overflow-auto font-monospace"
               :class="{ 'show active': activeTab === 'output' }"
-              v-html="formattedProp('OUTPUT')"
+              v-html="node[NodeProp.EXTRA_INFO][NodeProp.AGGREGATES]"
               style="max-height: 200px"
               @mousewheel.stop
             ></div>
-            <div
-              class="tab-pane p-1 border border-top-0 rounded rounded-top-start-0"
-              :class="{ 'show active': activeTab === 'workers' }"
-            >
-              <workers-detail :node="node" />
-            </div>
           </div>
         </div>
-      </div>
-    </td>
-    <td
-      class="text-end text-nowrap grid-progress-cell"
-      v-if="columns.includes('shared.hit')"
-    >
-      <GridProgressBar :percentage="sharedHitPercent"></GridProgressBar>
-      <div
-        class="position-relative"
-        v-tippy="{
-          content: buffersByMetricTooltip(NodeProp.EXCLUSIVE_SHARED_HIT_BLOCKS),
-          allowHTML: true,
-        }"
-      >
-        {{ blocks(node[NodeProp.EXCLUSIVE_SHARED_HIT_BLOCKS]) }}
-      </div>
-      <div v-if="showDetails" class="small text-body-secondary">
-        {{ blocksAsBytes(node[NodeProp.EXCLUSIVE_SHARED_HIT_BLOCKS]) }}
-      </div>
-    </td>
-    <td
-      class="text-end text-nowrap grid-progress-cell"
-      v-if="columns.includes('shared.read')"
-    >
-      <GridProgressBar :percentage="sharedReadPercent"></GridProgressBar>
-      <div
-        class="position-relative"
-        v-tippy="{
-          content: buffersByMetricTooltip(
-            NodeProp.EXCLUSIVE_SHARED_READ_BLOCKS
-          ),
-          allowHTML: true,
-        }"
-      >
-        {{ blocks(node[NodeProp.EXCLUSIVE_SHARED_READ_BLOCKS]) }}
-      </div>
-      <div v-if="showDetails" class="small text-body-secondary">
-        {{ blocksAsBytes(node[NodeProp.EXCLUSIVE_SHARED_READ_BLOCKS]) }}
-      </div>
-    </td>
-    <td
-      class="text-end text-nowrap grid-progress-cell"
-      v-if="columns.includes('shared.dirtied')"
-    >
-      <GridProgressBar :percentage="sharedDirtiedPercent"></GridProgressBar>
-      <div
-        class="position-relative"
-        v-tippy="{
-          content: buffersByMetricTooltip(
-            NodeProp.EXCLUSIVE_SHARED_DIRTIED_BLOCKS
-          ),
-          allowHTML: true,
-        }"
-      >
-        {{ blocks(node[NodeProp.EXCLUSIVE_SHARED_DIRTIED_BLOCKS]) }}
-      </div>
-      <div v-if="showDetails" class="small text-body-secondary">
-        {{ blocksAsBytes(node[NodeProp.EXCLUSIVE_SHARED_DIRTIED_BLOCKS]) }}
-      </div>
-    </td>
-    <td
-      class="text-end text-nowrap grid-progress-cell"
-      v-if="columns.includes('shared.written')"
-    >
-      <GridProgressBar :percentage="sharedWrittenPercent"></GridProgressBar>
-      <div
-        class="position-relative"
-        v-tippy="{
-          content: buffersByMetricTooltip(
-            NodeProp.EXCLUSIVE_SHARED_WRITTEN_BLOCKS
-          ),
-          allowHTML: true,
-        }"
-      >
-        {{ blocks(node[NodeProp.EXCLUSIVE_SHARED_WRITTEN_BLOCKS]) }}
-      </div>
-      <div v-if="showDetails" class="small text-body-secondary">
-        {{ blocksAsBytes(node[NodeProp.EXCLUSIVE_SHARED_WRITTEN_BLOCKS]) }}
-      </div>
-    </td>
-    <td
-      class="text-end text-nowrap grid-progress-cell"
-      v-if="columns.includes('temp.read')"
-    >
-      <GridProgressBar :percentage="tempReadPercent"></GridProgressBar>
-      <div
-        class="position-relative"
-        v-tippy="{
-          content: buffersByMetricTooltip(NodeProp.EXCLUSIVE_TEMP_READ_BLOCKS),
-          allowHTML: true,
-        }"
-      >
-        {{ blocks(node[NodeProp.EXCLUSIVE_TEMP_READ_BLOCKS]) }}
-      </div>
-      <div v-if="showDetails" class="small text-body-secondary">
-        {{ blocksAsBytes(node[NodeProp.EXCLUSIVE_TEMP_READ_BLOCKS]) }}
-      </div>
-    </td>
-    <td
-      class="text-end text-nowrap grid-progress-cell"
-      v-if="columns.includes('temp.written')"
-    >
-      <GridProgressBar :percentage="tempWrittenPercent"></GridProgressBar>
-      <div
-        class="position-relative"
-        v-tippy="{
-          content: buffersByMetricTooltip(
-            NodeProp.EXCLUSIVE_TEMP_WRITTEN_BLOCKS
-          ),
-          allowHTML: true,
-        }"
-      >
-        {{ blocks(node[NodeProp.EXCLUSIVE_TEMP_WRITTEN_BLOCKS]) }}
-      </div>
-      <div v-if="showDetails" class="small text-body-secondary">
-        {{ blocksAsBytes(node[NodeProp.EXCLUSIVE_TEMP_WRITTEN_BLOCKS]) }}
-      </div>
-    </td>
-    <td
-      class="text-end text-nowrap grid-progress-cell"
-      v-if="columns.includes('local.hit')"
-    >
-      <GridProgressBar :percentage="localHitPercent"></GridProgressBar>
-      <div
-        class="position-relative"
-        v-tippy="{
-          content: buffersByMetricTooltip(NodeProp.EXCLUSIVE_LOCAL_HIT_BLOCKS),
-          allowHTML: true,
-        }"
-      >
-        {{ blocks(node[NodeProp.EXCLUSIVE_LOCAL_HIT_BLOCKS]) }}
-      </div>
-      <div v-if="showDetails" class="small text-body-secondary">
-        {{ blocksAsBytes(node[NodeProp.EXCLUSIVE_LOCAL_HIT_BLOCKS]) }}
-      </div>
-    </td>
-    <td
-      class="text-end text-nowrap grid-progress-cell"
-      v-if="columns.includes('local.read')"
-    >
-      <GridProgressBar :percentage="localReadPercent"></GridProgressBar>
-      <div
-        class="position-relative"
-        v-tippy="{
-          content: buffersByMetricTooltip(NodeProp.EXCLUSIVE_LOCAL_READ_BLOCKS),
-          allowHTML: true,
-        }"
-      >
-        {{ blocks(node[NodeProp.EXCLUSIVE_LOCAL_READ_BLOCKS]) }}
-      </div>
-      <div v-if="showDetails" class="small text-body-secondary">
-        {{ blocksAsBytes(node[NodeProp.EXCLUSIVE_LOCAL_READ_BLOCKS]) }}
-      </div>
-    </td>
-    <td
-      class="text-end text-nowrap grid-progress-cell"
-      v-if="columns.includes('local.dirtied')"
-    >
-      <GridProgressBar :percentage="localDirtiedPercent"></GridProgressBar>
-      <div
-        class="position-relative"
-        v-tippy="{
-          content: buffersByMetricTooltip(
-            NodeProp.EXCLUSIVE_LOCAL_DIRTIED_BLOCKS
-          ),
-          allowHTML: true,
-        }"
-      >
-        {{ blocks(node[NodeProp.EXCLUSIVE_LOCAL_DIRTIED_BLOCKS]) }}
-      </div>
-      <div v-if="showDetails" class="small text-body-secondary">
-        {{ blocksAsBytes(node[NodeProp.EXCLUSIVE_LOCAL_DIRTIED_BLOCKS]) }}
-      </div>
-    </td>
-    <td
-      class="text-end text-nowrap grid-progress-cell"
-      v-if="columns.includes('local.written')"
-    >
-      <GridProgressBar :percentage="localWrittenPercent"></GridProgressBar>
-      <div
-        class="position-relative"
-        v-tippy="{
-          content: buffersByMetricTooltip(
-            NodeProp.EXCLUSIVE_LOCAL_WRITTEN_BLOCKS
-          ),
-          allowHTML: true,
-        }"
-      >
-        {{ blocks(node[NodeProp.EXCLUSIVE_LOCAL_WRITTEN_BLOCKS]) }}
-      </div>
-      <div v-if="showDetails" class="small text-body-secondary">
-        {{ blocksAsBytes(node[NodeProp.EXCLUSIVE_LOCAL_WRITTEN_BLOCKS]) }}
       </div>
     </td>
   </tr>
