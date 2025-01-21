@@ -44,36 +44,15 @@ const viewOptions = inject(ViewOptionsKey) as ViewOptions
 const activeTab = ref<string>("misc")
 
 const {
-  buffersByMetricTooltip,
   resultClass,
-  costTooltip,
   durationClass,
   estimationClass,
-  estimateFactorPercent,
-  estimateFactorTooltip,
   executionTimePercent,
-  heapFetchesClass,
-  heapFetchesTooltip,
-  localDirtiedPercent,
-  localHitPercent,
-  localReadPercent,
-  localWrittenPercent,
   nodeName,
-  rowsRemoved,
-  rowsRemovedClass,
-  rowsRemovedPercent,
-  rowsRemovedPercentString,
-  rowsRemovedProp,
-  rowsRemovedTooltip,
   rowsTooltip,
-  sharedDirtiedPercent,
-  sharedHitPercent,
-  sharedReadPercent,
-  sharedWrittenPercent,
-  tempReadPercent,
-  tempWrittenPercent,
   timeTooltip,
-  tilde,
+  resultTooltip,
+  estimationTooltip
 } = useNode(plan, node, viewOptions)
 const showDetails = ref<boolean>(false)
 
@@ -100,14 +79,14 @@ function formattedProp(propName: keyof typeof NodeProp) {
         :percentage="
           (node[NodeProp.ACTUAL_TIME] /
             (plan.planStats.executionTime ||
-              plan.content.Plan[NodeProp.ACTUAL_TIME])) *
+              plan.content[NodeProp.ACTUAL_TIME])) *
           100
         "
         :percentage2="
-          ((node[NodeProp.ACTUAL_TIME] -
-            node[NodeProp.CPU_TIME]) /
+          ((node[NodeProp.CPU_TIME] -
+            node[NodeProp.ACTUAL_TIME]) /
             (plan.planStats.executionTime ||
-              plan.content.Plan[NodeProp.ACTUAL_TIME])) *
+              plan.content[NodeProp.ACTUAL_TIME])) *
           100
         "
       ></GridProgressBar>
@@ -153,15 +132,18 @@ function formattedProp(propName: keyof typeof NodeProp) {
       class="text-end grid-progress-cell text-nowrap"
       v-if="columns.includes('estimation')"
     >
-      <GridProgressBar :percentage="estimateFactorPercent"></GridProgressBar>
+<!--      <GridProgressBar-->
+<!--        :percentage="estimationPercent">-->
+<!--      </GridProgressBar>-->
       <!-- estimation -->
       <div
-        v-if="node[NodeProp.PLANNER_ESTIMATE_FACTOR] != undefined"
-        v-tippy="{ content: estimateFactorTooltip, allowHTML: true }"
+        v-if="node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] != undefined"
+        v-tippy="{ content: estimationTooltip, allowHTML: true }"
       >
         <div
           class="position-relative d-flex"
-          v-if="node[NodeProp.PLANNER_ESTIMATE_FACTOR] != 1"
+          v-if="node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] !=
+                node[NodeProp.ACTUAL_ROWS]"
         >
           <severity-bullet
             :severity="estimationClass"
@@ -169,32 +151,25 @@ function formattedProp(propName: keyof typeof NodeProp) {
           ></severity-bullet>
           <span class="flex-grow-1">
             <span
-              v-html="factor(node[NodeProp.PLANNER_ESTIMATE_FACTOR] || 0)"
+              v-html="node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] || 0"
             ></span>
             <span
               v-if="
-                node[NodeProp.PLANNER_ESTIMATE_DIRECTION] ===
-                EstimateDirection.under
+                node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] <
+                node[NodeProp.ACTUAL_ROWS]
               "
             >
               ▾
             </span>
             <span
               v-if="
-                node[NodeProp.PLANNER_ESTIMATE_DIRECTION] ===
-                EstimateDirection.over
+                node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] >
+                node[NodeProp.ACTUAL_ROWS]
               "
             >
               ▴
             </span>
           </span>
-        </div>
-        <div
-          v-if="showDetails && node[NodeProp.PLANNER_ESTIMATE_FACTOR] != 1"
-          class="small text-body-secondary"
-        >
-          Planned:<br />
-          {{ node[NodeProp.PLAN_ROWS_REVISED]?.toLocaleString() }}
         </div>
       </div>
     </td>
@@ -209,10 +184,10 @@ function formattedProp(propName: keyof typeof NodeProp) {
           )
         "
       ></GridProgressBar>
-      <!-- cost -->
+      <!-- result -->
       <div
         class="position-relative d-flex"
-        v-tippy="{ content: costTooltip, allowHTML: true }"
+        v-tippy="{ content: resultTooltip, allowHTML: true }"
       >
         <severity-bullet
           :severity="resultClass"
@@ -227,40 +202,6 @@ function formattedProp(propName: keyof typeof NodeProp) {
       class="text-end grid-progress-cell text-nowrap"
       v-if="columns.includes('filter')"
     >
-      <!-- filter -->
-      <template v-if="rowsRemoved">
-        <GridProgressBar :percentage="rowsRemovedPercent"></GridProgressBar>
-        <div
-          class="position-relative d-flex"
-          v-tippy="{ content: rowsRemovedTooltip, allowHTML: true }"
-        >
-          <severity-bullet
-            :severity="rowsRemovedClass"
-            v-if="rowsRemovedClass"
-          ></severity-bullet>
-          <span class="flex-grow-1"> {{ rowsRemovedPercentString }}% </span>
-        </div>
-        <div v-if="showDetails" class="small text-body-secondary">
-          {{ tilde + formattedProp(rowsRemovedProp) }}
-        </div>
-      </template>
-    </td>
-    <td
-      class="text-end grid-progress-cell text-nowrap"
-      v-if="columns.includes('heapfetches')"
-    >
-      <div
-        class="position-relative d-flex"
-        v-tippy="{ content: heapFetchesTooltip, allowHTML: true }"
-      >
-        <severity-bullet
-          :severity="heapFetchesClass"
-          v-if="heapFetchesClass"
-        ></severity-bullet>
-        <span class="flex-grow-1">
-          {{ node[NodeProp.HEAP_FETCHES]?.toLocaleString() }}
-        </span>
-      </div>
     </td>
     <td
       class="node-type"
@@ -374,7 +315,8 @@ function formattedProp(propName: keyof typeof NodeProp) {
                 class="nav-link px-2 py-1"
                 :class="{
                   active: activeTab === 'output',
-                  disabled: !node[NodeProp.EXTRA_INFO][NodeProp.AGGREGATES]
+                  disabled: !node[NodeProp.EXTRA_INFO][NodeProp.PROJECTIONS]
+                      && !node[NodeProp.EXTRA_INFO][NodeProp.AGGREGATES]
                 }"
                 @click.prevent.stop="activeTab = 'output'"
                 href=""
@@ -393,7 +335,8 @@ function formattedProp(propName: keyof typeof NodeProp) {
             <div
               class="tab-pane p-1 border border-top-0 overflow-auto font-monospace"
               :class="{ 'show active': activeTab === 'output' }"
-              v-html="node[NodeProp.EXTRA_INFO][NodeProp.AGGREGATES]"
+              v-html="node[NodeProp.EXTRA_INFO][NodeProp.PROJECTIONS]
+              || node[NodeProp.EXTRA_INFO][NodeProp.AGGREGATES]"
               style="max-height: 200px"
               @mousewheel.stop
             ></div>

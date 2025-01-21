@@ -20,22 +20,16 @@ export default function useNode(
   const executionTimePercent = ref<number>(NaN)
   const resultPercent = ref<number>(NaN)
   const rowsPercent = ref<number>(NaN)
+  const estimationPercent = ref<number>(NaN)
   const barWidth = ref<number>(0)
   const highlightValue = ref<string | null>(null)
-  // const plannerRowEstimateValue = ref<number>()
-  // const plannerRowEstimateDirection = ref<EstimateDirection>()
-  // const rowsRemoved = ref<number>(NaN)
-  // const rowsRemovedPercent = ref<number>(NaN)
-  // const rowsRemovedPercentString = ref<string>()
 
   onBeforeMount(() => {
     calculateBar()
     calculateDuration()
     calculateResult()
     calculateRows()
-    // plannerRowEstimateDirection.value =
-    //   node[NodeProp.PLANNER_ESTIMATE_DIRECTION]
-    // plannerRowEstimateValue.value = node[NodeProp.PLANNER_ESTIMATE_FACTOR]
+    calculateEstimation()
   })
 
   watch(() => viewOptions.highlightType, calculateBar)
@@ -111,36 +105,11 @@ export default function useNode(
     rowsPercent.value = _.round((rows / maxRows) * 100)
   }
 
-  // type NodePropStrings = keyof typeof NodeProp
-  // const rowsRemovedProp = computed((): NodePropStrings => {
-  //   const nodeKey = Object.keys(node).find(
-  //     (key) =>
-  //       key === NodeProp.ROWS_REMOVED_BY_FILTER_REVISED ||
-  //       key === NodeProp.ROWS_REMOVED_BY_JOIN_FILTER_REVISED
-  //   )
-  //   return Object.keys(NodeProp).find(
-  //     (prop) => NodeProp[prop as NodePropStrings] === nodeKey
-  //   ) as NodePropStrings
-  // })
-  //
-  // function calculateRowsRemoved() {
-  //   if (rowsRemovedProp.value) {
-  //     type NodePropStrings = keyof typeof NodeProp
-  //     const removed = node[
-  //       NodeProp[rowsRemovedProp.value as NodePropStrings]
-  //     ] as number
-  //     rowsRemoved.value = removed
-  //     const actual = node[NodeProp.ACTUAL_ROWS_REVISED]
-  //     rowsRemovedPercent.value = _.floor((removed / (removed + actual)) * 100)
-  //     if (rowsRemovedPercent.value === 100) {
-  //       rowsRemovedPercentString.value = ">99"
-  //     } else if (rowsRemovedPercent.value === 0) {
-  //       rowsRemovedPercentString.value = "<1"
-  //     } else {
-  //       rowsRemovedPercentString.value = rowsRemovedPercent.value.toString()
-  //     }
-  //   }
-  // }
+  function calculateEstimation() {
+    const maxEstim = plan.value.content.maxEstimatedRows as number
+    const estim = node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] as number
+    estimationPercent.value = _.round((estim / maxEstim) * 100)
+  }
 
   const durationClass = computed(() => {
     let c
@@ -184,173 +153,23 @@ export default function useNode(
     return false
   })
 
-  // const rowsRemovedClass = computed(() => {
-  //   let c
-  //   // high percent of rows removed is relevant only when duration is high
-  //   // as well
-  //   const i = rowsRemovedPercent.value * executionTimePercent.value
-  //   if (i > 2000) {
-  //     c = 4
-  //   } else if (i > 500) {
-  //     c = 3
-  //   }
-  //   if (c) {
-  //     return "c-" + c
-  //   }
-  //   return false
-  // })
-
-  // const heapFetchesClass = computed(() => {
-  //   let c
-  //   const i =
-  //     ((node[NodeProp.HEAP_FETCHES] as number) /
-  //       ((node[NodeProp.ACTUAL_ROWS] as number) +
-  //         ((node[NodeProp.ROWS_REMOVED_BY_FILTER] as number) || 0) +
-  //         ((node[NodeProp.ROWS_REMOVED_BY_JOIN_FILTER] as number) || 0))) *
-  //     100
-  //   if (i > 90) {
-  //     c = 4
-  //   } else if (i > 40) {
-  //     c = 3
-  //   } else if (i > 0) {
-  //     c = 2
-  //   }
-  //   if (c) {
-  //     return "c-" + c
-  //   }
-  //   return false
-  // })
-  //
-  // const filterTooltip = computed((): string => {
-  //   return rowsRemovedPercentString.value + "% of rows removed by filter"
-  // })
-  //
-  // const filterDetailTooltip = computed((): string => {
-  //   return `Filter used:<br><pre class="mb-0" style="white-space: pre-wrap;"><code>${
-  //     node[NodeProp.FILTER]
-  //   }</code></pre>`
-  // })
+  const estimationClass = computed(() => {
+    let c
+    const i = estimationPercent.value
+    if (i > 90) {
+      c = 4
+    } else if (i > 50) {
+      c = 3
+    }
+    if (c) {
+      return "c-" + c
+    }
+    return false
+  })
 
   const isNeverExecuted = computed((): boolean => {
     return !!plan.value.planStats.executionTime && !node[NodeProp.ACTUAL_TIME]
   })
-
-  // const isParallelAware = computed((): boolean => {
-  //   return node[NodeProp.PARALLEL_AWARE]
-  // })
-
-  // const workersLaunchedCount = computed((): number => {
-  //   console.warn("Make sure it works for workers that are not array")
-  //   if (node[NodeProp.WORKERS_LAUNCHED]) {
-  //     return node[NodeProp.WORKERS_LAUNCHED] as number
-  //   }
-  //   const workers = node[NodeProp.WORKERS] as Worker[]
-  //   return workers ? workers.length : NaN
-  // })
-  //
-  // const workersPlannedCount = computed((): number => {
-  //   return node[NodeProp.WORKERS_PLANNED_BY_GATHER] as number
-  // })
-  //
-  // const workersPlannedCountReversed = computed((): number[] => {
-  //   const workersPlanned = node[NodeProp.WORKERS_PLANNED_BY_GATHER]
-  //   return [...Array(workersPlanned).keys()].slice().reverse()
-  // })
-  //
-  // const estimateFactorPercent = computed((): number => {
-  //   switch (node[NodeProp.PLANNER_ESTIMATE_FACTOR]) {
-  //     case Infinity:
-  //       return 100
-  //     case 1:
-  //       return 0
-  //     default:
-  //       return (
-  //         ((node[NodeProp.PLANNER_ESTIMATE_FACTOR] || 0) /
-  //           plan.value.planStats.maxEstimateFactor) *
-  //         100
-  //       )
-  //   }
-  // })
-  //
-  // const sharedHitPercent = computed((): number => {
-  //   return (
-  //     (node[NodeProp.EXCLUSIVE_SHARED_HIT_BLOCKS] /
-  //       plan.value.planStats.maxBlocks?.[BufferLocation.shared]) *
-  //     100
-  //   )
-  // })
-  //
-  // const sharedReadPercent = computed((): number => {
-  //   return (
-  //     (node[NodeProp.EXCLUSIVE_SHARED_READ_BLOCKS] /
-  //       plan.value.planStats.maxBlocks?.[BufferLocation.shared]) *
-  //     100
-  //   )
-  // })
-  //
-  // const sharedDirtiedPercent = computed((): number => {
-  //   return (
-  //     (node[NodeProp.EXCLUSIVE_SHARED_DIRTIED_BLOCKS] /
-  //       plan.value.planStats.maxBlocks?.[BufferLocation.shared]) *
-  //     100
-  //   )
-  // })
-  //
-  // const sharedWrittenPercent = computed((): number => {
-  //   return (
-  //     (node[NodeProp.EXCLUSIVE_SHARED_WRITTEN_BLOCKS] /
-  //       plan.value.planStats.maxBlocks?.[BufferLocation.shared]) *
-  //     100
-  //   )
-  // })
-  //
-  // const tempReadPercent = computed((): number => {
-  //   return (
-  //     (node[NodeProp.EXCLUSIVE_TEMP_READ_BLOCKS] /
-  //       plan.value.planStats.maxBlocks?.[BufferLocation.temp]) *
-  //     100
-  //   )
-  // })
-  //
-  // const tempWrittenPercent = computed((): number => {
-  //   return (
-  //     (node[NodeProp.EXCLUSIVE_TEMP_WRITTEN_BLOCKS] /
-  //       plan.value.planStats.maxBlocks?.[BufferLocation.temp]) *
-  //     100
-  //   )
-  // })
-  //
-  // const localHitPercent = computed((): number => {
-  //   return (
-  //     (node[NodeProp.EXCLUSIVE_LOCAL_HIT_BLOCKS] /
-  //       plan.value.planStats.maxBlocks?.[BufferLocation.local]) *
-  //     100
-  //   )
-  // })
-  //
-  // const localReadPercent = computed((): number => {
-  //   return (
-  //     (node[NodeProp.EXCLUSIVE_LOCAL_READ_BLOCKS] /
-  //       plan.value.planStats.maxBlocks?.[BufferLocation.local]) *
-  //     100
-  //   )
-  // })
-  //
-  // const localDirtiedPercent = computed((): number => {
-  //   return (
-  //     (node[NodeProp.EXCLUSIVE_LOCAL_DIRTIED_BLOCKS] /
-  //       plan.value.planStats.maxBlocks?.[BufferLocation.local]) *
-  //     100
-  //   )
-  // })
-  //
-  // const localWrittenPercent = computed((): number => {
-  //   return (
-  //     (node[NodeProp.EXCLUSIVE_LOCAL_WRITTEN_BLOCKS] /
-  //       plan.value.planStats.maxBlocks?.[BufferLocation.local]) *
-  //     100
-  //   )
-  // })
 
   const timeTooltip = computed((): string => {
     return [
@@ -367,205 +186,46 @@ export default function useNode(
     )
   })
 
-  // const estimateFactorTooltip = computed((): string => {
-  //   const estimateFactor = node[NodeProp.PLANNER_ESTIMATE_FACTOR]
-  //   const estimateDirection = node[NodeProp.PLANNER_ESTIMATE_DIRECTION]
-  //   let text = ""
-  //   if (estimateFactor === undefined || estimateDirection === undefined) {
-  //     return "N/A"
-  //   }
-  //   switch (estimateDirection) {
-  //     case EstimateDirection.over:
-  //       text += "Over"
-  //       break
-  //     case EstimateDirection.under:
-  //       text += "Under"
-  //       break
-  //     default:
-  //       text += "Correctly"
-  //   }
-  //   text += " estimated"
-  //   text +=
-  //     estimateFactor !== 1 ? " by <b>" + factor(estimateFactor) + "</b>" : ""
-  //   text += "<br>"
-  //   text += `Rows: ${rows(node[NodeProp.ACTUAL_ROWS_REVISED])} `
-  //   text += `(${rows(node[NodeProp.PLAN_ROWS_REVISED] as number)} planned)`
-  //   return text
-  // })
+  const estimationTooltip = computed((): string => {
+    const estimation = node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] as number
+    const actual = node[NodeProp.ACTUAL_ROWS]
+    let text = ""
+    if (estimation === undefined) {
+      return "N/A"
+    }
+    if (estimation > actual) {
+      text += "Over"
+    } else if (estimation < actual) {
+      text += "Under"
+    } else {
+      text += "Correctly"
+    }
+    text += " estimated"
+    text += "<br>"
+    text += `Rows: ${rows(node[NodeProp.ACTUAL_ROWS])} `
+    text += `(${rows(estimation as number)} estimated)`
+    return text
+  })
 
   const resultTooltip = computed((): string => {
     return ["Result: ", rows(node[NodeProp.RESULT_SET_SIZE] as number)].join("")
   })
 
-  // const rowsRemovedTooltip = computed((): string => {
-  //   return [
-  //     "Rows removed by filter: ",
-  //     tilde.value,
-  //     rows(rowsRemoved.value),
-  //   ].join("")
-  // })
-
-  // const hasSeveralLoops = computed((): boolean => {
-  //   return (node[NodeProp.ACTUAL_LOOPS] as number) > 1
-  // })
-  //
-  // const tilde = computed((): string => {
-  //   return hasSeveralLoops.value ? "~" : ""
-  // })
-
-  // const buffersByLocationTooltip = computed(
-  //   () =>
-  //     (location: BufferLocation): string => {
-  //       let text = ""
-  //       let hit
-  //       let read
-  //       let written
-  //       let dirtied
-  //       switch (location) {
-  //         case BufferLocation.shared:
-  //           hit = node[NodeProp.EXCLUSIVE_SHARED_HIT_BLOCKS]
-  //           read = node[NodeProp.EXCLUSIVE_SHARED_READ_BLOCKS]
-  //           dirtied = node[NodeProp.EXCLUSIVE_SHARED_DIRTIED_BLOCKS]
-  //           written = node[NodeProp.EXCLUSIVE_SHARED_WRITTEN_BLOCKS]
-  //           break
-  //         case BufferLocation.temp:
-  //           read = node[NodeProp.EXCLUSIVE_TEMP_READ_BLOCKS]
-  //           written = node[NodeProp.EXCLUSIVE_TEMP_WRITTEN_BLOCKS]
-  //           break
-  //         case BufferLocation.local:
-  //           hit = node[NodeProp.EXCLUSIVE_LOCAL_HIT_BLOCKS]
-  //           read = node[NodeProp.EXCLUSIVE_LOCAL_READ_BLOCKS]
-  //           dirtied = node[NodeProp.EXCLUSIVE_LOCAL_DIRTIED_BLOCKS]
-  //           written = node[NodeProp.EXCLUSIVE_LOCAL_WRITTEN_BLOCKS]
-  //           break
-  //       }
-  //       text +=
-  //         '<table class="table table-dark table-sm table-borderless mb-0">'
-  //       text += hit
-  //         ? '<tr><td>Hit:</td><td class="text-end">' +
-  //           blocks(hit, true) +
-  //           "</td></tr>"
-  //         : ""
-  //       text += read
-  //         ? '<tr><td>Read:</td><td class="text-end">' +
-  //           blocks(read, true) +
-  //           "</td></tr>"
-  //         : ""
-  //       text += dirtied
-  //         ? '<tr><td>Dirtied:</td><td class="text-end">' +
-  //           blocks(dirtied, true) +
-  //           "</td></tr>"
-  //         : ""
-  //       text += written
-  //         ? '<tr><td>Written:</td><td class="text-end">' +
-  //           blocks(written, true) +
-  //           "</td></tr>"
-  //         : ""
-  //       text += "</table>"
-  //
-  //       if (!hit && !read && !dirtied && !written) {
-  //         text = " N/A"
-  //       }
-  //
-  //       switch (location) {
-  //         case BufferLocation.shared:
-  //           text = "Shared Blocks:" + text
-  //           break
-  //         case BufferLocation.temp:
-  //           text = "Temp Blocks:" + text
-  //           break
-  //         case BufferLocation.local:
-  //           text = "Local Blocks:" + text
-  //           break
-  //       }
-  //       return text
-  //     }
-  // )
-  //
-  // const buffersByMetricTooltip = computed(() => (metric: NodeProp): string => {
-  //   let text = '<table class="table table-dark table-sm table-borderless mb-0">'
-  //   text += `<tr><td>${metric}:</td><td class="text-end">`
-  //   if (node[metric]) {
-  //     text += `${blocks(node[metric] as number, true)}</td></tr>`
-  //   }
-  //   return text
-  // })
-  //
-  // const ioTooltip = computed((): string => {
-  //   let text = ""
-  //   const read = node[NodeProp.EXCLUSIVE_IO_READ_TIME]
-  //   const averageRead = node[NodeProp.AVERAGE_IO_READ_TIME]
-  //   const write = node[NodeProp.EXCLUSIVE_IO_WRITE_TIME]
-  //   const averageWrite = node[NodeProp.AVERAGE_IO_WRITE_TIME]
-  //   text += '<table class="table table-dark table-sm table-borderless mb-0">'
-  //   text += read
-  //     ? '<tr><td>Read:</td><td class="text-end">' +
-  //       duration(read) +
-  //       "<br><small>~" +
-  //       transferRate(averageRead) +
-  //       "</small>" +
-  //       "</td></tr>"
-  //     : ""
-  //   text += write
-  //     ? '<tr><td>Write:</td><td class="text-end">' +
-  //       duration(write) +
-  //       "<br><small>~" +
-  //       transferRate(averageWrite) +
-  //       "</small>" +
-  //       "</td></tr>"
-  //     : ""
-  //   return "IO " + text
-  // })
-  //
-  // const heapFetchesTooltip = computed((): string => {
-  //   return `Heap Fetches: ${node[NodeProp.HEAP_FETCHES]?.toLocaleString()}`
-  // })
-
   return {
     barColor,
     barWidth,
-    // buffersByLocationTooltip,
-    // buffersByMetricTooltip,
     resultClass,
     resultTooltip,
     durationClass,
     rowsClass,
-    // estimateFactorPercent,
-    // estimateFactorTooltip,
-    // estimationClass,
+    estimationTooltip,
+    estimationClass,
+    // estimationPercent,
     executionTimePercent,
-    // filterTooltip,
-    // filterDetailTooltip,
-    // heapFetchesClass,
-    // heapFetchesTooltip,
     highlightValue,
-    // ioTooltip,
     isNeverExecuted,
-    // isParallelAware,
-    // localDirtiedPercent,
-    // localHitPercent,
-    // localReadPercent,
-    // localWrittenPercent,
     nodeName,
-    // plannerRowEstimateDirection,
-    // plannerRowEstimateValue,
-    // rowsRemoved,
-    // rowsRemovedClass,
-    // rowsRemovedPercent,
-    // rowsRemovedPercentString,
-    // rowsRemovedProp,
-    // rowsRemovedTooltip,
     rowsTooltip,
-    // sharedDirtiedPercent,
-    // sharedHitPercent,
-    // sharedReadPercent,
-    // sharedWrittenPercent,
-    // tempReadPercent,
-    // tempWrittenPercent,
-    // tilde,
-    timeTooltip,
-    // workersLaunchedCount,
-    // workersPlannedCount,
-    // workersPlannedCountReversed,
+    timeTooltip
   }
 }
