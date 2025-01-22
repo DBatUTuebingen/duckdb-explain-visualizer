@@ -129,21 +129,23 @@ onBeforeMount(() => {
     plan.value = undefined
     return
   }
-  // console.log("PARSED JSON: ")
-  // console.log(planJson)
-  queryText.value = planJson["query_name"] || props.planQuery
+  queryText.value = planJson[NodeProp.QUERY] || props.planQuery
   // console.log("Query Name: " + queryText.value)
   plan.value = planService.createPlan("", planJson, queryText.value)
   const content = plan.value.content
-  console.log("CREATED PLAN: ")
-  console.log(content)
-  planStats.executionTime = (content[NodeProp.CPU_TIME] as number) || NaN
+  // console.log("CREATED PLAN: ")
+  // console.log(content)
+  planStats.blockedThreadTime = (planJson[NodeProp.BLOCKED_THREAD_TIME] as number) || NaN
+  console.log(planStats.blockedThreadTime)
+  planStats.executionTime = (planJson[NodeProp.CPU_TIME] as number) || NaN
+  planStats.latency = (planJson[NodeProp.LATENCY] as number) || NaN
+  planStats.rowsReturned = (planJson[NodeProp.ROWS_RETURNED] as number) || NaN
+  planStats.resultSize = (planJson[NodeProp.RESULT_SET_SIZE] as number) || NaN
   planStats.maxRows = content.maxRows || NaN
   planStats.maxRowsScanned = content.maxRowsScanned || NaN
   planStats.maxResult = content.maxResult || NaN
   planStats.maxEstimatedRows = content.maxEstimatedRows || NaN
   planStats.maxDuration = content.maxDuration || NaN
-  planStats.settings = content.Settings as Settings
   plan.value.planStats = planStats
   // console.log(plan.value.planStats)
 
@@ -157,11 +159,6 @@ onBeforeMount(() => {
       (node: Node) => node[NodeProp.PLANS]
     )
   }
-  ctes.value = []
-  _.each(plan.value?.ctes, (cte) => {
-    const tree = layout.hierarchy(cte, (node: Node) => node[NodeProp.PLANS])
-    ctes.value.push(tree)
-  })
   doLayout()
 })
 
@@ -173,56 +170,6 @@ function doLayout() {
     mainLayoutExtent[0],
     mainLayoutExtent[3] + padding,
   ]
-  _.each(ctes.value, (tree) => {
-    const cteRootNode = layout(tree)
-    const currentCteExtent = getLayoutExtent(cteRootNode)
-    const currentWidth = currentCteExtent[1] - currentCteExtent[0]
-    cteRootNode.each((node) => {
-      node.x += offset[0] - currentCteExtent[0]
-      node.y += offset[1]
-    })
-    offset[0] += currentWidth + padding * 2
-  })
-
-  // TESTING WITHOUT IT, BECAUSE MAYBE NOT NEEDED FOR DUCKDB
-  //// compute links from node to CTE
-  // toCteLinks.value = []
-  // _.each(layoutRootNode.value.descendants(), (source) => {
-  //   if (_.has(source.data, NodeProp.CTE_NAME)) {
-  //     const cte = _.find(ctes.value, (cteNode) => {
-  //       return (
-  //         cteNode.data[NodeProp.SUBPLAN_NAME] ==
-  //         "CTE " + source.data[NodeProp.CTE_NAME]
-  //       )
-  //     })
-  //     if (cte) {
-  //       toCteLinks.value.push({
-  //         source: source,
-  //         target: cte,
-  //       })
-  //     }
-  //   }
-  // })
-  //
-  // // compute links from node in CTE to other CTE
-  // _.each(ctes.value, (cte) => {
-  //   _.each(cte.descendants(), (sourceCte) => {
-  //     if (_.has(sourceCte.data, NodeProp.CTE_NAME)) {
-  //       const targetCte = _.find(ctes.value, (cteNode) => {
-  //         return (
-  //           cteNode.data[NodeProp.SUBPLAN_NAME] ==
-  //           "CTE " + sourceCte.data[NodeProp.CTE_NAME]
-  //         )
-  //       })
-  //       if (targetCte) {
-  //         toCteLinks.value.push({
-  //           source: sourceCte,
-  //           target: targetCte,
-  //         })
-  //       }
-  //     }
-  //   })
-  // })
 }
 
 onMounted(() => {

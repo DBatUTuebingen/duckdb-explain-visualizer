@@ -43,6 +43,7 @@ export enum CenterMode {
 
 export enum NodeProp {
   // plan property keys
+  QUERY = "query_name",
   NODE_TYPE = "operator_type", // the name of each operator
   ACTUAL_ROWS = "operator_cardinality", // the number of rows it returns to its parent
   ACTUAL_TIME = "operator_timing", // the time taken by each operator
@@ -53,6 +54,8 @@ export enum NodeProp {
   CUMULATIVE_ROWS_SCANNED = "cumulative_rows_scanned",
   OPERATOR_ROWS_SCANNED = "operator_rows_scanned", // The total rows scanned by each operator.
   RESULT_SET_SIZE = "result_set_size", // The size of the result.
+  LATENCY = "latency",
+  ROWS_RETURNED = "rows_returned",
 
   // EXTRA INFO KEYS
   EXTRA_INFO = "extra_info", // Unique operator metrics
@@ -103,6 +106,8 @@ nodePropTypes[NodeProp.CPU_TIME] = PropType.duration
 nodePropTypes[NodeProp.BLOCKED_THREAD_TIME] = PropType.duration
 nodePropTypes[NodeProp.RESULT_SET_SIZE] = PropType.bytes
 nodePropTypes[NodeProp.ACTUAL_TIME] = PropType.duration
+nodePropTypes[NodeProp.LATENCY] = PropType.duration
+nodePropTypes[NodeProp.ROWS_RETURNED] = PropType.rows
 
 export class WorkerProp {
   // plan property keys

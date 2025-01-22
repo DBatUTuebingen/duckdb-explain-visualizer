@@ -5,6 +5,7 @@ import type { Node } from "@/interfaces"
 import { NodeProp } from "@/enums"
 import { shouldShowProp } from "@/services/help-service"
 import { formatNodeProp } from "@/filters"
+
 const nodeProps = ref<
   {
     key: keyof typeof NodeProp
@@ -27,7 +28,6 @@ onBeforeMount(() => {
 function calculateProps() {
   nodeProps.value = _.chain(node)
     .omit(NodeProp.PLANS)
-    .omit(NodeProp.WORKERS)
     .map((value, key) => {
       return { key: key as keyof typeof NodeProp, value }
     })

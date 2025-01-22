@@ -16,11 +16,6 @@ export interface IPlan {
 }
 
 export interface IPlanContent {
-  maxRows?: number
-  maxRowsScanned ?: number
-  maxEstimatedRows ?: number
-  maxResult ?: number
-  maxDuration?: number
   "Query Text"?: string
   [k: string]:
     | Node
@@ -30,7 +25,11 @@ export interface IPlanContent {
 }
 
 export interface IPlanStats {
+  blockedThreadTime?: number
   executionTime?: number
+  latency?: number
+  rowsReturned?: number
+  resultSize?: number
   maxRows: number
   maxRowsScanned: number
   maxEstimatedRows: number
