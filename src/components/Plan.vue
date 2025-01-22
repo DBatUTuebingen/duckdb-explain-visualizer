@@ -14,7 +14,6 @@ import {
 import { Splitpanes, Pane } from "splitpanes"
 
 import type {
-  IBlocksStats,
   IPlan,
   IPlanContent,
   IPlanStats,
