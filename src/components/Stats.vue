@@ -17,30 +17,30 @@ const plan = inject(PlanKey) as Ref<IPlan>
 onBeforeMount(() => {
   executionTime.value =
     plan.value.planStats.executionTime ||
-    (plan.value.content.Plan?.[NodeProp.ACTUAL_TIME] as number)
-  if (plan.value.content.Plan) {
-    flatten(nodes, plan.value.content.Plan)
-    _.each(plan.value.ctes, (cte) => {
-      flatten(nodes, cte)
-    })
+    (plan.value.content?.[NodeProp.ACTUAL_TIME] as number)
+  if (plan.value.content) {
+    flatten(nodes, plan.value.content)
   }
 })
 
 function flatten(output: Node[], node: Node) {
   // [level, node, isLastSibbling, branches]
   output.push(node)
-  _.each(node.Plans, (subnode) => {
+  _.each(node[NodeProp.PLANS], (subnode) => {
     flatten(output, subnode)
   })
 }
 
 function durationPercent(nodes: Node[]) {
-  return _.sumBy(nodes, NodeProp.EXCLUSIVE_DURATION) / executionTime.value
+  return _.sumBy(nodes, NodeProp.ACTUAL_TIME) / executionTime.value
 }
 
 const perTable = computed(() => {
+  const extra_info_nodes: Node[] = _.map(nodes, (n) => {
+    return n[NodeProp.EXTRA_INFO]
+  })
   const tables: { [key: string]: Node[] } = _.groupBy(
-    _.filter(nodes, (n) => n[NodeProp.RELATION_NAME] !== undefined),
+    _.filter(extra_info_nodes, (n) => n[NodeProp.RELATION_NAME] !== undefined),
     NodeProp.RELATION_NAME
   )
   const values: StatsTableItemType[] = []
@@ -48,7 +48,7 @@ const perTable = computed(() => {
     values.push({
       name: tableName,
       count: nodes.length,
-      time: _.sumBy(nodes, NodeProp.EXCLUSIVE_DURATION),
+      time: _.sumBy(nodes, NodeProp.ACTUAL_TIME),
       timePercent: durationPercent(nodes),
       nodes,
     })
@@ -57,8 +57,11 @@ const perTable = computed(() => {
 })
 
 const perFunction = computed(() => {
+  const extra_info_nodes: Node[] = _.map(nodes, (n) => {
+    return n[NodeProp.EXTRA_INFO]
+  })
   const functions: { [key: string]: Node[] } = _.groupBy(
-    _.filter(nodes, (n) => n[NodeProp.FUNCTION_NAME] !== undefined),
+    _.filter(extra_info_nodes, (n) => n[NodeProp.FUNCTION_NAME] !== undefined),
     NodeProp.FUNCTION_NAME
   )
   const values: StatsTableItemType[] = []
@@ -66,7 +69,7 @@ const perFunction = computed(() => {
     values.push({
       name: functionName,
       count: nodes.length,
-      time: _.sumBy(nodes, NodeProp.EXCLUSIVE_DURATION),
+      time: _.sumBy(nodes, NodeProp.ACTUAL_TIME),
       timePercent: durationPercent(nodes),
       nodes,
     })
@@ -84,7 +87,7 @@ const perNodeType = computed(() => {
     values.push({
       name: nodeType,
       count: nodes.length,
-      time: _.sumBy(nodes, NodeProp.EXCLUSIVE_DURATION),
+      time: _.sumBy(nodes, NodeProp.ACTUAL_TIME),
       timePercent: durationPercent(nodes),
       nodes,
     })
@@ -92,17 +95,20 @@ const perNodeType = computed(() => {
   return values
 })
 
-const perIndex = computed(() => {
-  const indexes: { [key: string]: Node[] } = _.groupBy(
-    _.filter(nodes, (n) => n[NodeProp.INDEX_NAME] !== undefined),
-    NodeProp.INDEX_NAME
+const perCTE = computed(() => {
+  const extra_info_nodes: Node[] = _.map(nodes, (n) => {
+    return n[NodeProp.EXTRA_INFO]
+  })
+  const cte_names: { [key: string]: Node[] } = _.groupBy(
+    _.filter(extra_info_nodes, (n) => n[NodeProp.CTE_NAME] !== undefined),
+    NodeProp.CTE_NAME
   )
   const values: StatsTableItemType[] = []
-  _.each(indexes, (nodes, indexName) => {
+  _.each(cte_names, (nodes, cteName) => {
     values.push({
-      name: indexName,
+      name: cteName,
       count: nodes.length,
-      time: _.sumBy(nodes, NodeProp.EXCLUSIVE_DURATION),
+      time: _.sumBy(nodes, NodeProp.ACTUAL_TIME),
       timePercent: durationPercent(nodes),
       nodes,
     })
@@ -235,14 +241,14 @@ const perIndex = computed(() => {
           <div class="card-body">
             <sorted-table
               class="table table-sm mb-0"
-              :values="perIndex"
+              :values="perCTE"
               sort="time"
               :dir="SortDirection.desc"
             >
               <thead class="table-secondary">
                 <tr>
                   <th scope="col">
-                    <sort-link name="name">Index</sort-link>
+                    <sort-link name="name">CTE</sort-link>
                   </th>
                   <th scope="col" class="text-end">
                     <sort-link name="count">Count</sort-link>
@@ -260,10 +266,10 @@ const perIndex = computed(() => {
                   ></stats-table-item>
                 </template>
               </template>
-              <tbody v-if="!perIndex.length">
+              <tbody v-if="!perCTE.length">
                 <tr>
                   <td colspan="3" class="text-center fst-italic">
-                    No index used
+                    No CTE used
                   </td>
                 </tr>
               </tbody>

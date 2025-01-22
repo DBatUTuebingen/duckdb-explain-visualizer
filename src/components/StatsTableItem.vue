@@ -21,7 +21,7 @@ const expanded = ref<boolean>(false)
 
 function durationPercent(node: Node) {
   return (
-    (node[NodeProp.EXCLUSIVE_DURATION] as number) /
+    (node[NodeProp.ACTUAL_TIME] as number) /
     (props.executionTime as number)
   )
 }
@@ -58,7 +58,7 @@ function durationPercent(node: Node) {
   <tbody :class="expanded ? '' : 'd-none'">
     <tr
       v-for="node in _.reverse(
-        _.sortBy(props.value.nodes, NodeProp.EXCLUSIVE_DURATION)
+        _.sortBy(props.value.nodes, NodeProp.ACTUAL_TIME)
       )"
       :key="node.nodeId"
       style="font-size: smaller"
@@ -72,7 +72,7 @@ function durationPercent(node: Node) {
       <td class="text-end"></td>
       <td class="text-end">
         <span class="px-1">
-          {{ duration(node[NodeProp.EXCLUSIVE_DURATION]) }}
+          {{ duration(node[NodeProp.ACTUAL_TIME]) }}
         </span>
       </td>
       <td class="text-end">
