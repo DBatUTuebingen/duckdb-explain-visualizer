@@ -35,8 +35,9 @@ import MainLayout from "../layouts/MainLayout.vue"
         <code>PRAGMA enable_profiling = 'json';</code> <br>
         <code>PRAGMA profiling_output = '/path/to/file.json';</code> <br>
         <code>[your-query-here]</code> <br>
-        It is recommend submitting a (decently formatted) SQL query that generated
-        the plan.
+        Then just drag & drop your <code>JSON</code> file or copy its content into the <b>PLAN</b> section. <br>
+        You can add a name for the plan (you don't have to). <br>
+        Click <b>Submit</b>.
       </p>
 <!--      <p>-->
 <!--        DEV can also parse text although the JSON format usually has better-->
@@ -53,8 +54,8 @@ import MainLayout from "../layouts/MainLayout.vue"
 
       <hr />
       <div class="text-center text-secondary">
-        <b>pev2</b> is brought to you by
-        <a href="https://dalibo.com">Dalibo</a>
+        <b>DEV</b> is brought to you by
+        <a href="https://github.com/DBatUTuebingen">Database Systems Research Group @ University of Tübingen</a>
       </div>
     </div>
   </main-layout>

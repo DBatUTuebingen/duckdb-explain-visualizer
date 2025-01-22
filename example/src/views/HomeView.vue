@@ -167,8 +167,6 @@ function handleDrop(event: DragEvent) {
             <code>PRAGMA enable_profiling = 'json';</code> <br>
             <code>PRAGMA profiling_output = '/path/to/file.json';</code> <br>
             <code>[your-query-here]</code> <br>
-            It is recommend submitting a (decently formatted) SQL query that generated
-            the plan.
           </div>
           <div class="dropdown ms-auto">
             <button
