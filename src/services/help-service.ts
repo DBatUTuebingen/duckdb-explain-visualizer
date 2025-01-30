@@ -253,25 +253,6 @@ export function findNodeById(plan: IPlan, id: number): Node | undefined {
       }
       return child[NodeProp.PLANS] && child[NodeProp.PLANS].some(iter)
     })
-    if (!o && plan.ctes) {
-      _.each(plan.ctes, (cte) => {
-        if (cte.nodeId == id) {
-          o = cte
-          return false
-        } else if (cte[NodeProp.PLANS]) {
-          cte[NodeProp.PLANS].some(function iter(child: Node): boolean | undefined {
-            if (child.nodeId === id) {
-              o = child
-              return true
-            }
-            return child[NodeProp.PLANS] && child[NodeProp.PLANS].some(iter)
-          })
-          if (o) {
-            return false
-          }
-        }
-      })
-    }
   }
   return o
 }

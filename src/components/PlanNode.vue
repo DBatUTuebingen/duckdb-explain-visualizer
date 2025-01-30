@@ -111,24 +111,6 @@ function centerCte() {
         },
       ]"
     >
-      <div v-if="node[NodeProp.SUBPLAN_NAME]" class="fixed-bottom text-center">
-        <b class="subplan-name fst-italic px-1">
-          {{ node[NodeProp.SUBPLAN_NAME] }}
-        </b>
-      </div>
-      <div class="workers text-secondary py-0 px-1" v-if="workersPlannedCount">
-        <div
-          v-for="index in workersPlannedCountReversed"
-          :key="index"
-          :style="{
-            top: 1 + index * 2 + 'px',
-            left: 1 + (index + 1) * 3 + 'px',
-          }"
-          :class="{ 'border-dashed': index >= workersLaunchedCount }"
-        >
-          {{ index }}
-        </div>
-      </div>
       <div
         class="plan-node-body card"
         @mouseenter="highlightedNodeId = node.nodeId"
@@ -167,18 +149,14 @@ function centerCte() {
           </header>
           <div class="text-start font-monospace">
             <div
-              v-if="
-                node[NodeProp.EXTRA_INFO][NodeProp.RELATION_NAME]
-              "
+              v-if="node[NodeProp.EXTRA_INFO][NodeProp.RELATION_NAME]"
               :class="{ 'line-clamp-2': !showDetails }"
             >
               <span class="text-secondary">on </span>
               {{ node[NodeProp.EXTRA_INFO][NodeProp.RELATION_NAME] }}
             </div>
             <div
-              v-if="
-                node[NodeProp.EXTRA_INFO][NodeProp.FUNCTION]
-              "
+              v-if="node[NodeProp.EXTRA_INFO][NodeProp.FUNCTION]"
               :class="{ 'line-clamp-2': !showDetails }"
             >
               <span class="text-secondary">with </span>
@@ -202,20 +180,6 @@ function centerCte() {
                 v-html="keysToString(node[NodeProp.EXTRA_INFO][NodeProp.GROUPS] as string)"
               ></span>
             </div>
-            <div
-              v-if="node[NodeProp.SORT_KEY]"
-              :class="{ 'line-clamp-2': !showDetails }"
-            >
-              <span class="text-secondary">by</span>
-              <span
-                v-html="
-                  sortKeys(
-                    node[NodeProp.SORT_KEY] as string[],
-                    node[NodeProp.PRESORTED_KEY] as string[]
-                  )
-                "
-              ></span>
-            </div>
             <div v-if="node[NodeProp.EXTRA_INFO][NodeProp.JOIN_TYPE]">
               {{ node[NodeProp.EXTRA_INFO][NodeProp.JOIN_TYPE] }}
               <span class="text-secondary">join</span>
@@ -225,7 +189,9 @@ function centerCte() {
               :class="{ 'line-clamp-2': !showDetails }"
             >
               <span class="text-secondary">projects</span>
-            {{ keysToString(node[NodeProp.EXTRA_INFO][NodeProp.PROJECTIONS]) }}
+              {{
+                keysToString(node[NodeProp.EXTRA_INFO][NodeProp.PROJECTIONS])
+              }}
             </div>
             <div v-if="node[NodeProp.EXTRA_INFO][NodeProp.FUNCTION_NAME]">
               {{ node[NodeProp.EXTRA_INFO][NodeProp.FUNCTION_NAME] }}

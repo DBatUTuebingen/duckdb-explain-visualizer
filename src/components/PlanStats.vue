@@ -119,32 +119,5 @@ const plan = inject(PlanKey) as Ref<IPlan>
         ></span>
       </template>
     </div>
-<!--    <div class="d-inline-block border-start px-2">-->
-<!--      Planning time:-->
-<!--      <template v-if="!plan.planStats.planningTime">-->
-<!--        <span class="text-secondary">-->
-<!--          N/A-->
-<!--          <FontAwesomeIcon-->
-<!--            :icon="faInfoCircle"-->
-<!--            class="cursor-help"-->
-<!--            v-tippy="getHelpMessage('missing planning time')"-->
-<!--          ></FontAwesomeIcon>-->
-<!--        </span>-->
-<!--      </template>-->
-<!--      <template v-else>-->
-<!--        <span class="stat-value">-->
-<!--          <span-->
-<!--            :class="-->
-<!--                      'mb-0 p-0 px-1 alert ' +-->
-<!--                      planningTimeClass(-->
-<!--                        (plan.planStats.planningTime / (plan.planStats.executionTime as number)) *-->
-<!--                         100-->
-<!--                      )-->
-<!--                    "-->
-<!--            v-html="duration(plan.planStats.planningTime)"-->
-<!--          ></span>-->
-<!--        </span>-->
-<!--      </template>-->
-<!--    </div>-->
   </div>
 </template>

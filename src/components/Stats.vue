@@ -24,8 +24,12 @@ onBeforeMount(() => {
 })
 
 function flatten(output: Node[], node: Node) {
-  // [level, node, isLastSibbling, branches]
-  output.push(node)
+  var node_with_ei: Node = node
+  for (const info in node[NodeProp.EXTRA_INFO]) {
+    node_with_ei[info] = node[NodeProp.EXTRA_INFO][info]
+  }
+  output.push(node_with_ei)
+
   _.each(node[NodeProp.PLANS], (subnode) => {
     flatten(output, subnode)
   })
@@ -36,11 +40,8 @@ function durationPercent(nodes: Node[]) {
 }
 
 const perTable = computed(() => {
-  const extra_info_nodes: Node[] = _.map(nodes, (n) => {
-    return n[NodeProp.EXTRA_INFO]
-  })
   const tables: { [key: string]: Node[] } = _.groupBy(
-    _.filter(extra_info_nodes, (n) => n[NodeProp.RELATION_NAME] !== undefined),
+    _.filter(nodes, (n) => n[NodeProp.RELATION_NAME] !== undefined),
     NodeProp.RELATION_NAME
   )
   const values: StatsTableItemType[] = []
@@ -57,11 +58,8 @@ const perTable = computed(() => {
 })
 
 const perFunction = computed(() => {
-  const extra_info_nodes: Node[] = _.map(nodes, (n) => {
-    return n[NodeProp.EXTRA_INFO]
-  })
   const functions: { [key: string]: Node[] } = _.groupBy(
-    _.filter(extra_info_nodes, (n) => n[NodeProp.FUNCTION_NAME] !== undefined),
+    _.filter(nodes, (n) => n[NodeProp.FUNCTION_NAME] !== undefined),
     NodeProp.FUNCTION_NAME
   )
   const values: StatsTableItemType[] = []
@@ -96,11 +94,8 @@ const perNodeType = computed(() => {
 })
 
 const perCTE = computed(() => {
-  const extra_info_nodes: Node[] = _.map(nodes, (n) => {
-    return n[NodeProp.EXTRA_INFO]
-  })
   const cte_names: { [key: string]: Node[] } = _.groupBy(
-    _.filter(extra_info_nodes, (n) => n[NodeProp.CTE_NAME] !== undefined),
+    _.filter(nodes, (n) => n[NodeProp.CTE_NAME] !== undefined),
     NodeProp.CTE_NAME
   )
   const values: StatsTableItemType[] = []

@@ -135,7 +135,8 @@ onBeforeMount(() => {
   const content = plan.value.content
   // console.log("CREATED PLAN: ")
   // console.log(content)
-  planStats.blockedThreadTime = (planJson[NodeProp.BLOCKED_THREAD_TIME] as number) || NaN
+  planStats.blockedThreadTime =
+    (planJson[NodeProp.BLOCKED_THREAD_TIME] as number) || NaN
   console.log(planStats.blockedThreadTime)
   planStats.executionTime = (planJson[NodeProp.CPU_TIME] as number) || NaN
   planStats.latency = (planJson[NodeProp.LATENCY] as number) || NaN
@@ -347,7 +348,11 @@ function getLayoutExtent(
 }
 
 function isNeverExecuted(node: Node): boolean {
-  return !!planStats.executionTime && (!node[NodeProp.ACTUAL_TIME])
+  return (
+    !!planStats.executionTime &&
+    !node[NodeProp.ACTUAL_TIME] &&
+    !node[NodeProp.ACTUAL_ROWS]
+  )
 }
 
 watch(
@@ -403,12 +408,12 @@ function updateNodeSize(node: Node, size: [number, number]) {
             <logo-image />
             PEV2 <i>version {{ version }}</i>
           </span>
-<!--          <a-->
-<!--            href="https://github.com/dalibo/pev2/issues/new?template=parsing_error.md&labels=parsing&title=Failed+to+parse+plan"-->
-<!--            target="_blank"-->
-<!--            class="btn btn-primary ms-auto"-->
-<!--            >Open an issue on Github</a-->
-<!--          >-->
+          <!--          <a-->
+          <!--            href="https://github.com/dalibo/pev2/issues/new?template=parsing_error.md&labels=parsing&title=Failed+to+parse+plan"-->
+          <!--            target="_blank"-->
+          <!--            class="btn btn-primary ms-auto"-->
+          <!--            >Open an issue on Github</a-->
+          <!--          >-->
         </div>
       </div>
     </div>
@@ -471,7 +476,8 @@ function updateNodeSize(node: Node, size: [number, number]) {
       <div class="ms-auto me-2 small">
         <a href="https://github.com/DBatUTuebingen/pev2" target="_blank">
           <logo-image />
-          DEV 1.0.0 <!--{{ version }}-->
+          DEV 1.0.0
+          <!--{{ version }}-->
         </a>
       </div>
     </div>
@@ -542,8 +548,7 @@ function updateNodeSize(node: Node, size: [number, number]) {
                           viewOptions.highlightType = HighlightType.ROWS
                         "
                         :disabled="
-                          !rootNode ||
-                          rootNode[NodeProp.CPU_TIME] === undefined
+                          !rootNode || rootNode[NodeProp.CPU_TIME] === undefined
                         "
                       >
                         rows
@@ -558,8 +563,7 @@ function updateNodeSize(node: Node, size: [number, number]) {
                           viewOptions.highlightType = HighlightType.RESULT
                         "
                         :disabled="
-                          !rootNode ||
-                          rootNode[NodeProp.CPU_TIME] === undefined
+                          !rootNode || rootNode[NodeProp.CPU_TIME] === undefined
                         "
                       >
                         result
@@ -568,17 +572,6 @@ function updateNodeSize(node: Node, size: [number, number]) {
                   </div>
                   <svg width="100%" height="100%">
                     <g :transform="transform">
-                      <!-- Links -->
-<!--                      <path-->
-<!--                        v-for="(link, index) in toCteLinks"-->
-<!--                        :key="`linkcte${index}`"-->
-<!--                        :d="lineGen(link)"-->
-<!--                        stroke="#B3D7D7"-->
-<!--                        :stroke-width="-->
-<!--                          edgeWeight(link.target.data[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS])-->
-<!--                        "-->
-<!--                        fill="none"-->
-<!--                      />-->
                       <path
                         v-for="(link, index) in layoutRootNode?.links()"
                         :key="`link${index}`"
@@ -607,53 +600,6 @@ function updateNodeSize(node: Node, size: [number, number]) {
                           class="d-flex justify-content-center position-fixed"
                         />
                       </foreignObject>
-<!--                      <g v-for="cte in ctes" :key="cte.data.nodeId">-->
-<!--                        <rect-->
-<!--                          :x="getLayoutExtent(cte)[0] - padding / 4"-->
-<!--                          :y="getLayoutExtent(cte)[2] - padding / 2"-->
-<!--                          :width="-->
-<!--                            getLayoutExtent(cte)[1] - -->
-<!--                            getLayoutExtent(cte)[0] +-->
-<!--                            padding / 2-->
-<!--                          "-->
-<!--                          :height="-->
-<!--                            getLayoutExtent(cte)[3] - getLayoutExtent(cte)[2]-->
-<!--                          "-->
-<!--                          stroke="#cfcfcf"-->
-<!--                          stroke-width="2"-->
-<!--                          fill="#cfcfcf"-->
-<!--                          fill-opacity="10%"-->
-<!--                          rx="5"-->
-<!--                          ry="5"-->
-<!--                        ></rect>-->
-<!--                        <path-->
-<!--                          v-for="(link, index) in cte.links()"-->
-<!--                          :key="`link${index}`"-->
-<!--                          :d="lineGen(link)"-->
-<!--                          stroke="grey"-->
-<!--                          :stroke-width="-->
-<!--                            edgeWeight(-->
-<!--                              link.target.data[NodeProp.ESTIMATED_ROWS]-->
-<!--                            )-->
-<!--                          "-->
-<!--                          stroke-linecap="square"-->
-<!--                          fill="none"-->
-<!--                        />-->
-<!--                        <foreignObject-->
-<!--                          v-for="(item, index) in cte.descendants()"-->
-<!--                          :key="index"-->
-<!--                          :x="item.x - item.xSize / 2"-->
-<!--                          :y="item.y"-->
-<!--                          :width="item.xSize"-->
-<!--                          height="1"-->
-<!--                          ref="root"-->
-<!--                        >-->
-<!--                          <plan-node-->
-<!--                            :node="item.data"-->
-<!--                            class="d-flex justify-content-center position-fixed"-->
-<!--                          />-->
-<!--                        </foreignObject>-->
-<!--                      </g>-->
                     </g>
                   </svg>
                 </pane>
