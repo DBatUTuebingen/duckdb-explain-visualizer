@@ -54,20 +54,7 @@ onBeforeMount((): void => {
   if (savedOptions) {
     _.assignIn(viewOptions, JSON.parse(savedOptions))
   }
-  flatten(plans[0], 0, plan.value.content, true, [])
-
-  _.each(plan.value.ctes, (cte) => {
-    const flat: Row[] = []
-    flatten(flat, 0, cte, true, [])
-    plans.push(flat)
-  })
-
-  // switch to the first buffers tab if data not available for the currently
-  // chosen one
-  const planBufferLocation = _.keys(plan.value.planStats.maxBlocks)
-  if (_.indexOf(planBufferLocation, viewOptions.buffersMetric) === -1) {
-    viewOptions.buffersMetric = _.min(planBufferLocation) as BufferLocation
-  }
+  flatten(plans[0], 0, plan.value.content[NodeProp.PLANS][0], true, [])
 })
 
 onMounted((): void => {
@@ -122,20 +109,6 @@ function flatten(
   }
 }
 
-const dataAvailable = computed((): boolean => {
-  if (viewOptions.metric === Metric.buffers) {
-    // if current Metric is buffers, view options for buffers should be
-    // undefined if there's no buffer data
-    return !!viewOptions.buffersMetric
-  }
-  return true
-})
-
-function isCTE(node: Node): boolean {
-  // return _.startsWith(node[NodeProp.SUBPLAN_NAME], "CTE")
-  return node[NodeProp.NODE_TYPE].includes("CTE")
-}
-
 function scrollTo(el: Element) {
   if (!container.value) {
     return
@@ -172,165 +145,58 @@ provide("scrollTo", scrollTo)
           >
             result
           </button>
-<!--          <button-->
-<!--            class="btn btn-outline-secondary"-->
-<!--            :class="{ active: viewOptions.metric === Metric.estimate_factor }"-->
-<!--            v-on:click="viewOptions.metric = Metric.estimate_factor"-->
-<!--          >-->
-<!--            estimation-->
-<!--          </button>-->
-<!--          <button-->
-<!--            class="btn btn-outline-secondary"-->
-<!--            :class="{ active: viewOptions.metric === Metric.cost }"-->
-<!--            v-on:click="viewOptions.metric = Metric.cost"-->
-<!--          >-->
-<!--            cost-->
-<!--          </button>-->
-<!--          <button-->
-<!--            class="btn btn-outline-secondary"-->
-<!--            :class="{ active: viewOptions.metric === Metric.buffers }"-->
-<!--            v-on:click="viewOptions.metric = Metric.buffers"-->
-<!--          >-->
-<!--            buffers-->
-<!--          </button>-->
-<!--          <button-->
-<!--            class="btn btn-outline-secondary"-->
-<!--            :class="{ active: viewOptions.metric === Metric.io }"-->
-<!--            v-on:click="viewOptions.metric = Metric.io"-->
-<!--          >-->
-<!--            IO-->
-<!--          </button>-->
+          <!--          <button-->
+          <!--            class="btn btn-outline-secondary"-->
+          <!--            :class="{ active: viewOptions.metric === Metric.estimate_factor }"-->
+          <!--            v-on:click="viewOptions.metric = Metric.estimate_factor"-->
+          <!--          >-->
+          <!--            estimation-->
+          <!--          </button>-->
+          <!--          <button-->
+          <!--            class="btn btn-outline-secondary"-->
+          <!--            :class="{ active: viewOptions.metric === Metric.cost }"-->
+          <!--            v-on:click="viewOptions.metric = Metric.cost"-->
+          <!--          >-->
+          <!--            cost-->
+          <!--          </button>-->
+          <!--          <button-->
+          <!--            class="btn btn-outline-secondary"-->
+          <!--            :class="{ active: viewOptions.metric === Metric.buffers }"-->
+          <!--            v-on:click="viewOptions.metric = Metric.buffers"-->
+          <!--          >-->
+          <!--            buffers-->
+          <!--          </button>-->
+          <!--          <button-->
+          <!--            class="btn btn-outline-secondary"-->
+          <!--            :class="{ active: viewOptions.metric === Metric.io }"-->
+          <!--            v-on:click="viewOptions.metric = Metric.io"-->
+          <!--          >-->
+          <!--            IO-->
+          <!--          </button>-->
         </div>
-      </div>
-      <div class="text-center my-1" v-if="viewOptions.metric == Metric.buffers">
-        <div class="btn-group btn-group-xs">
-          <button
-            class="btn btn-outline-secondary"
-            :class="{
-              active: viewOptions.buffersMetric === BufferLocation.shared,
-            }"
-            v-on:click="viewOptions.buffersMetric = BufferLocation.shared"
-            :disabled="!plan.planStats.maxBlocks?.[BufferLocation.shared]"
-          >
-            shared
-          </button>
-          <button
-            class="btn btn-outline-secondary"
-            :class="{
-              active: viewOptions.buffersMetric === BufferLocation.temp,
-            }"
-            v-on:click="viewOptions.buffersMetric = BufferLocation.temp"
-            :disabled="!plan.planStats.maxBlocks?.[BufferLocation.temp]"
-          >
-            temp
-          </button>
-          <button
-            class="btn btn-outline-secondary"
-            :class="{
-              active: viewOptions.buffersMetric === BufferLocation.local,
-            }"
-            v-on:click="viewOptions.buffersMetric = BufferLocation.local"
-            :disabled="!plan.planStats.maxBlocks?.[BufferLocation.local]"
-          >
-            local
-          </button>
-        </div>
-      </div>
-      <div class="legend text-center">
-        <ul
-          class="list-unstyled list-inline mb-0"
-          v-if="viewOptions.metric == Metric.buffers"
-        >
-          <li
-            class="list-inline-item"
-            v-if="viewOptions.buffersMetric != BufferLocation.temp"
-          >
-            <span class="bg-hit rounded"></span>
-            Hit
-          </li>
-          <li class="list-inline-item">
-            <span class="bg-read"></span>
-            Read
-          </li>
-          <li
-            class="list-inline-item"
-            v-if="viewOptions.buffersMetric != BufferLocation.temp"
-          >
-            <span class="bg-dirtied"></span>
-            Dirtied
-          </li>
-          <li class="list-inline-item">
-            <span class="bg-written"></span>
-            Written
-          </li>
-        </ul>
-        <template v-if="viewOptions.metric == Metric.io">
-          <ul class="list-unstyled list-inline mb-0 d-inline-block">
-            <li class="list-inline-item">
-              <span class="bg-read"></span>
-              Read
-            </li>
-            <li class="list-inline-item">
-              <span class="bg-written"></span>
-              Write
-            </li>
-          </ul>
-          <FontAwesomeIcon
-            :icon="faInfoCircle"
-            class="cursor-help d-inline-block text-secondary"
-            v-tippy="{
-              content: getHelpMessage('hint track_io_timing'),
-              allowHTML: true,
-            }"
-          ></FontAwesomeIcon>
-        </template>
       </div>
     </div>
     <div class="overflow-auto flex-grow-1" ref="container">
       <table
         class="m-1"
-        v-if="dataAvailable"
+        v-if="true"
         :class="{ highlight: !!highlightedNodeId }"
       >
         <tbody v-for="(flat, index) in plans" :key="index">
-        <tr v-if="index === 0 && plans.length > 1">
-          <th colspan="3" class="subplan">Main Query Plan</th>
-        </tr>
-        <template v-for="(row, index) in flat" :key="index">
-          <tr v-if="row[1][NodeProp.SUBPLAN_NAME]">
-            <td></td>
-            <td
-              class="subplan pe-2"
-              :class="{ 'fw-bold': isCTE(row[1]) }"
-              :colspan="isCTE(row[1]) ? 3 : 2"
-            >
-                <span class="tree-lines">
-                  <template v-for="i in _.range(row[0])">
-                    <template v-if="_.indexOf(row[3], i) != -1">│</template
-                    ><template v-else-if="i !== 0">&emsp;</template> </template
-                  ><template v-if="index !== 0">{{
-                    row[2] ? "└" : "├"
-                  }}</template>
-                </span>
-              <a
-                class="fst-italic text-reset"
-                href=""
-                @click.prevent="selectNode(row[1].nodeId, true)"
-              >
-                {{ row[1][NodeProp.SUBPLAN_NAME] }}
-              </a>
-            </td>
+          <tr v-if="index === 0 && plans.length > 1">
+            <th colspan="3" class="subplan">Main Query Plan</th>
           </tr>
-          <diagram-row
-            :node="row[1]"
-            :isSubplan="!!row[1][NodeProp.SUBPLAN_NAME]"
-            :isLastChild="!!row[2]"
-            :level="row[0]"
-            :branches="row[3]"
-            :index="index"
-            :viewOptions="viewOptions"
-          ></diagram-row>
-        </template>
+          <template v-for="(row, index) in flat" :key="index">
+            <diagram-row
+              :node="row[1]"
+              :isSubplan="false /*!!row[1][NodeProp.SUBPLAN_NAME]*/"
+              :isLastChild="!!row[2]"
+              :level="row[0]"
+              :branches="row[3]"
+              :index="index"
+              :viewOptions="viewOptions"
+            ></diagram-row>
+          </template>
         </tbody>
       </table>
       <div class="p-2 text-center text-secondary" v-else>

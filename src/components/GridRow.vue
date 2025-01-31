@@ -2,21 +2,15 @@
 import { inject, reactive, ref } from "vue"
 import type { Ref } from "vue"
 import type { IPlan, Node, ViewOptions } from "@/interfaces"
-import { EstimateDirection, NodeProp } from "@/enums"
+import { NodeProp } from "@/enums"
 import { PlanKey, ViewOptionsKey } from "@/symbols"
 import {
-  blocks,
-  blocksAsBytes,
   cost,
   duration,
-  factor,
   formatNodeProp,
-  keysToString,
-  sortKeys,
 } from "@/filters"
 import LevelDivider from "@/components/LevelDivider.vue"
 import GridProgressBar from "@/components/GridProgressBar.vue"
-import WorkersDetail from "@/components/WorkersDetail.vue"
 import MiscDetail from "@/components/MiscDetail.vue"
 import SeverityBullet from "@/components/SeverityBullet.vue"
 import useNode from "@/node"
@@ -77,16 +71,15 @@ function formattedProp(propName: keyof typeof NodeProp) {
     >
       <GridProgressBar
         :percentage="
-          (node[NodeProp.ACTUAL_TIME] /
-            (plan.planStats.executionTime ||
-              plan.content[NodeProp.ACTUAL_TIME])) *
+          (node[NodeProp.ACTUAL_TIME]! /
+            (plan.planStats.executionTime! ||
+              plan.content[NodeProp.ACTUAL_TIME]! as number)) *
           100
         "
         :percentage2="
-          ((node[NodeProp.CPU_TIME] -
-            node[NodeProp.ACTUAL_TIME]) /
-            (plan.planStats.executionTime ||
-              plan.content[NodeProp.ACTUAL_TIME])) *
+          ((node[NodeProp.CPU_TIME] - node[NodeProp.ACTUAL_TIME]!) /
+            (plan.planStats.executionTime! ||
+              plan.content[NodeProp.ACTUAL_TIME]! as number)) *
           100
         "
       ></GridProgressBar>
@@ -100,7 +93,7 @@ function formattedProp(propName: keyof typeof NodeProp) {
           v-if="durationClass"
         ></severity-bullet>
         <span class="flex-grow-1">
-          {{ Math.round(node[NodeProp.ACTUAL_TIME]).toLocaleString() }}
+          {{ Math.round(node[NodeProp.ACTUAL_TIME] ?? 0).toLocaleString() }}
         </span>
       </div>
       <div v-if="showDetails" class="small text-body-secondary">
@@ -117,7 +110,7 @@ function formattedProp(propName: keyof typeof NodeProp) {
     >
       <GridProgressBar
         :percentage="
-          (node[NodeProp.ACTUAL_ROWS] / plan.planStats.maxRows) * 100
+          (node[NodeProp.ACTUAL_ROWS]! / plan.planStats.maxRows) * 100
         "
       ></GridProgressBar>
       <!-- rows -->
@@ -132,9 +125,9 @@ function formattedProp(propName: keyof typeof NodeProp) {
       class="text-end grid-progress-cell text-nowrap"
       v-if="columns.includes('estimation')"
     >
-<!--      <GridProgressBar-->
-<!--        :percentage="estimationPercent">-->
-<!--      </GridProgressBar>-->
+      <!--      <GridProgressBar-->
+      <!--        :percentage="estimationPercent">-->
+      <!--      </GridProgressBar>-->
       <!-- estimation -->
       <div
         v-if="node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] != undefined"
@@ -142,8 +135,10 @@ function formattedProp(propName: keyof typeof NodeProp) {
       >
         <div
           class="position-relative d-flex"
-          v-if="node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] !=
-                node[NodeProp.ACTUAL_ROWS]"
+          v-if="
+            node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] !=
+            node[NodeProp.ACTUAL_ROWS]
+          "
         >
           <severity-bullet
             :severity="estimationClass"
@@ -155,16 +150,16 @@ function formattedProp(propName: keyof typeof NodeProp) {
             ></span>
             <span
               v-if="
-                node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] <
-                node[NodeProp.ACTUAL_ROWS]
+                node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] as unknown as number <
+                node[NodeProp.ACTUAL_ROWS]!
               "
             >
               ▾
             </span>
             <span
               v-if="
-                node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] >
-                node[NodeProp.ACTUAL_ROWS]
+                node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] as unknown as number >
+                node[NodeProp.ACTUAL_ROWS]!
               "
             >
               ▴
@@ -201,8 +196,7 @@ function formattedProp(propName: keyof typeof NodeProp) {
     <td
       class="text-end grid-progress-cell text-nowrap"
       v-if="columns.includes('filter')"
-    >
-    </td>
+    ></td>
     <td
       class="node-type"
       :class="showDetails ? '' : 'text-nowrap text-truncate overflow-hidden'"
@@ -226,60 +220,36 @@ function formattedProp(propName: keyof typeof NodeProp) {
 
         <span class="text-body-secondary">
           <template
-            v-if="node[NodeProp.RELATION_NAME] || node[NodeProp.FUNCTION_NAME]"
+            v-if="
+              node[NodeProp.EXTRA_INFO][NodeProp.RELATION_NAME] ||
+              node[NodeProp.EXTRA_INFO][NodeProp.FUNCTION_NAME]
+            "
           >
             <span class="text-secondary">on</span>
-            <span v-if="node[NodeProp.SCHEMA]"
-              >{{ node[NodeProp.SCHEMA] }}.</span
-            >{{ node[NodeProp.RELATION_NAME]
-            }}{{ node[NodeProp.FUNCTION_NAME] }}
-            <span v-if="node[NodeProp.ALIAS]">
-              <span class="text-secondary">as</span>
-              {{ node[NodeProp.ALIAS] }}
-            </span>
-          </template>
-          <template v-else-if="node[NodeProp.ALIAS]">
-            <span class="text-secondary">on</span>
-            <span v-html="keysToString(node[NodeProp.ALIAS] as string)"></span>
-          </template>
-          <template v-if="node[NodeProp.GROUP_KEY]">
-            <span class="text-secondary">by</span>
-            <span
-              v-html="keysToString(node[NodeProp.GROUP_KEY] as string)"
-            ></span>
-          </template>
-          <template v-if="node[NodeProp.SORT_KEY]">
-            <span class="text-secondary">by</span>
-            <span
-              v-html="
-                      sortKeys(
-                        node[NodeProp.SORT_KEY] as string[],
-                        node[NodeProp.PRESORTED_KEY] as string[]
-                      )
-                    "
-            ></span>
-          </template>
-          <template v-if="node[NodeProp.JOIN_TYPE]">
-            {{ node[NodeProp.JOIN_TYPE] }}
-            <span class="text-secondary">join</span>
-          </template>
-          <template v-if="node[NodeProp.INDEX_NAME]">
-            <span class="text-secondary">using</span>
-            <span
-              v-html="keysToString(node[NodeProp.INDEX_NAME] as string)"
-            ></span>
-          </template>
-          <template v-if="node[NodeProp.HASH_CONDITION]">
-            <span class="text-secondary">on</span>
-            <span
-              v-html="keysToString(node[NodeProp.HASH_CONDITION] as string)"
-            ></span>
+            {{ node[NodeProp.EXTRA_INFO][NodeProp.RELATION_NAME]
+            }}{{ node[NodeProp.EXTRA_INFO][NodeProp.FUNCTION_NAME] }}
           </template>
           <template v-if="node[NodeProp.CTE_NAME]">
             <span class="text-reset">
               <span class="text-secondary">CTE</span>
               {{ node[NodeProp.CTE_NAME] }}
             </span>
+          </template>
+          <template v-if="node[NodeProp.JOIN_TYPE]">
+            {{ node[NodeProp.JOIN_TYPE] }}
+            <span class="text-secondary">join</span>
+          </template>
+          <template
+            v-if="
+              node[NodeProp.EXTRA_INFO][NodeProp.TABLE_INDEX] ||
+              node[NodeProp.EXTRA_INFO][NodeProp.CTE_INDEX] ||
+              node[NodeProp.EXTRA_INFO][NodeProp.DELIM_INDEX]
+            "
+          >
+            <span class="text-secondary">using</span>
+            {{ node[NodeProp.EXTRA_INFO][NodeProp.TABLE_INDEX] }}
+            {{ node[NodeProp.EXTRA_INFO][NodeProp.CTE_INDEX] }}
+            {{ node[NodeProp.EXTRA_INFO][NodeProp.DELIM_INDEX] }}
           </template>
         </span>
       </div>
@@ -291,15 +261,15 @@ function formattedProp(propName: keyof typeof NodeProp) {
         @click.stop
       >
         <div class="text-wrap">
-          <div
-            v-if="getNodeTypeDescription(node[NodeProp.NODE_TYPE])"
-            class="node-description mt-1"
-          >
-            <span class="node-type">{{ node[NodeProp.NODE_TYPE] }} Node</span>
-            <span
-              v-html="getNodeTypeDescription(node[NodeProp.NODE_TYPE])"
-            ></span>
-          </div>
+          <!--          <div-->
+          <!--            v-if="getNodeTypeDescription(node[NodeProp.NODE_TYPE])"-->
+          <!--            class="node-description mt-1"-->
+          <!--          >-->
+          <!--            <span class="node-type">{{ node[NodeProp.NODE_TYPE] }} Node</span>-->
+          <!--            <span-->
+          <!--              v-html="getNodeTypeDescription(node[NodeProp.NODE_TYPE])"-->
+          <!--            ></span>-->
+          <!--          </div>-->
           <ul class="nav nav-tabs mt-1">
             <li class="nav-item">
               <a
@@ -315,8 +285,9 @@ function formattedProp(propName: keyof typeof NodeProp) {
                 class="nav-link px-2 py-1"
                 :class="{
                   active: activeTab === 'output',
-                  disabled: !node[NodeProp.EXTRA_INFO][NodeProp.PROJECTIONS]
-                      && !node[NodeProp.EXTRA_INFO][NodeProp.AGGREGATES]
+                  disabled:
+                    !node[NodeProp.EXTRA_INFO][NodeProp.PROJECTIONS] &&
+                    !node[NodeProp.EXTRA_INFO][NodeProp.AGGREGATES],
                 }"
                 @click.prevent.stop="activeTab = 'output'"
                 href=""
@@ -335,8 +306,10 @@ function formattedProp(propName: keyof typeof NodeProp) {
             <div
               class="tab-pane p-1 border border-top-0 overflow-auto font-monospace"
               :class="{ 'show active': activeTab === 'output' }"
-              v-html="node[NodeProp.EXTRA_INFO][NodeProp.PROJECTIONS]
-              || node[NodeProp.EXTRA_INFO][NodeProp.AGGREGATES]"
+              v-html="
+                node[NodeProp.EXTRA_INFO][NodeProp.PROJECTIONS] ||
+                node[NodeProp.EXTRA_INFO][NodeProp.AGGREGATES]
+              "
               style="max-height: 200px"
               @mousewheel.stop
             ></div>

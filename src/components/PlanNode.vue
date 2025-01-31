@@ -11,7 +11,7 @@ import {
   SelectNodeKey,
   ViewOptionsKey,
 } from "@/symbols"
-import { keysToString, sortKeys } from "@/filters"
+import { keysToString } from "@/filters"
 import { HighlightType, NodeProp } from "@/enums"
 import { findNodeBySubplanName } from "@/services/help-service"
 import useNode from "@/node"
@@ -52,10 +52,7 @@ const {
   barWidth,
   barColor,
   highlightValue,
-  isNeverExecuted,
-  workersLaunchedCount,
-  workersPlannedCount,
-  workersPlannedCountReversed,
+  isNeverExecuted
 } = useNode(plan, node, viewOptions)
 
 onMounted(async () => {
@@ -105,7 +102,6 @@ function centerCte() {
         {
           detailed: showDetails,
           'never-executed': isNeverExecuted,
-          parallel: workersPlannedCount,
           selected: selectedNodeId == node.nodeId,
           highlight: highlightedNodeId == node.nodeId,
         },
@@ -163,15 +159,6 @@ function centerCte() {
               {{ node[NodeProp.EXTRA_INFO][NodeProp.FUNCTION] }}
             </div>
             <div
-              v-else-if="node[NodeProp.ALIAS]"
-              :class="{ 'line-clamp-2': !showDetails }"
-            >
-              <span class="text-secondary">on</span>
-              <span
-                v-html="keysToString(node[NodeProp.ALIAS] as string)"
-              ></span>
-            </div>
-            <div
               v-if="node[NodeProp.EXTRA_INFO][NodeProp.GROUPS]"
               :class="{ 'line-clamp-2': !showDetails }"
             >
@@ -190,7 +177,7 @@ function centerCte() {
             >
               <span class="text-secondary">projects</span>
               {{
-                keysToString(node[NodeProp.EXTRA_INFO][NodeProp.PROJECTIONS])
+                keysToString(node[NodeProp.EXTRA_INFO][NodeProp.PROJECTIONS]!)
               }}
             </div>
             <div v-if="node[NodeProp.EXTRA_INFO][NodeProp.FUNCTION_NAME]">

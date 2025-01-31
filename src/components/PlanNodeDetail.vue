@@ -1,13 +1,12 @@
 <script lang="ts" setup>
-import { computed, inject, onBeforeMount, reactive, ref, watch } from "vue"
+import { inject, onBeforeMount, reactive, ref, watch } from "vue"
 import type { Ref } from "vue"
 import { directive as vTippy } from "vue-tippy"
 import type { IPlan, Node, ViewOptions } from "@/interfaces"
 import { HelpService } from "@/services/help-service"
 import { formatNodeProp } from "@/filters"
-import { EstimateDirection, NodeProp } from "@/enums"
+import { NodeProp } from "@/enums"
 import useNode from "@/node"
-import WorkersDetail from "@/components/WorkersDetail.vue"
 import MiscDetail from "@/components/MiscDetail.vue"
 import { PlanKey, ViewOptionsKey } from "@/symbols"
 import _ from "lodash"
@@ -64,7 +63,6 @@ onBeforeMount(() => {
 function calculateProps() {
   nodeProps.value = _.chain(node)
     .omit(NodeProp.PLANS)
-    .omit(NodeProp.WORKERS)
     .map((value, key) => {
       return { key: key as keyof typeof NodeProp, value }
     })
@@ -86,11 +84,11 @@ watch(activeTab, () => {
 <template>
   <div class="card-header border-top">
     <div
-      v-if="getNodeTypeDescription(node[NodeProp.NODE_TYPE])"
+      v-if="getNodeTypeDescription(node[NodeProp.NODE_TYPE]!)"
       class="node-description"
     >
       <span class="node-type">{{ node[NodeProp.NODE_TYPE] }} Node</span>
-      <span v-html="getNodeTypeDescription(node[NodeProp.NODE_TYPE])"></span>
+      <span v-html="getNodeTypeDescription(node[NodeProp.NODE_TYPE]!)"></span>
     </div>
     <ul class="nav nav-tabs card-header-tabs">
       <li class="nav-item">

@@ -240,13 +240,12 @@ export function splitBalanced(input: string, split: string) {
 
 export function findNodeById(plan: IPlan, id: number): Node | undefined {
   let o: Node | undefined = undefined
-  const root = plan.content
-  console.log(root[NodeProp.NODE_TYPE])
+  const root = plan.content[NodeProp.PLANS][0] as Node
   if (root.nodeId == id) {
     return root
   }
   if (root && root[NodeProp.PLANS]) {
-    root[NodeProp.PLANS].some(function iter(child: Node): boolean | undefined {
+    root[NodeProp.PLANS]?.some(function iter(child: Node): boolean | undefined {
       if (child.nodeId === id) {
         o = child
         return true
@@ -262,14 +261,6 @@ export function findNodeBySubplanName(
   subplanName: string
 ): Node | undefined {
   let o: Node | undefined = undefined
-  if (plan.ctes) {
-    _.each(plan.ctes, (cte) => {
-      if (cte[NodeProp.EXTRA_INFO][NodeProp.CTE_NAME] == "CTE " + subplanName) {
-        o = cte
-        return false
-      }
-    })
-  }
   return o
 }
 
@@ -279,15 +270,15 @@ const notMiscProperties: string[] = [
   NodeProp.NODE_TYPE,
   NodeProp.EXTRA_INFO,
   NodeProp.ACTUAL_TIME,
-  NodeProp.OPERATOR_ROWS_SCANNED,
-  NodeProp.CTE_NAME,
   NodeProp.ACTUAL_ROWS,
+  NodeProp.OPERATOR_ROWS_SCANNED,
+  NodeProp.ESTIMATED_ROWS,
+  NodeProp.CTE_NAME,
   NodeProp.JOIN_TYPE,
   NodeProp.NODE_ID,
   "size", // Manually added to use FlexTree
   NodeProp.RELATION_NAME,
   NodeProp.FUNCTION_NAME,
-  NodeProp.ESTIMATED_ROWS,
   NodeProp.PROJECTIONS,
   NodeProp.CONDITIONS
 ]

@@ -1,5 +1,4 @@
 import type {
-  BufferLocation,
   HighlightType,
   SortGroupsProp,
   SortSpaceMemoryProp,
@@ -17,8 +16,16 @@ export interface IPlan {
 
 export interface IPlanContent {
   "Query Text"?: string
+  _: Node
+  [NodeProp.PLANS]: Node[]
+  maxRows: number
+  maxRowsScanned: number
+  maxEstimatedRows: number
+  maxResult: number
+  maxDuration: number
   [k: string]:
     | Node
+    | Node[]
     | number
     | string
     | undefined
@@ -39,24 +46,8 @@ export interface IPlanStats {
 
 import { NodeProp } from "@/enums"
 
-// Class to create nodes when parsing text for DuckDB Explain Plans
-export class Node {
-  nodeId!: number
-  size!: [number, number];
-
-  // DuckDB specific properties
-  [NodeProp.NODE_TYPE]?: string; // Type of operation in DuckDB (e.g., "Filter", "Scan")
-  [NodeProp.ACTUAL_TIME]?: number; // Actual timing for the node if available
-  [NodeProp.ACTUAL_ROWS]?: number; // Estimated number of rows
-  [NodeProp.PLANS]: Node[];
-  [NodeProp.CPU_TIME]: number;
-  [NodeProp.CUMULATIVE_CARDINALITY]: number;
-  [NodeProp.CUMULATIVE_ROWS_SCANNED]: number;
-  [NodeProp.OPERATOR_ROWS_SCANNED]: number;
-  [NodeProp.RESULT_SET_SIZE]: number;
-
-  // Optional properties for advanced DuckDB Explain plans
-  [NodeProp.EXTRA_INFO]: JSON;
+// Optional properties for advanced DuckDB Explain plans
+export interface ExtraInfo {
   [NodeProp.RELATION_NAME]?: string;
   [NodeProp.PROJECTIONS]?: string | string[];
   [NodeProp.ESTIMATED_ROWS]?: string;
@@ -71,7 +62,26 @@ export class Node {
   [NodeProp.DELIM_INDEX]?: string;
   [NodeProp.FUNCTION]?: string;
   [NodeProp.FUNCTION_NAME]?: string;
+  [k: string]: any;
+}
+
+// Class to create nodes when parsing text for DuckDB Explain Plans
+export class Node {
+  nodeId!: number
+  size!: [number, number];
+  // DuckDB specific properties
+  [NodeProp.NODE_TYPE]?: string; // Type of operation in DuckDB (e.g., "Filter", "Scan")
+  [NodeProp.ACTUAL_TIME]?: number; // Actual timing for the node if available
+  [NodeProp.ACTUAL_ROWS]?: number; // Estimated number of rows
+  [NodeProp.PLANS]: Node[];
+  [NodeProp.CPU_TIME]: number;
+  [NodeProp.CUMULATIVE_CARDINALITY]: number;
+  [NodeProp.CUMULATIVE_ROWS_SCANNED]: number;
+  [NodeProp.OPERATOR_ROWS_SCANNED]: number;
+  [NodeProp.RESULT_SET_SIZE]: number;
+  [NodeProp.EXTRA_INFO]: ExtraInfo;
   [k: string]:
+    | Node
     | Node[]
     | Timing
     | boolean
@@ -79,6 +89,8 @@ export class Node {
     | string
     | string[]
     | JSON
+    | object
+    | object[]
     | undefined
     | [number, number]
 

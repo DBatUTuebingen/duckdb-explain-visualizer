@@ -2,7 +2,7 @@
 import _ from "lodash"
 import { computed, inject, onBeforeMount, ref } from "vue"
 import type { Ref } from "vue"
-import type { IPlan, Node, StatsTableItemType } from "@/interfaces"
+import type { ExtraInfo, IPlan, Node, StatsTableItemType } from "@/interfaces"
 import { PlanKey } from "@/symbols"
 import { NodeProp, SortDirection } from "@/enums"
 import SortedTable from "@/components/SortedTable.vue"
@@ -19,14 +19,14 @@ onBeforeMount(() => {
     plan.value.planStats.executionTime ||
     (plan.value.content?.[NodeProp.ACTUAL_TIME] as number)
   if (plan.value.content) {
-    flatten(nodes, plan.value.content)
+    flatten(nodes, plan.value.content[NodeProp.PLANS][0])
   }
 })
 
 function flatten(output: Node[], node: Node) {
   var node_with_ei: Node = node
   for (const info in node[NodeProp.EXTRA_INFO]) {
-    node_with_ei[info] = node[NodeProp.EXTRA_INFO][info]
+    node_with_ei[info] = (node[NodeProp.EXTRA_INFO] as ExtraInfo)[info]
   }
   output.push(node_with_ei)
 

@@ -74,8 +74,9 @@ export enum NodeProp {
   FUNCTION = "Function",
   FUNCTION_NAME = "Name",
 
-  // computed by pev
+  // computed by dev
   NODE_ID = "nodeId",
+  DEV_PLAN_TAG = "plan_",
 }
 
 export enum PropType {

@@ -2,14 +2,9 @@
 import _ from "lodash"
 import { computed, onBeforeMount, ref, watch } from "vue"
 import type { Ref } from "vue"
-import type { IPlan, Node, Worker, ViewOptions } from "@/interfaces"
-import {
-  BufferLocation,
-  NodeProp,
-  EstimateDirection,
-  HighlightType,
-} from "@/enums"
-import { blocks, cost, duration, factor, rows, transferRate } from "@/filters"
+import type { IPlan, Node, ViewOptions } from "@/interfaces"
+import { NodeProp, HighlightType } from "@/enums"
+import { cost, duration, rows } from "@/filters"
 import { numberToColorHsl } from "@/services/color-service"
 
 export default function useNode(
@@ -29,7 +24,6 @@ export default function useNode(
     calculateDuration()
     calculateResult()
     calculateRows()
-    calculateEstimation()
   })
 
   watch(() => viewOptions.highlightType, calculateBar)
@@ -88,7 +82,7 @@ export default function useNode(
     // use the first node total time if plan execution time is not available
     const executionTime =
       (plan.value.planStats.executionTime as number) ||
-      (plan.value.content?.Plan?.[NodeProp.CPU_TIME] as number)
+      (plan.value.content?.[NodeProp.CPU_TIME] as number)
     const duration = node[NodeProp.ACTUAL_TIME] as number
     executionTimePercent.value = _.round((duration / executionTime) * 100)
   }
@@ -103,12 +97,6 @@ export default function useNode(
     const maxRows = plan.value.content.maxRows as number
     const rows = node[NodeProp.ACTUAL_ROWS] as number
     rowsPercent.value = _.round((rows / maxRows) * 100)
-  }
-
-  function calculateEstimation() {
-    const maxEstim = plan.value.content.maxEstimatedRows as number
-    const estim = node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] as number
-    estimationPercent.value = _.round((estim / maxEstim) * 100)
   }
 
   const durationClass = computed(() => {
@@ -168,7 +156,11 @@ export default function useNode(
   })
 
   const isNeverExecuted = computed((): boolean => {
-    return !!plan.value.planStats.executionTime && !node[NodeProp.ACTUAL_TIME]
+    return (
+      !!plan.value.planStats.executionTime &&
+      !node[NodeProp.ACTUAL_TIME] &&
+      !node[NodeProp.ACTUAL_ROWS]
+    )
   })
 
   const timeTooltip = computed((): string => {
@@ -181,34 +173,20 @@ export default function useNode(
   })
 
   const rowsTooltip = computed((): string => {
-    return ["Rows: ", rows(node[NodeProp.ACTUAL_ROWS] as number)].join(
-      ""
-    )
-  })
-
-  const estimationTooltip = computed((): string => {
-    const estimation = node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] as number
-    const actual = node[NodeProp.ACTUAL_ROWS]
-    let text = ""
-    if (estimation === undefined) {
-      return "N/A"
-    }
-    if (estimation > actual) {
-      text += "Over"
-    } else if (estimation < actual) {
-      text += "Under"
-    } else {
-      text += "Correctly"
-    }
-    text += " estimated"
-    text += "<br>"
-    text += `Rows: ${rows(node[NodeProp.ACTUAL_ROWS])} `
-    text += `(${rows(estimation as number)} estimated)`
-    return text
+    return ["Rows: ", rows(node[NodeProp.ACTUAL_ROWS] as number)].join("")
   })
 
   const resultTooltip = computed((): string => {
     return ["Result: ", rows(node[NodeProp.RESULT_SET_SIZE] as number)].join("")
+  })
+
+  const estimationTooltip = computed((): string => {
+    return [
+      "Estimated: ",
+      rows(
+        node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] as unknown as number
+      ),
+    ].join("")
   })
 
   return {
@@ -218,14 +196,13 @@ export default function useNode(
     resultTooltip,
     durationClass,
     rowsClass,
-    estimationTooltip,
     estimationClass,
-    // estimationPercent,
     executionTimePercent,
     highlightValue,
     isNeverExecuted,
     nodeName,
     rowsTooltip,
-    timeTooltip
+    timeTooltip,
+    estimationTooltip,
   }
 }

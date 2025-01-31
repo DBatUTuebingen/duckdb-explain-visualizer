@@ -1,7 +1,5 @@
 <script lang="ts" setup>
 import { inject, reactive, ref, watch } from "vue"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faArrowDown, faArrowUp } from "@fortawesome/free-solid-svg-icons"
 import type { Ref } from "vue"
 import {
   HighlightedNodeIdKey,
@@ -11,7 +9,7 @@ import {
   ViewOptionsKey,
 } from "@/symbols"
 import type { IPlan, Node, ViewOptions } from "@/interfaces"
-import { EstimateDirection, BufferLocation, NodeProp, Metric } from "../enums"
+import { BufferLocation, NodeProp, Metric } from "../enums"
 import LevelDivider from "@/components/LevelDivider.vue"
 import useNode from "@/node"
 
@@ -42,14 +40,10 @@ const highlightedNodeId = inject(HighlightedNodeIdKey)
 
 const viewOptions = inject(ViewOptionsKey) as ViewOptions
 const {
-  buffersByLocationTooltip,
   resultTooltip,
-  estimateFactorPercent,
-  estimateFactorTooltip,
-  ioTooltip,
   nodeName,
   rowsTooltip,
-  timeTooltip,
+  timeTooltip
 } = useNode(plan, node, viewOptions)
 
 function getTooltipContent(node: Node): string {
@@ -131,15 +125,15 @@ watch(
         <div
           class="progress-bar border-secondary bg-secondary"
           :class="{
-            'border-start': node[NodeProp.ACTUAL_TIME] > 0,
+            'border-start': node[NodeProp.ACTUAL_TIME]! as number > 0,
           }"
           role="progressbar"
           style="height: 5px"
           :style="{
             width:
-              (node[NodeProp.ACTUAL_TIME] /
-                (plan.planStats.executionTime ||
-                  plan.content[NodeProp.ACTUAL_TIME])) *
+              (node[NodeProp.ACTUAL_TIME]! /
+                (plan.planStats.executionTime! ||
+                  plan.content[NodeProp.ACTUAL_TIME]! as number)) *
                 100 +
               '%',
           }"
@@ -154,9 +148,9 @@ watch(
           :style="{
             width:
               ((node[NodeProp.CPU_TIME] -
-                node[NodeProp.ACTUAL_TIME]) /
-                (plan.planStats.executionTime ||
-                  plan.content[NodeProp.ACTUAL_TIME])) *
+                node[NodeProp.ACTUAL_TIME]!) /
+                (plan.planStats.executionTime! ||
+                  plan.content[NodeProp.ACTUAL_TIME]! as number)) *
                 100 +
               '%',
           }"
@@ -178,7 +172,7 @@ watch(
           :style="{
             width:
               Math.round(
-                (node[NodeProp.ACTUAL_ROWS] / plan.planStats.maxRows) *
+                (node[NodeProp.ACTUAL_ROWS]! / plan.planStats.maxRows) *
                   100
               ) + '%',
           }"
