@@ -34,7 +34,6 @@ const build = process.env.LIB
         output: {
           inlineDynamicImports: true,
         },
-        external: "src/assets/duckdb-icon-seeklogo.svg"
       },
     }
 
