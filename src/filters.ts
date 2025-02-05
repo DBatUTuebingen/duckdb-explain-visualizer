@@ -53,7 +53,7 @@ export function cost(value: number): string {
 }
 
 export function rows(value: number): string {
-  if (value === undefined) {
+  if (value === undefined && value != 0) {
     return "N/A"
   }
   return value.toLocaleString()
@@ -73,11 +73,12 @@ export function factor(value: number): string {
 }
 
 export function keysToString(value: string[] | string): string {
-  if (!(value instanceof Array)) {
-    value = [value]
-  }
-  value = _.map(value, (v) => _.escape(v.replace(/(^\(|\)$)/g, "")))
-  return value.join(", ")
+  const values = Array.isArray(value) ? value : [value]
+
+  return values
+    .map((v) => v.replace(/^\(|\)$/g, "")) // Remove outer parentheses and escape
+    .map((v) => v.replace(/^'|'$/g, "")) // Remove outer '
+    .join(", ")
 }
 
 export function sortKeys(

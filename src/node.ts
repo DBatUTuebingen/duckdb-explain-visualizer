@@ -74,7 +74,7 @@ export default function useNode(
 
   const nodeName = computed((): string => {
     let nodeName = ""
-    nodeName += node[NodeProp.NODE_TYPE]
+    nodeName += node[NodeProp.NODE_TYPE] ?? node[NodeProp.NODE_TYPE_EXPLAIN]
     return nodeName
   })
 

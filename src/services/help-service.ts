@@ -57,10 +57,15 @@ interface IHelpMessage {
 
 export const HELP_MESSAGES: IHelpMessage = {
   "MISSING EXECUTION TIME": `Execution time (or Total runtime) not available for this plan. Make sure you
-    use EXPLAIN ANALYZE.`,
-  "MISSING BLOCKED THREAD TIME": `Blocked thread time not available for this plan.`,
-  "FUZZY NEEDS VERBOSE": `Information may not be accurate. Use EXPLAIN VERBOSE mode.`,
-  "HINT TRACK_IO_TIMING": `HINT: activate <em><b>track_io_timing</b></em> to have details on time spent outside the PG cache.`,
+    use ANALYZE.`,
+  "MISSING BLOCKED THREAD TIME": `Blocked thread time not available for this plan. Make sure you
+    use ANALYZE.`,
+  "MISSING LATENCY": `Latency not available for this plan. Make sure you
+    use ANALYZE.`,
+  "MISSING ROWS RETURNED": `Rows returned not available for this plan. Make sure you
+    use ANALYZE.`,
+  "MISSING RESULT SIZE": `Result size not available for this plan. Make sure you
+    use ANALYZE.`,
 }
 
 interface EaseInOutQuadOptions {
@@ -268,6 +273,7 @@ export function findNodeBySubplanName(
 // the main panel or in other detailed tabs.
 const notMiscProperties: string[] = [
   NodeProp.NODE_TYPE,
+  NodeProp.NODE_TYPE_EXPLAIN,
   NodeProp.EXTRA_INFO,
   NodeProp.ACTUAL_TIME,
   NodeProp.ACTUAL_ROWS,
@@ -280,7 +286,7 @@ const notMiscProperties: string[] = [
   NodeProp.RELATION_NAME,
   NodeProp.FUNCTION_NAME,
   NodeProp.PROJECTIONS,
-  NodeProp.CONDITIONS
+  NodeProp.CONDITIONS,
 ]
 
 export function shouldShowProp(key: string, value: unknown): boolean {

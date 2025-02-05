@@ -12,7 +12,13 @@ const plan = inject(PlanKey) as Ref<IPlan>
 let plans: Row[][] = [[]]
 
 onBeforeMount((): void => {
-  flatten(plans[0], 0, plan.value.content[NodeProp.PLANS][0], true, [])
+  if (plan.value.content[NodeProp.CPU_TIME] !== undefined) {
+    // plan is analyzed
+    flatten(plans[0], 0, plan.value.content[NodeProp.PLANS][0], true, [])
+  } else {
+    // plan is not analyzed
+    flatten(plans[0], 0, plan.value.content, true, [])
+  }
 })
 
 onMounted((): void => {
@@ -109,7 +115,6 @@ const columns = computed<string[]>(() => {
   }
   return cols
 })
-
 </script>
 
 <template>

@@ -62,7 +62,15 @@ const parsed = ref<boolean>(false)
 const plan = ref<IPlan>()
 const planEl = ref()
 let planStats = reactive<IPlanStats>({} as IPlanStats)
-const rootNode = computed(() => plan.value && plan.value.content[NodeProp.PLANS][0])
+const rootNode = computed(() => {
+  if (plan.value.content[NodeProp.CPU_TIME] !== undefined) {
+    // plan is analyzed
+    return plan.value && plan.value.content[NodeProp.PLANS][0]
+  } else {
+    // plan is not analyzed
+    return plan.value && plan.value.content
+  }
+})
 const selectedNodeId = ref<number>(NaN)
 const selectedNode = ref<Node | undefined>(undefined)
 const highlightedNodeId = ref<number>(NaN)
@@ -120,7 +128,9 @@ onBeforeMount(() => {
   }
   let planJson: IPlanContent
   try {
-    planJson = planService.fromSource(props.planSource) as unknown as IPlanContent
+    planJson = planService.fromSource(
+      props.planSource
+    ) as unknown as IPlanContent
     parsed.value = true
     setActiveTab("plan")
   } catch (e) {
@@ -128,24 +138,23 @@ onBeforeMount(() => {
     plan.value = undefined
     return
   }
-  queryText.value = planJson[NodeProp.QUERY] as string || props.planQuery
+  queryText.value = (planJson[NodeProp.QUERY] as string) || props.planQuery
   // console.log("Query Name: " + queryText.value)
   plan.value = planService.createPlan("", planJson, queryText.value)
   const content = plan.value.content
   // console.log("CREATED PLAN: ")
   // console.log(content)
   planStats.blockedThreadTime =
-    (planJson[NodeProp.BLOCKED_THREAD_TIME] as number) || NaN
-  console.log(planStats.blockedThreadTime)
-  planStats.executionTime = (planJson[NodeProp.CPU_TIME] as number) || 0
-  planStats.latency = (planJson[NodeProp.LATENCY] as number) || NaN
-  planStats.rowsReturned = (planJson[NodeProp.ROWS_RETURNED] as number) || NaN
-  planStats.resultSize = (planJson[NodeProp.RESULT_SET_SIZE] as number) || NaN
-  planStats.maxRows = content.maxRows || NaN
-  planStats.maxRowsScanned = content.maxRowsScanned || NaN
-  planStats.maxResult = content.maxResult || NaN
-  planStats.maxEstimatedRows = content.maxEstimatedRows || NaN
-  planStats.maxDuration = content.maxDuration || NaN
+    (planJson[NodeProp.BLOCKED_THREAD_TIME] as number) ?? NaN
+  planStats.executionTime = (planJson[NodeProp.CPU_TIME] as number) ?? 0
+  planStats.latency = (planJson[NodeProp.LATENCY] as number) ?? NaN
+  planStats.rowsReturned = (planJson[NodeProp.ROWS_RETURNED] as number) ?? NaN
+  planStats.resultSize = (planJson[NodeProp.RESULT_SET_SIZE] as number) ?? NaN
+  planStats.maxRows = content.maxRows ?? NaN
+  planStats.maxRowsScanned = content.maxRowsScanned ?? NaN
+  planStats.maxResult = content.maxResult ?? NaN
+  planStats.maxEstimatedRows = content.maxEstimatedRows ?? NaN
+  planStats.maxDuration = content.maxDuration ?? NaN
   plan.value.planStats = planStats
   // console.log(plan.value.planStats)
 
@@ -580,7 +589,9 @@ function updateNodeSize(node: Node, size: [number, number]) {
                         }"
                         stroke="grey"
                         :stroke-width="
-                          edgeWeight(link.target.data[NodeProp.ACTUAL_ROWS] ?? 0)
+                          edgeWeight(
+                            link.target.data[NodeProp.ACTUAL_ROWS] ?? 0
+                          )
                         "
                         stroke-linecap="square"
                         fill="none"

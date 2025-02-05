@@ -23,12 +23,7 @@ export interface IPlanContent {
   maxEstimatedRows: number
   maxResult: number
   maxDuration: number
-  [k: string]:
-    | Node
-    | Node[]
-    | number
-    | string
-    | undefined
+  [k: string]: Node | Node[] | number | string | undefined
 }
 
 export interface IPlanStats {
@@ -48,21 +43,21 @@ import { NodeProp } from "@/enums"
 
 // Optional properties for advanced DuckDB Explain plans
 export interface ExtraInfo {
-  [NodeProp.RELATION_NAME]?: string;
-  [NodeProp.PROJECTIONS]?: string | string[];
-  [NodeProp.ESTIMATED_ROWS]?: string;
-  [NodeProp.AGGREGATES]?: string | string[];
-  [NodeProp.CTE_NAME]?: string;
-  [NodeProp.TABLE_INDEX]?: string;
-  [NodeProp.GROUPS]?: string | string[];
-  [NodeProp.JOIN_TYPE]?: string;
-  [NodeProp.CONDITIONS]?: string | string[];
-  [NodeProp.CTE_INDEX]?: string;
-  [NodeProp.FILTER]?: string;
-  [NodeProp.DELIM_INDEX]?: string;
-  [NodeProp.FUNCTION]?: string;
-  [NodeProp.FUNCTION_NAME]?: string;
-  [k: string]: any;
+  [NodeProp.RELATION_NAME]?: string
+  [NodeProp.PROJECTIONS]?: string | string[]
+  [NodeProp.ESTIMATED_ROWS]?: string
+  [NodeProp.AGGREGATES]?: string | string[]
+  [NodeProp.CTE_NAME]?: string
+  [NodeProp.TABLE_INDEX]?: string
+  [NodeProp.GROUPS]?: string | string[]
+  [NodeProp.JOIN_TYPE]?: string
+  [NodeProp.CONDITIONS]?: string | string[]
+  [NodeProp.CTE_INDEX]?: string
+  [NodeProp.FILTER]?: string
+  [NodeProp.DELIM_INDEX]?: string
+  [NodeProp.FUNCTION]?: string
+  [NodeProp.FUNCTION_NAME]?: string
+  [k: string]: any
 }
 
 // Class to create nodes when parsing text for DuckDB Explain Plans
@@ -71,6 +66,7 @@ export class Node {
   size!: [number, number];
   // DuckDB specific properties
   [NodeProp.NODE_TYPE]?: string; // Type of operation in DuckDB (e.g., "Filter", "Scan")
+  [NodeProp.NODE_TYPE_EXPLAIN]?: string; // same (without ANALYZE)
   [NodeProp.ACTUAL_TIME]?: number; // Actual timing for the node if available
   [NodeProp.ACTUAL_ROWS]?: number; // Estimated number of rows
   [NodeProp.PLANS]: Node[];

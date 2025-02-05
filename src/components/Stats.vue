@@ -19,7 +19,13 @@ onBeforeMount(() => {
     plan.value.planStats.executionTime ||
     (plan.value.content?.[NodeProp.ACTUAL_TIME] as number)
   if (plan.value.content) {
-    flatten(nodes, plan.value.content[NodeProp.PLANS][0])
+    if (plan.value.content[NodeProp.CPU_TIME] !== undefined) {
+      // plan is analyzed
+      flatten(nodes, plan.value.content[NodeProp.PLANS][0])
+    } else {
+      // plan is not analyzed
+      flatten(nodes, plan.value.content)
+    }
   }
 })
 
@@ -76,10 +82,15 @@ const perFunction = computed(() => {
 })
 
 const perNodeType = computed(() => {
-  const nodeTypes: { [key: string]: Node[] } = _.groupBy(
-    nodes,
-    NodeProp.NODE_TYPE
-  )
+  let type = NodeProp.NODE_TYPE
+  for (const node in nodes) {
+    if (nodes[node][type] === undefined) {
+      // plan is not analyzed
+      type = NodeProp.NODE_TYPE_EXPLAIN
+      break
+    }
+  }
+  const nodeTypes: { [key: string]: Node[] } = _.groupBy(nodes, type)
   const values: StatsTableItemType[] = []
   _.each(nodeTypes, (nodes, nodeType) => {
     values.push({

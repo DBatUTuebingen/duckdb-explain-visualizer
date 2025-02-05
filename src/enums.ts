@@ -45,6 +45,7 @@ export enum NodeProp {
   // plan property keys
   QUERY = "query_name",
   NODE_TYPE = "operator_type", // the name of each operator
+  NODE_TYPE_EXPLAIN = "name", // same as above (without ANALYZE)
   ACTUAL_ROWS = "operator_cardinality", // the number of rows it returns to its parent
   ACTUAL_TIME = "operator_timing", // the time taken by each operator
   BLOCKED_THREAD_TIME = "blocked_thread_time", // the total time threads are blocked

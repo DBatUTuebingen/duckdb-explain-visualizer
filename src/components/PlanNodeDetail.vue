@@ -84,11 +84,11 @@ watch(activeTab, () => {
 <template>
   <div class="card-header border-top">
     <div
-      v-if="getNodeTypeDescription(node[NodeProp.NODE_TYPE]!)"
+      v-if="getNodeTypeDescription(node[NodeProp.NODE_TYPE] ?? node[NodeProp.NODE_TYPE_EXPLAIN])"
       class="node-description"
     >
-      <span class="node-type">{{ node[NodeProp.NODE_TYPE] }} Node</span>
-      <span v-html="getNodeTypeDescription(node[NodeProp.NODE_TYPE]!)"></span>
+      <span class="node-type">{{ node[NodeProp.NODE_TYPE] ?? node[NodeProp.NODE_TYPE_EXPLAIN] }} Node</span>
+      <span v-html="getNodeTypeDescription(node[NodeProp.NODE_TYPE] ?? node[NodeProp.NODE_TYPE_EXPLAIN])"></span>
     </div>
     <ul class="nav nav-tabs card-header-tabs">
       <li class="nav-item">

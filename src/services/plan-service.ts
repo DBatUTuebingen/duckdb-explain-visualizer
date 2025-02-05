@@ -1,12 +1,6 @@
 import _ from "lodash"
-import {
-  NodeProp
-} from "@/enums"
-import type {
-  IPlan,
-  IPlanContent,
-  IPlanStats
-} from "@/interfaces"
+import { NodeProp } from "@/enums"
+import type { IPlan, IPlanContent, IPlanStats } from "@/interfaces"
 import type { Node } from "@/interfaces"
 import clarinet from "clarinet"
 
@@ -36,7 +30,14 @@ export class PlanService {
         planStats: {} as IPlanStats,
       }
       this.nodeId = 1
-      this.processNode(planContent[NodeProp.PLANS]![0]!, plan)
+      // console.log(planContent)
+      if (planContent[NodeProp.CPU_TIME] !== undefined) {
+        // plan is analyzed
+        this.processNode(planContent[NodeProp.PLANS]![0]!, plan)
+      } else {
+        // plan is not analyzed
+        this.processNode(planContent, plan)
+      }
       this.calculateMaximums(plan)
       this.calculateExecutionTime(plan)
       return plan
@@ -82,13 +83,17 @@ export class PlanService {
     }
 
     const largestEstimate = _.maxBy(flat, function (node: Node) {
-      const cardinality: number = node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] as unknown as number
+      const cardinality: number = node[NodeProp.EXTRA_INFO][
+        NodeProp.ESTIMATED_ROWS
+      ] as unknown as number
       return cardinality != null ? cardinality : 0
     })
 
     if (largestEstimate) {
       plan.content.maxEstimatedRows = parseInt(
-        largestEstimate[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] as unknown as string
+        largestEstimate[NodeProp.EXTRA_INFO][
+          NodeProp.ESTIMATED_ROWS
+        ] as unknown as string
       )
     }
 

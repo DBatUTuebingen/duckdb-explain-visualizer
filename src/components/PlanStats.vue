@@ -89,7 +89,7 @@ const plan = inject(PlanKey) as Ref<IPlan>
           <FontAwesomeIcon
             :icon="faInfoCircle"
             class="cursor-help"
-            v-tippy="getHelpMessage('missing returned rows')"
+            v-tippy="getHelpMessage('missing rows returned')"
           ></FontAwesomeIcon>
         </span>
       </template>
