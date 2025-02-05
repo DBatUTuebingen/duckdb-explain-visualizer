@@ -63,7 +63,7 @@ const plan = ref<IPlan>()
 const planEl = ref()
 let planStats = reactive<IPlanStats>({} as IPlanStats)
 const rootNode = computed(() => {
-  if (plan!.value!.content![NodeProp.CPU_TIME]) {
+  if (plan.value!.content[NodeProp.CPU_TIME] !== undefined) {
     // plan is analyzed
     return plan.value && plan.value.content[NodeProp.PLANS][0]
   } else {
