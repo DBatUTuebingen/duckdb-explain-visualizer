@@ -36,7 +36,7 @@ export class PlanService {
         this.processNode(planContent[NodeProp.PLANS]![0]!, plan)
       } else {
         // plan is not analyzed
-        this.processNode(planContent, plan)
+        this.processNode(planContent as unknown as Node, plan)
       }
       this.calculateMaximums(plan)
       this.calculateExecutionTime(plan)

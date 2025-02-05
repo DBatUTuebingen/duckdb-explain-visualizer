@@ -59,7 +59,7 @@ onBeforeMount((): void => {
     flatten(plans[0], 0, plan.value.content[NodeProp.PLANS][0], true, [])
   } else {
     // plan is not analyzed
-    flatten(plans[0], 0, plan.value.content, true, [])
+    flatten(plans[0], 0, plan.value.content as unknown as Node, true, [])
   }
 })
 
