@@ -5,7 +5,7 @@ import type { IPlan, Node, ViewOptions } from "@/interfaces"
 import { NodeProp } from "@/enums"
 import { PlanKey, ViewOptionsKey } from "@/symbols"
 import {
-  cost,
+  result,
   duration,
   formatNodeProp,
 } from "@/filters"
@@ -189,7 +189,7 @@ function formattedProp(propName: keyof typeof NodeProp) {
           v-if="resultClass"
         ></severity-bullet>
         <span class="flex-grow-1">
-          {{ cost(node[NodeProp.RESULT_SET_SIZE]) }}
+          {{ result(node[NodeProp.RESULT_SET_SIZE]) }}
         </span>
       </div>
     </td>

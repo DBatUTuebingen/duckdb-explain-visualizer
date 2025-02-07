@@ -247,7 +247,7 @@ watch(
 <!--          <i class="fa fa-fw d-inline-block" v-else />-->
 <!--        </span>-->
 <!--      </div>-->
-      <!-- cost -->
+      <!-- result -->
       <div
         class="progress rounded-0 align-items-center bg-transparent"
         style="height: 5px"

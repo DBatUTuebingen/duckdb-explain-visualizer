@@ -20,7 +20,7 @@ export class PlanService {
     // '$1 ' reuse group 1 and and a single space
     planQuery = planQuery.replace(/(\S)(?!$)(\s{2,})/gm, "$1 ")
 
-    if (planContent[NodeProp.PLANS][0] !== undefined) {
+    if (planContent) {
       const plan: IPlan = {
         id: NodeProp.DEV_PLAN_TAG + new Date().getTime().toString(),
         name: planName || "plan created on " + new Date().toDateString(),
@@ -148,6 +148,7 @@ export class PlanService {
 
   public fromSource(source: string) {
     source = this.cleanupSource(source)
+    console.log("fromSource: " + source)
 
     let isJson = false
     try {
@@ -155,13 +156,14 @@ export class PlanService {
     } catch (error) {
       // continue
     }
+    console.log("isJson: " + isJson)
 
-    if (isJson) {
-      return this.parseJson(source)
-    } else if (/^(\s*)(\[|\{)\s*\n.*?\1(\]|\})\s*/gms.exec(source)) {
-      return this.fromJson(source)
-    }
-    // return this.fromText(source)
+    // if (isJson) {
+    //   return this.parseJson(source)
+    // } else if (/^(\s*)(\[|\{)\s*\n.*?\1(\]|\})\s*/gms.exec(source)) {
+    //   return this.fromJson(source)
+    // }
+    return this.parseJson(source)
   }
 
   public fromJson(source: string) {

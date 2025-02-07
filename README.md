@@ -42,7 +42,7 @@ open it in your favorite internet browser.
 <script>
   const { createApp } = Vue
 
-  const plan = "Seq Scan on foo  (cost=0.00..155.00 rows=10000 width=4)"
+  const plan = "Seq Scan on foo  (result=0.00..155.00 rows=10000 width=4)"
 
   const app = createApp({
     data() {

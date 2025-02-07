@@ -44,7 +44,7 @@ export function duration(value: number | undefined): string {
   return result.slice(0, 2).join(" ")
 }
 
-export function cost(value: number): string {
+export function result(value: number): string {
   if (value === undefined) {
     return "N/A"
   }
@@ -76,7 +76,7 @@ export function keysToString(value: string[] | string): string {
   const values = Array.isArray(value) ? value : [value]
 
   return values
-    .map((v) => v.replace(/^\(|\)$/g, "")) // Remove outer parentheses and escape
+    // .map((v) => v.replace(/^\(|\)$/g, "")) // Remove outer parentheses
     .map((v) => v.replace(/^'|'$/g, "")) // Remove outer '
     .join(", ")
 }
@@ -178,7 +178,7 @@ export function formatNodeProp(key: string, value: unknown): string {
     } else if (nodePropTypes[key] === PropType.boolean) {
       return value ? "yes" : "no"
     } else if (nodePropTypes[key] === PropType.cost) {
-      return cost(value as number)
+      return result(value as number)
     } else if (nodePropTypes[key] === PropType.rows) {
       return rows(value as number)
     } else if (nodePropTypes[key] === PropType.loops) {

@@ -4,7 +4,7 @@ import { computed, onBeforeMount, ref, watch } from "vue"
 import type { Ref } from "vue"
 import type { IPlan, Node, ViewOptions } from "@/interfaces"
 import { NodeProp, HighlightType } from "@/enums"
-import { cost, duration, rows } from "@/filters"
+import { result, duration, rows } from "@/filters"
 import { numberToColorHsl } from "@/services/color-service"
 
 export default function useNode(
@@ -63,7 +63,7 @@ export default function useNode(
         barWidth.value = Math.round(
           (value / (plan.value.planStats.maxResult as number)) * 100
         )
-        highlightValue.value = cost(value)
+        highlightValue.value = result(value)
         break
     }
   }
