@@ -20,36 +20,35 @@ interface INodeDescription {
 }
 
 export const NODE_DESCRIPTIONS: INodeDescription = {
-  LIMIT: "returns a specified number of rows from a record set.",
-  SORT: "sorts a record set based on the specified sort key.",
-  "NESTED LOOP": `merges two record sets by looping through every record in the first set and
-   trying to find a match in the second set. All matching records are returned.`,
-  "MERGE JOIN": `merges two record sets by first sorting them on a <strong>join key</strong>.`,
-  HASH: `generates a hash table from the records in the input recordset. Hash is used by
-   <strong>Hash Join</strong>.`,
-  "HASH JOIN": `joins two record sets by hashing one of them (using a <strong>Hash Scan</strong>).`,
-  AGGREGATE: `groups records together based on a GROUP BY or aggregate function (like <code>sum()</code>).`,
-  HASHAGGREGATE: `groups records together based on a GROUP BY or aggregate function (like sum()). Hash Aggregate uses
-   a hash to first organize the records by a key.`,
-  "SEQ SCAN": `finds relevant records by sequentially scanning the input record set. When reading from a table,
-   Seq Scans (unlike Index Scans) perform a single read operation (only the table is read).`,
-  "INDEX SCAN": `finds relevant records based on an <strong>Index</strong>.
-    Index Scans perform 2 read operations: one to
-    read the index and another to read the actual value from the table.`,
-  "INDEX ONLY SCAN": `finds relevant records based on an <strong>Index</strong>.
-    Index Only Scans perform a single read operation
-    from the index and do not read from the corresponding table.`,
-  "BITMAP HEAP SCAN": `searches through the pages returned by the <strong>Bitmap Index Scan</strong>
-    for relevant rows.`,
-  "BITMAP INDEX SCAN": `uses a <strong>Bitmap Index</strong> (index which uses 1 bit per page)
-    to find all relevant pages.
-    Results of this node are fed to the <strong>Bitmap Heap Scan</strong>.`,
-  "CTE SCAN": `performs a sequential scan of <strong>Common Table Expression (CTE) query</strong> results. Note that
-    results of a CTE are materialized (calculated and temporarily stored).`,
-  MEMOIZE: `is used to cache the results of the inner side of a nested loop. It avoids executing underlying nodes when the results for the current parameters are already in the cache.`,
-  GATHER: `reads the results of the parallel workers, in an undefined order.`,
-  "GATHER MERGE": `reads the results of the parallel workers, preserving any ordering.`,
-}
+  "NESTED_LOOP_JOIN": `Joins two datasets by iterating over each row in one dataset and finding matching rows in the other.`,
+  "MERGE_JOIN": `Performs a join by first sorting both datasets on the join key and then merging them efficiently.`,
+  "HASH_JOIN": `Performs a join by building a hash table on one of the input datasets for fast lookups.`,
+  "HASH_GROUP_BY": `Groups records together using a hash table based on a GROUP BY key or aggregate function (e.g., <code>SUM()</code>).`,
+  "FILTER": `Filters records based on a specified condition, removing non-matching rows.`,
+  "PROJECTION": `Computes expressions and selects specific columns from the input dataset.`,
+  "TABLE_SCAN": `Reads all rows from a specified table, performing a sequential scan to retrieve the data.`,
+  "INDEX_SCAN": `Uses an index to quickly locate matching rows instead of scanning the entire table.`,
+  "INDEX_JOIN": `Uses an index lookup to efficiently join two tables.`,
+  "COLUMN_SCAN": `Reads data from the columnar storage format, optimizing access for analytical queries.`,
+  "TABLE_FUNCTION": `Executes a table-producing function, often used for reading external data formats.`,
+  "UNNEST": `Expands array or list values into multiple rows.`,
+  "WINDOW": `Performs window (analytic) function computations over a specified partition of data.`,
+  "STREAMING_WINDOW": `Computes window functions by processing rows in a streaming fashion without materializing the entire result set.`,
+  "CTE": `(Common Table Expression) is a temporary result set defined within a query that can be referenced multiple times, improving query readability and modularity.`,
+  "CTE_SCAN": `Performs a sequential scan over the results of a Common Table Expression (CTE).`,
+  "RECURSIVE_CTE": `Defines a Common Table Expression (CTE) that references itself for iterative query processing, enabling recursive operations like tree or graph traversal.`,
+  "RECURSIVE_CTE_SCAN": `Iterates over a recursively defined Common Table Expression (CTE), repeatedly executing the recursive query until no new rows are produced.`,
+  "CROSS_PRODUCT": `Performs a Cartesian product between two datasets (used when no join condition is specified).`,
+  "UNION": `Combines the results of two datasets while removing duplicates.`,
+  "UNION_ALL": `Combines the results of two datasets without removing duplicates.`,
+  "UNGROUPED_AGGREGATE": `Computes aggregate functions over the entire dataset without a GROUP BY clause.`,
+  "READ_CSV_AUTO": `Automatically reads and parses a CSV file, inferring column types and delimiters without explicit user specification.`,
+  "DUMMY_SCAN": `Generates a single-row, zero-column result, typically used for queries without an explicit table source (e.g., <code>SELECT 1</code>).`,
+  "DELIM_SCAN": `Reads and processes data from a delimiter-separated values (DSV) file, such as <code>CSV</code> or <code>TSV</code>, using a specified delimiter.`,
+  "INOUT_FUNCTION": `Represents a function that both takes input arguments and returns output, typically used for user-defined functions (UDFs) in queries.`,
+  "RIGHT_DELIM_JOIN": `Performs a join between two datasets based on a delimiter, matching values from the right side of the join condition.`,
+  "INSERT": `Represents the operation of adding new rows into a target table by consuming input data from its child node.`,
+};
 
 interface IHelpMessage {
   [key: string]: string
