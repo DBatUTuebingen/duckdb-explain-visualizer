@@ -414,14 +414,13 @@ function updateNodeSize(node: Node, size: [number, number]) {
         <div class="d-flex align-items-center">
           <span class="text-secondary">
             <logo-image />
-            PEV2 <i>version {{ version }}</i>
+            DEV <i>version {{ version }}</i>
           </span>
-          <!--          <a-->
-          <!--            href="https://github.com/dalibo/pev2/issues/new?template=parsing_error.md&labels=parsing&title=Failed+to+parse+plan"-->
-          <!--            target="_blank"-->
-          <!--            class="btn btn-primary ms-auto"-->
-          <!--            >Open an issue on Github</a-->
-          <!--          >-->
+          <a
+            href="https://github.com/DBatUTuebingen/pev2/issues"
+            target="_blank"
+            class="btn btn-primary ms-auto"
+          >Open an issue on Github</a>
         </div>
       </div>
     </div>
