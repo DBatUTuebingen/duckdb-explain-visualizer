@@ -20,7 +20,7 @@ export class PlanService {
     // '$1 ' reuse group 1 and and a single space
     planQuery = planQuery.replace(/(\S)(?!$)(\s{2,})/gm, "$1 ")
 
-    if (planContent) {
+    if (planContent && !planContent.Plan) { // note: Plan is key of PostgreSQL Explain Plans
       const plan: IPlan = {
         id: NodeProp.DEV_PLAN_TAG + new Date().getTime().toString(),
         name: planName || "plan created on " + new Date().toDateString(),

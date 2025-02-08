@@ -287,6 +287,7 @@ const notMiscProperties: string[] = [
   NodeProp.FUNCTION_NAME,
   NodeProp.PROJECTIONS,
   NodeProp.CONDITIONS,
+  NodeProp.FILTER
 ]
 
 export function shouldShowProp(key: string, value: unknown): boolean {
