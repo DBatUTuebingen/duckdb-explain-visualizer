@@ -20,35 +20,38 @@ interface INodeDescription {
 }
 
 export const NODE_DESCRIPTIONS: INodeDescription = {
-  "NESTED_LOOP_JOIN": `Joins two datasets by iterating over each row in one dataset and finding matching rows in the other.`,
-  "MERGE_JOIN": `Performs a join by first sorting both datasets on the join key and then merging them efficiently.`,
-  "HASH_JOIN": `Performs a join by building a hash table on one of the input datasets for fast lookups.`,
-  "HASH_GROUP_BY": `Groups records together using a hash table based on a GROUP BY key or aggregate function (e.g., <code>SUM()</code>).`,
-  "FILTER": `Filters records based on a specified condition, removing non-matching rows.`,
-  "PROJECTION": `Computes expressions and selects specific columns from the input dataset.`,
-  "TABLE_SCAN": `Reads all rows from a specified table, performing a sequential scan to retrieve the data.`,
-  "INDEX_SCAN": `Uses an index to quickly locate matching rows instead of scanning the entire table.`,
-  "INDEX_JOIN": `Uses an index lookup to efficiently join two tables.`,
-  "COLUMN_SCAN": `Reads data from the columnar storage format, optimizing access for analytical queries.`,
-  "TABLE_FUNCTION": `Executes a table-producing function, often used for reading external data formats.`,
-  "UNNEST": `Expands array or list values into multiple rows.`,
-  "WINDOW": `Performs window (analytic) function computations over a specified partition of data.`,
-  "STREAMING_WINDOW": `Computes window functions by processing rows in a streaming fashion without materializing the entire result set.`,
-  "CTE": `(Common Table Expression) is a temporary result set defined within a query that can be referenced multiple times, improving query readability and modularity.`,
-  "CTE_SCAN": `Performs a sequential scan over the results of a Common Table Expression (CTE).`,
-  "RECURSIVE_CTE": `Defines a Common Table Expression (CTE) that references itself for iterative query processing, enabling recursive operations like tree or graph traversal.`,
-  "RECURSIVE_CTE_SCAN": `Iterates over a recursively defined Common Table Expression (CTE), repeatedly executing the recursive query until no new rows are produced.`,
-  "CROSS_PRODUCT": `Performs a Cartesian product between two datasets (used when no join condition is specified).`,
-  "UNION": `Combines the results of two datasets while removing duplicates.`,
-  "UNION_ALL": `Combines the results of two datasets without removing duplicates.`,
-  "UNGROUPED_AGGREGATE": `Computes aggregate functions over the entire dataset without a GROUP BY clause.`,
-  "READ_CSV_AUTO": `Automatically reads and parses a CSV file, inferring column types and delimiters without explicit user specification.`,
-  "DUMMY_SCAN": `Generates a single-row, zero-column result, typically used for queries without an explicit table source (e.g., <code>SELECT 1</code>).`,
-  "DELIM_SCAN": `Reads and processes data from a delimiter-separated values (DSV) file, such as <code>CSV</code> or <code>TSV</code>, using a specified delimiter.`,
-  "INOUT_FUNCTION": `Represents a function that both takes input arguments and returns output, typically used for user-defined functions (UDFs) in queries.`,
-  "RIGHT_DELIM_JOIN": `Performs a join between two datasets based on a delimiter, matching values from the right side of the join condition.`,
-  "INSERT": `Represents the operation of adding new rows into a target table by consuming input data from its child node.`,
-};
+  NESTED_LOOP_JOIN: `Joins two tables using a nested loop.`,
+  MERGE_JOIN: `Performs a join by first sorting both tables on the join key and then merging them efficiently.`,
+  HASH_JOIN: `Performs a join by building a hash table on one of the input tables for fast lookups.`,
+  HASH_GROUP_BY: `Is a group-by and aggregate implementation that uses a hash table to perform the grouping.`,
+  FILTER: `It removes non-matching tuples from the result. Note that it does not physically change the data, it only adds a selection vector to the chunk.`,
+  PROJECTION: `Computes expressions and selects specific columns from the input dataset.`,
+  TABLE_SCAN: `Reads rows from a base table.`,
+  // "INDEX_SCAN": `Uses an index to quickly locate matching rows instead of scanning the entire table.`,
+  // "INDEX_JOIN": `Uses an index lookup to efficiently join two tables.`,
+  // "COLUMN_SCAN": `Reads data from the columnar storage format, optimizing access for analytical queries.`,
+  // "TABLE_FUNCTION": `Executes a table-producing function, often used for reading external data formats.`,
+  UNNEST: `Unnests an array or stuct into a table.`,
+  WINDOW: `Performs window function computations over a specified partition of data.`,
+  STREAMING_WINDOW: `Computes window functions in a streaming fashion without materializing the entire result set.`,
+  CTE: `Materialized CTEs hold a temporary table defined within the scope of a query that can be referenced multiple times.`,
+  CTE_SCAN: `Scans the <code>result table</code> of a materialized CTE.`,
+  RECURSIVE_CTE: `Defines a recursive Common Table Expression (CTE) that enables iterative query processing.`,
+  RECURSIVE_CTE_SCAN: `Scans the <code>working table</code> of a <code>RECURSIVE_CTE</code>.`,
+  CROSS_PRODUCT: `Performs a Cartesian product between two tables.`,
+  UNION: `Combines the results of two tables and removes duplicates.`,
+  UNION_ALL: `Combines the results of two tables and retains duplicates.`,
+  UNGROUPED_AGGREGATE: `Computes aggregate functions over the entire input table without grouping.`,
+  READ_CSV_AUTO: `Reads and parses CSV files, inferring column types and delimiters without explicit user specification.`,
+  DUMMY_SCAN: `Generates a single-row, zero-column result, typically used for queries without an explicit table source (e.g., <code>SELECT 1</code>).`,
+  DELIM_SCAN: `A <code>DELIM_SCAN</code> works in conjunction with a <code>DELIM_JOIN</code> and reads the set of correlated values.`,
+  INOUT_FUNCTION: `Represents a table in-out function that can accepts a table as input and returns a table.`,
+  RIGHT_DELIM_JOIN: `A <code>DELIM_JOIN</code> is used when DuckDB detects (and eliminates) a correlated subquery.`,
+  LEFT_DELIM_JOIN: `A <code>DELIM_JOIN</code> is used when DuckDB detects (and eliminates) a correlated subquery.`,
+  INSERT: `Inserts new rows into a table by consuming input data from its child node.`,
+  UPDATE: `Updates rows in a table.`,
+  DELETE: `Deletes rows of a table.`,
+}
 
 interface IHelpMessage {
   [key: string]: string
@@ -264,7 +267,7 @@ export function findNodeBySubplanName(
   plan: IPlan,
   subplanName: string
 ): Node | undefined {
-  let o: Node | undefined = undefined
+  const o: Node | undefined = undefined
   return o
 }
 
@@ -286,7 +289,7 @@ const notMiscProperties: string[] = [
   NodeProp.FUNCTION_NAME,
   NodeProp.PROJECTIONS,
   NodeProp.CONDITIONS,
-  NodeProp.FILTER
+  NodeProp.FILTER,
 ]
 
 export function shouldShowProp(key: string, value: unknown): boolean {

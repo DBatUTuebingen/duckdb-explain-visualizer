@@ -6,12 +6,12 @@
   "files": [
     "dist"
   ],
-  "main": "./dist/pev2.umd.js",
-  "module": "./dist/pev2.mjs",
+  "main": "./dist/duckdb-explain-visualizer.umd.js",
+  "module": "./dist/duckdb-explain-visualizer.mjs",
   "exports": {
     ".": {
-      "import": "./dist/pev2.mjs",
-      "require": "./dist/pev2.umd.js"
+      "import": "./dist/duckdb-explain-visualizer.mjs",
+      "require": "./dist/duckdb-explain-visualizer.umd.js"
     },
     "./dist/style.css": "./dist/style.css"
   },
@@ -38,7 +38,7 @@
     "highlight.js": "^11.7.0",
     "humanize-duration": "^3.28.0",
     "lodash": "^4.17.21",
-    "pev2": "^1.12.1",
+    "duckdb-explain-visualizer": "^1.0.0",
     "sass": "^1.58.0",
     "splitpanes": "^3.1.5",
     "vue": "^3.2.45",

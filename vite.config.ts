@@ -9,8 +9,8 @@ const build = process.env.LIB
   ? {
       lib: {
         entry: path.resolve(__dirname, "src/components/index.ts"),
-        name: "pev2",
-        fileName: "pev2",
+        name: "duckdb-explain-visualizer",
+        fileName: "duckdb-explain-visualizer",
       },
       rollupOptions: {
         external: ["vue"],
