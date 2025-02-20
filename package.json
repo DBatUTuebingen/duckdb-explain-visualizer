@@ -1,5 +1,5 @@
 {
-  "name": "DEV",
+  "name": "duckdb-explain-visualizer",
   "version": "1.0.0",
   "homepage": "https://github.com/DBatUTuebingen/pev2",
   "license": "PostgreSQL license",
