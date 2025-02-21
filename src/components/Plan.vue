@@ -46,7 +46,7 @@ import {
   type FlexHierarchyPointLink,
   type FlexHierarchyPointNode,
 } from "d3-flextree"
-import type { ZoomTransform } from 'd3'
+import type { ZoomTransform } from "d3"
 
 interface Props {
   planSource: string
@@ -184,38 +184,38 @@ onMounted(() => {
   const canvas = canvasRef.value
   if (!canvas) return
 
-  const resizeObserver = new ResizeObserver(entries => {
+  const resizeObserver = new ResizeObserver((entries) => {
     for (const entry of entries) {
       const { width, height } = entry.contentRect
       const pixelRatio = window.devicePixelRatio || 1
       canvas.width = width * pixelRatio
       canvas.height = height * pixelRatio
-      canvas.style.width = width + 'px'
-      canvas.style.height = height + 'px'
+      canvas.style.width = width + "px"
+      canvas.style.height = height + "px"
 
       // Recalculate scale to fit entire plan
       if (layoutRootNode.value) {
         const extent = getLayoutExtent(layoutRootNode.value)
-        const xScale = width / (extent[1] - extent[0] + 100)  // Add padding
+        const xScale = width / (extent[1] - extent[0] + 100) // Add padding
         const yScale = height / (extent[3] - extent[2] + 100) // Add padding
         const scale = Math.min(1, Math.min(xScale, yScale))
 
         // Center the plan
-        const tx = (width - (extent[1] - extent[0]) * scale) / 2 - extent[0] * scale
-        const ty = (height - (extent[3] - extent[2]) * scale) / 2 - extent[2] * scale
+        const tx =
+          (width - (extent[1] - extent[0]) * scale) / 2 - extent[0] * scale
+        const ty =
+          (height - (extent[3] - extent[2]) * scale) / 2 - extent[2] * scale
 
-        d3.select<HTMLCanvasElement, unknown>(canvas)
-          .call(
-            zoomListener.transform as any,
-            d3.zoomIdentity.translate(tx, ty).scale(scale)
-          )
+        d3.select<HTMLCanvasElement, unknown>(canvas).call(
+          zoomListener.transform as any,
+          d3.zoomIdentity.translate(tx, ty).scale(scale)
+        )
       }
     }
   })
 
   resizeObserver.observe(planEl.value.$el)
-  d3.select<HTMLCanvasElement, unknown>(canvas)
-    .call(zoomListener as any)
+  d3.select<HTMLCanvasElement, unknown>(canvas).call(zoomListener as any)
 
   return () => resizeObserver.disconnect()
 })
@@ -223,13 +223,13 @@ onMounted(() => {
 function drawCanvas() {
   const canvas = canvasRef.value
   if (!canvas) return
-  const ctx = canvas.getContext('2d', { alpha: false })
+  const ctx = canvas.getContext("2d", { alpha: false })
   if (!ctx) return
 
   const pixelRatio = window.devicePixelRatio || 1
 
   // Clear canvas with proper dimensions
-  ctx.fillStyle = '#ffffff'
+  ctx.fillStyle = "#efefef"
   ctx.fillRect(0, 0, canvas.width, canvas.height)
 
   // Start fresh
@@ -237,7 +237,7 @@ function drawCanvas() {
 
   // Enable antialiasing
   ctx.imageSmoothingEnabled = true
-  ctx.imageSmoothingQuality = 'high'
+  ctx.imageSmoothingQuality = "high"
 
   // Apply transforms in correct order
   ctx.scale(pixelRatio, pixelRatio)
@@ -245,10 +245,14 @@ function drawCanvas() {
   ctx.scale(transform.value.k, transform.value.k)
 
   // Draw connections
-  layoutRootNode.value?.links().forEach(link => {
+  layoutRootNode.value?.links().forEach((link) => {
     ctx.beginPath()
-    ctx.strokeStyle = isNeverExecuted(link.target.data) ? 'grey' : 'black'
-    ctx.lineWidth = edgeWeight.value(link.target.data[NodeProp.ACTUAL_ROWS] ?? 0)
+    ctx.strokeStyle = isNeverExecuted(link.target.data) ? "lightgrey" : "grey"
+    ctx.lineCap = "round"
+    ctx.setLineDash(isNeverExecuted(link.target.data) ? [10, 10] : [])
+    ctx.lineWidth = edgeWeight.value(
+      link.target.data[NodeProp.ACTUAL_ROWS] ?? 0
+    )
     const path = new Path2D(lineGen.value(link))
     ctx.stroke(path)
   })
@@ -257,12 +261,16 @@ function drawCanvas() {
   ctx.setTransform(1, 0, 0, 1, 0, 0)
 
   // Update node positions
-  layoutRootNode.value?.descendants().forEach(node => {
+  layoutRootNode.value?.descendants().forEach((node) => {
     const x = node.x - node.xSize / 2
     const y = node.y
     const nodeElement = document.getElementById(`node-${node.data.nodeId}`)
     if (nodeElement) {
-      nodeElement.style.transform = `translate(${x * transform.value.k + transform.value.x}px, ${y * transform.value.k + transform.value.y}px) scale(${transform.value.k})`
+      nodeElement.style.transform = `translate(${
+        x * transform.value.k + transform.value.x
+      }px, ${y * transform.value.k + transform.value.y}px) scale(${
+        transform.value.k
+      })`
     }
   })
 }
@@ -292,7 +300,7 @@ const lineGen = computed(() => {
     const target = link.target
     const k = Math.abs(target.y - (source.y + source.ySize) - padding)
     const path = d3.path()
-    path.moveTo(source.x, source.y)
+    path.moveTo(source.x, source.y + source.ySize / 2)
     path.lineTo(source.x, source.y + source.ySize - padding)
     path.bezierCurveTo(
       source.x,
@@ -358,7 +366,10 @@ function centerNode(nodeId: number): void {
     d3.select<HTMLCanvasElement, unknown>(canvas)
       .transition()
       .duration(500)
-      .call(zoomListener.transform as any, d3.zoomIdentity.translate(x, y).scale(k))
+      .call(
+        zoomListener.transform as any,
+        d3.zoomIdentity.translate(x, y).scale(k)
+      )
   }
 }
 
@@ -476,7 +487,8 @@ function updateNodeSize(node: Node, size: [number, number]) {
             href="https://github.com/DBatUTuebingen/pev2/issues"
             target="_blank"
             class="btn btn-primary ms-auto"
-          >Open an issue on Github</a>
+            >Open an issue on Github</a
+          >
         </div>
       </div>
     </div>
@@ -574,7 +586,10 @@ function updateNodeSize(node: Node, size: [number, number]) {
                     class="position-absolute m-1 p-1 bottom-0 end-0 rounded bg-white d-flex"
                     v-if="plan"
                   >
-                    <div class="btn-group btn-group-xs" style="z-index: 1; background: white;">
+                    <div
+                      class="btn-group btn-group-xs"
+                      style="z-index: 1; background: white"
+                    >
                       <button
                         class="btn btn-outline-secondary"
                         :class="{
@@ -635,7 +650,7 @@ function updateNodeSize(node: Node, size: [number, number]) {
                   </div>
                   <canvas
                     ref="canvasRef"
-                    style="width: 100%; height: 100%;"
+                    style="width: 100%; height: 100%"
                   ></canvas>
                   <div class="node-overlay">
                     <div
@@ -709,6 +724,7 @@ function updateNodeSize(node: Node, size: [number, number]) {
 
 path {
   stroke-linecap: butt;
+
   &.never-executed {
     stroke-dasharray: 0.5em;
     stroke-opacity: 0.5;
