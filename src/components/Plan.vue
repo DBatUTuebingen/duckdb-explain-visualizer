@@ -46,6 +46,7 @@ import {
   type FlexHierarchyPointLink,
   type FlexHierarchyPointNode,
 } from "d3-flextree"
+import type { ZoomTransform } from 'd3'
 
 interface Props {
   planSource: string
@@ -61,6 +62,7 @@ const queryText = ref<string>("")
 const parsed = ref<boolean>(false)
 const plan = ref<IPlan>()
 const planEl = ref()
+const canvasRef = ref<HTMLCanvasElement | null>(null)
 let planStats = reactive<IPlanStats>({} as IPlanStats)
 const rootNode = computed(() => {
   if (plan.value!.content[NodeProp.CPU_TIME] !== undefined) {
@@ -87,7 +89,7 @@ const planService = new PlanService()
 
 // Vertical padding between 2 nodes in the tree layout
 const padding = 40
-const transform = ref("")
+const transform = ref<ZoomTransform>(d3.zoomIdentity)
 const scale = ref(1)
 const edgeWeight = computed(() => {
   return d3
@@ -97,11 +99,12 @@ const edgeWeight = computed(() => {
 })
 const minScale = 0.2
 const zoomListener = d3
-  .zoom()
+  .zoom<HTMLCanvasElement, unknown>()
   .scaleExtent([minScale, 3])
   .on("zoom", function (e) {
     transform.value = e.transform
     scale.value = e.transform.k
+    drawCanvas()
   })
 const layoutRootNode = ref<null | FlexHierarchyPointNode<Node>>(null)
 const ctes = ref<FlexHierarchyPointNode<Node>[]>([])
@@ -173,49 +176,96 @@ onBeforeMount(() => {
 
 function doLayout() {
   layoutRootNode.value = layout(tree.value)
-
-  const mainLayoutExtent = getLayoutExtent(layoutRootNode.value)
-  const offset: [number, number] = [
-    mainLayoutExtent[0],
-    mainLayoutExtent[3] + padding,
-  ]
+  drawCanvas()
 }
 
 onMounted(() => {
-  if (!planEl.value) {
-    return
-  }
-  d3.select(planEl.value.$el).call(zoomListener)
-  nextTick(() => {
-    if (layoutRootNode.value) {
-      const extent = getLayoutExtent(layoutRootNode.value)
-      const x0 = extent[0]
-      const y0 = extent[2]
-      const x1 = extent[1]
-      const y1 = extent[3]
-      const rect = planEl.value.$el.getBoundingClientRect()
+  if (!planEl.value) return
+  const canvas = canvasRef.value
+  if (!canvas) return
 
-      d3.select(planEl.value.$el)
-        .transition()
-        .call(
-          zoomListener.transform,
-          d3.zoomIdentity
-            .translate(rect.width / 2, 10)
-            .scale(
-              Math.min(
-                1,
-                Math.max(
-                  minScale,
-                  0.8 /
-                    Math.max((x1 - x0) / rect.width, (y1 - y0) / rect.height)
-                )
-              )
-            )
-            .translate(-(x0 + x1) / 2, 10)
-        )
+  const resizeObserver = new ResizeObserver(entries => {
+    for (const entry of entries) {
+      const { width, height } = entry.contentRect
+      const pixelRatio = window.devicePixelRatio || 1
+      canvas.width = width * pixelRatio
+      canvas.height = height * pixelRatio
+      canvas.style.width = width + 'px'
+      canvas.style.height = height + 'px'
+
+      // Recalculate scale to fit entire plan
+      if (layoutRootNode.value) {
+        const extent = getLayoutExtent(layoutRootNode.value)
+        const xScale = width / (extent[1] - extent[0] + 100)  // Add padding
+        const yScale = height / (extent[3] - extent[2] + 100) // Add padding
+        const scale = Math.min(1, Math.min(xScale, yScale))
+
+        // Center the plan
+        const tx = (width - (extent[1] - extent[0]) * scale) / 2 - extent[0] * scale
+        const ty = (height - (extent[3] - extent[2]) * scale) / 2 - extent[2] * scale
+
+        d3.select<HTMLCanvasElement, unknown>(canvas)
+          .call(
+            zoomListener.transform as any,
+            d3.zoomIdentity.translate(tx, ty).scale(scale)
+          )
+      }
     }
   })
+
+  resizeObserver.observe(planEl.value.$el)
+  d3.select<HTMLCanvasElement, unknown>(canvas)
+    .call(zoomListener as any)
+
+  return () => resizeObserver.disconnect()
 })
+
+function drawCanvas() {
+  const canvas = canvasRef.value
+  if (!canvas) return
+  const ctx = canvas.getContext('2d', { alpha: false })
+  if (!ctx) return
+
+  const pixelRatio = window.devicePixelRatio || 1
+
+  // Clear canvas with proper dimensions
+  ctx.fillStyle = '#ffffff'
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+  // Start fresh
+  ctx.setTransform(1, 0, 0, 1, 0, 0)
+
+  // Enable antialiasing
+  ctx.imageSmoothingEnabled = true
+  ctx.imageSmoothingQuality = 'high'
+
+  // Apply transforms in correct order
+  ctx.scale(pixelRatio, pixelRatio)
+  ctx.translate(transform.value.x, transform.value.y)
+  ctx.scale(transform.value.k, transform.value.k)
+
+  // Draw connections
+  layoutRootNode.value?.links().forEach(link => {
+    ctx.beginPath()
+    ctx.strokeStyle = isNeverExecuted(link.target.data) ? 'grey' : 'black'
+    ctx.lineWidth = edgeWeight.value(link.target.data[NodeProp.ACTUAL_ROWS] ?? 0)
+    const path = new Path2D(lineGen.value(link))
+    ctx.stroke(path)
+  })
+
+  // Reset transform instead of using save/restore
+  ctx.setTransform(1, 0, 0, 1, 0, 0)
+
+  // Update node positions
+  layoutRootNode.value?.descendants().forEach(node => {
+    const x = node.x - node.xSize / 2
+    const y = node.y
+    const nodeElement = document.getElementById(`node-${node.data.nodeId}`)
+    if (nodeElement) {
+      nodeElement.style.transform = `translate(${x * transform.value.k + transform.value.x}px, ${y * transform.value.k + transform.value.y}px) scale(${transform.value.k})`
+    }
+  })
+}
 
 onBeforeUnmount(() => {
   window.removeEventListener("hashchange", onHashChange)
@@ -297,15 +347,19 @@ function centerNode(nodeId: number): void {
   if (!treeNode) {
     return
   }
+  const pixelRatio = window.devicePixelRatio || 1
   let x = -treeNode["x"]
   let y = -treeNode["y"]
   let k = scale.value
   x = x * k + rect.width / 2
   y = y * k + rect.height / 2
-  d3.select(planEl.value.$el)
-    .transition()
-    .duration(500)
-    .call(zoomListener.transform, d3.zoomIdentity.translate(x, y).scale(k))
+  const canvas = canvasRef.value
+  if (canvas) {
+    d3.select<HTMLCanvasElement, unknown>(canvas)
+      .transition()
+      .duration(500)
+      .call(zoomListener.transform as any, d3.zoomIdentity.translate(x, y).scale(k))
+  }
 }
 
 function findTreeNode(nodeId: number) {
@@ -382,11 +436,13 @@ watch(
   },
   () => {
     doLayout()
-  }
+  },
+  { deep: true }
 )
 
 function updateNodeSize(node: Node, size: [number, number]) {
   node.size = [size[0] / scale.value, size[1] / scale.value]
+  nextTick(() => doLayout())
 }
 </script>
 
@@ -483,7 +539,7 @@ function updateNodeSize(node: Node, size: [number, number]) {
       <div class="ms-auto me-2 small">
         <a href="https://github.com/DBatUTuebingen/pev2" target="_blank">
           <logo-image />
-          DEV 1.0.0
+          duckdb-explain-visualizer 1.0.0
           <!--{{ version }}-->
         </a>
       </div>
@@ -518,7 +574,7 @@ function updateNodeSize(node: Node, size: [number, number]) {
                     class="position-absolute m-1 p-1 bottom-0 end-0 rounded bg-white d-flex"
                     v-if="plan"
                   >
-                    <div class="btn-group btn-group-xs">
+                    <div class="btn-group btn-group-xs" style="z-index: 1; background: white;">
                       <button
                         class="btn btn-outline-secondary"
                         :class="{
@@ -577,40 +633,20 @@ function updateNodeSize(node: Node, size: [number, number]) {
                       </button>
                     </div>
                   </div>
-                  <svg width="100%" height="100%">
-                    <g :transform="transform">
-                      <path
-                        v-for="(link, index) in layoutRootNode?.links()"
-                        :key="`link${index}`"
-                        :d="lineGen(link)"
-                        :class="{
-                          'never-executed': isNeverExecuted(link.target.data),
-                        }"
-                        stroke="grey"
-                        :stroke-width="
-                          edgeWeight(
-                            link.target.data[NodeProp.ACTUAL_ROWS] ?? 0
-                          )
-                        "
-                        stroke-linecap="square"
-                        fill="none"
-                      />
-                      <foreignObject
-                        v-for="(item, index) in layoutRootNode?.descendants()"
-                        :key="index"
-                        :x="item.x - item.xSize / 2"
-                        :y="item.y"
-                        :width="item.xSize"
-                        height="1"
-                        ref="root"
-                      >
-                        <plan-node
-                          :node="item.data"
-                          class="d-flex justify-content-center position-fixed"
-                        />
-                      </foreignObject>
-                    </g>
-                  </svg>
+                  <canvas
+                    ref="canvasRef"
+                    style="width: 100%; height: 100%;"
+                  ></canvas>
+                  <div class="node-overlay">
+                    <div
+                      v-for="node in layoutRootNode?.descendants()"
+                      :key="node.data.nodeId"
+                      :id="`node-${node.data.nodeId}`"
+                      class="absolute-node"
+                    >
+                      <plan-node :node="node.data" />
+                    </div>
+                  </div>
                 </pane>
               </splitpanes>
             </div>
@@ -677,5 +713,28 @@ path {
     stroke-dasharray: 0.5em;
     stroke-opacity: 0.5;
   }
+}
+
+canvas {
+  touch-action: none;
+}
+
+.plan {
+  position: relative;
+}
+
+.node-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.absolute-node {
+  position: absolute;
+  transform-origin: left top;
+  pointer-events: all;
 }
 </style>
