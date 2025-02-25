@@ -51,7 +51,7 @@ interface Sample extends Array<string> {
 }
 
 const samples = ref<Sample[]>([
-  ["NO SAMPLES YET", null, null]
+  ["NO SAMPLES YET", null, null],
   // ["Example 1 TEXT", plan1_source, plan1_query],
   // ["Example 1 JSON", plan1_source_json, plan1_query],
   // ["Example 2", plan2_source, plan2_query],
@@ -154,19 +154,24 @@ function handleDrop(event: DragEvent) {
   <main-layout>
     <div class="container">
       <div class="alert alert-warning">
-        This is the demo application for
-        <a href="https://github.com/DBatUTuebingen/pev2">DEV</a>. It is serverless and
-        only stores your plans local.
+        This is the demo application for the
+        <a href="https://github.com/DBatUTuebingen/duckdb-explain-visualizer"
+          >duckdb-explain-visualizer</a
+        >. It is serverless and only stores your plans local.
         <br />
       </div>
       <div class="row mb-3">
         <div class="col d-flex">
           <div class="text-secondary">
-            Generate a json query plan using
-            the following lines in any terminal running the DuckDB CLI: <br>
-            <code>PRAGMA enable_profiling = 'json';</code> <br>
-            <code>PRAGMA profiling_output = '/path/to/file.json';</code> <br>
-            <code>[your-query-here]</code> <br>
+            Generate a json query plan using the following lines in any terminal
+            running the DuckDB CLI: <br />
+            <code>PRAGMA enable_profiling = 'json';</code> <br />
+            <code>PRAGMA profiling_output = '/path/to/file.json';</code> <br />
+            <code>[your-query-here]</code> <br />
+            <br />
+            Alternatively use:<br />
+            <code>EXPLAIN (ANALYZE, FORMAT JSON)</code> <br />
+            <code>[your-query-here]</code> <br />
           </div>
           <div class="dropdown ms-auto">
             <button
@@ -198,7 +203,8 @@ function handleDrop(event: DragEvent) {
           <form v-on:submit.prevent="submitPlan">
             <div class="mb-3">
               <label for="planInput" class="form-label">
-                Plan <span class="small text-secondary">(<!--text or -->JSON)</span>
+                Plan
+                <span class="small text-secondary">(<!--text or -->JSON)</span>
               </label>
               <textarea
                 :class="['form-control', draggingPlan ? 'dropzone-over' : '']"

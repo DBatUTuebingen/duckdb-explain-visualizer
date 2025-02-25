@@ -111,7 +111,7 @@ export class PlanService {
     // Remove frames around, handles |, ║,
     source = source.replace(/^(\||║|│)(.*)\1\r?\n/gm, "$2\n")
     // Remove frames at the end of line, handles |, ║,
-    source = source.replace(/(.*)(\||║|│)$\r?\n/gm, "$1\n")
+    // source = source.replace(/(.*)(\||║|│)$\r?\n/gm, "$1\n")
 
     // Remove separator lines from various types of borders
     source = source.replace(/^\+-+\+\r?\n/gm, "")
@@ -129,7 +129,7 @@ export class PlanService {
     source = source.replace(/^(["'])(.*)\1\r?/gm, "$2")
 
     // Remove "+" line continuations
-    source = source.replace(/\s*\+\r?\n/g, "\n")
+    // source = source.replace(/\s*\+\r?\n/g, "\n")
 
     // Remove "↵" line continuations
     source = source.replace(/↵\r?/gm, "\n")
@@ -148,16 +148,12 @@ export class PlanService {
 
   public fromSource(source: string) {
     source = this.cleanupSource(source)
-    console.log("fromSource: " + source)
-
     let isJson = false
     try {
       isJson = JSON.parse(source)
     } catch (error) {
       // continue
     }
-    console.log("isJson: " + isJson)
-
     // if (isJson) {
     //   return this.parseJson(source)
     // } else if (/^(\s*)(\[|\{)\s*\n.*?\1(\]|\})\s*/gms.exec(source)) {
