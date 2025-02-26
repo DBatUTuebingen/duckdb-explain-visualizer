@@ -116,7 +116,7 @@ add the following in you header (or load them with your favorite bundler).
 
 # Disclaimer
 
-This project is a hard fork of the excellent [Postgres Explain Visualizer 2 (PEV2)][pev2]. Kudos go to [Dalibo][dalibo]. We have adapted the project to work with DuckDB. The initial heavy lifting was done by Matthis Noel.
+This project is a hard fork of the excellent [Postgres Explain Visualizer 2 (PEV2)][pev2]. Kudos go to [Dalibo][dalibo]. We have adapted the project to work with DuckDB. The initial heavy lifting was done by Matthis Noël (https://github.com/Matthis02).
 
 [pev2]: https://github.com/dalibo/pev2/
 [dalibo]: https://www.dalibo.com/

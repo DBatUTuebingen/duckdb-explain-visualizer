@@ -14,7 +14,7 @@ import MainLayout from "../layouts/MainLayout.vue"
       </p>
 
       <p>
-        Matthis Noel has modified pev2 to work with DuckDB for his bachelor's
+        Matthis Noël has modified pev2 to work with DuckDB for his bachelor's
         thesis at the Database Systems Research Group @ University of Tübingen.
       </p>
 
