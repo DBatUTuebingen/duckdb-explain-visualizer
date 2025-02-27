@@ -1,7 +1,7 @@
 {
   "name": "duckdb-explain-visualizer",
   "version": "1.0.0",
-  "homepage": "https://github.com/DBatUTuebingen/pev2",
+  "homepage": "https://github.com/DBatUTuebingen/duckdb-explain-visualizer",
   "license": "PostgreSQL license",
   "files": [
     "dist"
