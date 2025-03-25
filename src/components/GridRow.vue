@@ -93,7 +93,7 @@ function formattedProp(propName: keyof typeof NodeProp) {
           v-if="durationClass"
         ></severity-bullet>
         <span class="flex-grow-1">
-          {{ Math.round(node[NodeProp.ACTUAL_TIME] ?? 0).toLocaleString() }}
+          {{ duration(node[NodeProp.ACTUAL_TIME]) }}
         </span>
       </div>
       <div v-if="showDetails" class="small text-body-secondary">
