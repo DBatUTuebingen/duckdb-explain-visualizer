@@ -14,7 +14,7 @@ export function duration(value: number | undefined): string {
     return "N/A"
   }
   const result: string[] = []
-  let denominator: number = 1000 * 60 * 60 * 24
+  let denominator: number = 60 * 60 * 24
   const days = Math.floor(value / denominator)
   if (days) {
     result.push(days + "d")
@@ -32,14 +32,13 @@ export function duration(value: number | undefined): string {
     result.push(minutes + "m")
   }
   remainder = remainder % denominator
-  denominator /= 60
-  const seconds = Math.floor(remainder / denominator)
-  if (seconds) {
-    result.push(seconds + "s")
+  if (remainder >= 1) {
+    const seconds = parseFloat(remainder.toFixed(2))
+    result.push(seconds.toLocaleString() + "s")
+  } else {
+    const milliseconds = parseFloat((remainder * 1000).toFixed(2))
+    result.push(milliseconds.toLocaleString() + "ms")
   }
-  remainder = remainder % denominator
-  const milliseconds = parseFloat(remainder.toPrecision(3))
-  result.push(milliseconds.toLocaleString() + "ms")
 
   return result.slice(0, 2).join(" ")
 }
