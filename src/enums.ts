@@ -60,7 +60,7 @@ export enum NodeProp {
 
   // EXTRA INFO KEYS
   EXTRA_INFO = "extra_info", // Unique operator metrics
-  RELATION_NAME = "Text",
+  RELATION_NAME = "Table",
   PROJECTIONS = "Projections",
   ESTIMATED_ROWS = "Estimated Cardinality",
   AGGREGATES = "Aggregates",
