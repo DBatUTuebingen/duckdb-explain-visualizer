@@ -4,11 +4,7 @@ import type { Ref } from "vue"
 import type { IPlan, Node, ViewOptions } from "@/interfaces"
 import { NodeProp } from "@/enums"
 import { PlanKey, ViewOptionsKey } from "@/symbols"
-import {
-  result,
-  duration,
-  formatNodeProp,
-} from "@/filters"
+import { result, duration, formatNodeProp } from "@/filters"
 import LevelDivider from "@/components/LevelDivider.vue"
 import GridProgressBar from "@/components/GridProgressBar.vue"
 import MiscDetail from "@/components/MiscDetail.vue"
@@ -46,7 +42,7 @@ const {
   rowsTooltip,
   timeTooltip,
   resultTooltip,
-  estimationTooltip
+  estimationTooltip,
 } = useNode(plan, node, viewOptions)
 const showDetails = ref<boolean>(false)
 
@@ -261,15 +257,15 @@ function formattedProp(propName: keyof typeof NodeProp) {
         @click.stop
       >
         <div class="text-wrap">
-          <!--          <div-->
-          <!--            v-if="getNodeTypeDescription(node[NodeProp.NODE_TYPE])"-->
-          <!--            class="node-description mt-1"-->
-          <!--          >-->
-          <!--            <span class="node-type">{{ node[NodeProp.NODE_TYPE] }} Node</span>-->
-          <!--            <span-->
-          <!--              v-html="getNodeTypeDescription(node[NodeProp.NODE_TYPE])"-->
-          <!--            ></span>-->
-          <!--          </div>-->
+          <div
+            v-if="getNodeTypeDescription(node[NodeProp.NODE_TYPE])"
+            class="node-description mt-1"
+          >
+            <span class="node-type">{{ node[NodeProp.NODE_TYPE] }} Node</span>
+            <span
+              v-html="getNodeTypeDescription(node[NodeProp.NODE_TYPE])"
+            ></span>
+          </div>
           <ul class="nav nav-tabs mt-1">
             <li class="nav-item">
               <a

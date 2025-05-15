@@ -39,7 +39,6 @@ export class PlanService {
         this.processNode(planContent as unknown as Node, plan)
       }
       this.calculateMaximums(plan)
-      this.calculateExecutionTime(plan)
       return plan
     } else {
       throw new Error("Invalid plan")
@@ -103,10 +102,6 @@ export class PlanService {
     }
   }
 
-  public calculateExecutionTime(plan: IPlan) {
-    // TODO: implement
-  }
-
   public cleanupSource(source: string) {
     // Remove frames around, handles |, ║,
     source = source.replace(/^(\||║|│)(.*)\1\r?\n/gm, "$2\n")
@@ -148,17 +143,6 @@ export class PlanService {
 
   public fromSource(source: string) {
     source = this.cleanupSource(source)
-    let isJson = false
-    try {
-      isJson = JSON.parse(source)
-    } catch (error) {
-      // continue
-    }
-    // if (isJson) {
-    //   return this.parseJson(source)
-    // } else if (/^(\s*)(\[|\{)\s*\n.*?\1(\]|\})\s*/gms.exec(source)) {
-    //   return this.fromJson(source)
-    // }
     return this.parseJson(source)
   }
 
