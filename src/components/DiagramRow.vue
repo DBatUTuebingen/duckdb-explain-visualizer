@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { inject, reactive, ref, watch } from "vue"
+import { inject, reactive, ref, watch, computed } from "vue"
 import type { Ref } from "vue"
 import {
   HighlightedNodeIdKey,
@@ -44,6 +44,32 @@ const { resultTooltip, nodeName, rowsTooltip, timeTooltip } = useNode(
   node,
   viewOptions
 )
+
+const calculateCpuTimePercentage = computed(() => {
+  if (typeof node[NodeProp.CPU_TIME] !== 'number' || typeof node[NodeProp.ACTUAL_TIME] !== 'number') {
+    return 0;
+  }
+  const denominator = (plan.value.planStats.executionTime ?? plan.value.content[NodeProp.ACTUAL_TIME] ?? 1) as number;
+  return Math.round(((node[NodeProp.CPU_TIME] - node[NodeProp.ACTUAL_TIME]) / denominator) * 100);
+});
+
+const calculateRowsPercentage = computed(() => {
+  if (typeof node[NodeProp.ACTUAL_ROWS] !== 'number' || !plan.value.planStats.maxRows) {
+    return 0;
+  }
+  return Math.round((node[NodeProp.ACTUAL_ROWS] / plan.value.planStats.maxRows) * 100);
+});
+
+const calculateResultPercentage = computed(() => {
+  if (typeof node[NodeProp.RESULT_SET_SIZE] !== 'number' || !plan.value.planStats.maxResult) {
+    return 0;
+  }
+  return Math.round((node[NodeProp.RESULT_SET_SIZE] / plan.value.planStats.maxResult) * 100);
+});
+
+const hasResultSetSize = computed(() => {
+  return typeof node[NodeProp.RESULT_SET_SIZE] === 'number' && node[NodeProp.RESULT_SET_SIZE] > 0;
+});
 
 function getTooltipContent(node: Node): string {
   let content = ""
@@ -135,13 +161,7 @@ watch(
           role="progressbar"
           style="height: 5px"
           :style="{
-            width:
-              ((node[NodeProp.CPU_TIME] -
-                node[NodeProp.ACTUAL_TIME]!) /
-                (plan.planStats.executionTime! ||
-                  plan.content[NodeProp.ACTUAL_TIME]! as number)) *
-                100 +
-              '%',
+            width: calculateCpuTimePercentage + '%'
           }"
           aria-valuenow="15"
           aria-valuemin="0"
@@ -159,11 +179,7 @@ watch(
           role="progressbar"
           style="height: 5px"
           :style="{
-            width:
-              Math.round(
-                (node[NodeProp.ACTUAL_ROWS]! / plan.planStats.maxRows) *
-                  100
-              ) + '%',
+            width: calculateRowsPercentage + '%',
           }"
           aria-valuenow="15"
           aria-valuemin="0"
@@ -179,16 +195,12 @@ watch(
         <div
           class="bg-secondary"
           :class="{
-            'border-secondary border-start': node[NodeProp.RESULT_SET_SIZE] > 0,
+            'border-secondary border-start': hasResultSetSize,
           }"
           role="progressbar"
           style="height: 5px"
           :style="{
-            width:
-              Math.round(
-                (node[NodeProp.RESULT_SET_SIZE] / plan.planStats.maxResult) *
-                  100
-              ) + '%',
+            width: calculateResultPercentage + '%',
           }"
           aria-valuenow="15"
           aria-valuemin="0"

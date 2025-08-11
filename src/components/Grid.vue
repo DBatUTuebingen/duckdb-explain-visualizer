@@ -83,7 +83,8 @@ const hasEstimation = computed((): boolean => {
 const hasResult = computed((): boolean => {
   return _.some(plans, (plan: Row[]) => {
     return _.some(plan, (row: Row) => {
-      return row[1][NodeProp.RESULT_SET_SIZE] > 1
+      const resultSize = row[1][NodeProp.RESULT_SET_SIZE];
+      return typeof resultSize === 'number' && resultSize > 1;
     })
   })
 })

@@ -295,7 +295,7 @@ function onSelectedNode(v: number) {
 }
 
 const lineGen = computed(() => {
-  return function (link: FlexHierarchyPointLink<object>) {
+  return function (link: FlexHierarchyPointLink<Node>) {
     const source = link.source
     const target = link.target
     const k = Math.abs(target.y - (source.y + source.ySize) - padding)
@@ -347,7 +347,29 @@ function selectNode(nodeId: number, center: boolean): void {
 }
 provide(SelectNodeKey, selectNode)
 provide(ViewOptionsKey, viewOptions)
-provide(PlanKey, plan)
+// Ensure plan is always defined with a default empty plan
+provide(PlanKey, computed(() => plan.value ?? {
+  id: '',
+  name: '',
+  content: {
+    _: {} as Node,
+    [NodeProp.PLANS]: [],
+    maxRows: 0,
+    maxRowsScanned: 0,
+    maxEstimatedRows: 0,
+    maxResult: 0,
+    maxDuration: 0
+  },
+  query: '',
+  createdOn: new Date(),
+  planStats: {
+    maxRows: 0,
+    maxRowsScanned: 0,
+    maxEstimatedRows: 0,
+    maxResult: 0,
+    maxDuration: 0
+  }
+} as IPlan))
 
 function centerNode(nodeId: number): void {
   const rect = planEl.value.$el.getBoundingClientRect()

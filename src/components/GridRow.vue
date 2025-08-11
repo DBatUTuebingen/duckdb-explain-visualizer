@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { inject, reactive, ref } from "vue"
+import { inject, reactive, ref, computed } from "vue"
 import type { Ref } from "vue"
 import type { IPlan, Node, ViewOptions } from "@/interfaces"
 import { NodeProp } from "@/enums"
@@ -46,6 +46,39 @@ const {
 } = useNode(plan, node, viewOptions)
 const showDetails = ref<boolean>(false)
 
+// Computed properties for safe value access
+const actualTimePercentage = computed(() => {
+  const actualTime = node[NodeProp.ACTUAL_TIME];
+  const executionTime = plan.value.planStats.executionTime || plan.value.content[NodeProp.ACTUAL_TIME];
+  if (typeof actualTime !== 'number' || !executionTime) return 0;
+  return (actualTime / (executionTime as number)) * 100;
+});
+
+const cpuTimePercentage = computed(() => {
+  const cpuTime = node[NodeProp.CPU_TIME];
+  const actualTime = node[NodeProp.ACTUAL_TIME];
+  const executionTime = plan.value.planStats.executionTime || plan.value.content[NodeProp.ACTUAL_TIME];
+  if (typeof cpuTime !== 'number' || typeof actualTime !== 'number' || !executionTime) return 0;
+  return ((cpuTime - actualTime) / (executionTime as number)) * 100;
+});
+
+const actualRowsPercentage = computed(() => {
+  const actualRows = node[NodeProp.ACTUAL_ROWS];
+  if (typeof actualRows !== 'number' || !plan.value.planStats.maxRows) return 0;
+  return (actualRows / plan.value.planStats.maxRows) * 100;
+});
+
+const resultSetPercentage = computed(() => {
+  const resultSetSize = node[NodeProp.RESULT_SET_SIZE];
+  if (typeof resultSetSize !== 'number' || !plan.value.planStats.maxResult) return 0;
+  return Math.round((resultSetSize / plan.value.planStats.maxResult) * 100);
+});
+
+const formatResultSize = computed(() => {
+  const resultSetSize = node[NodeProp.RESULT_SET_SIZE];
+  return result(typeof resultSetSize === 'number' ? resultSetSize : 0);
+});
+
 // returns the formatted prop
 function formattedProp(propName: keyof typeof NodeProp) {
   const property = NodeProp[propName]
@@ -67,16 +100,10 @@ function formattedProp(propName: keyof typeof NodeProp) {
     >
       <GridProgressBar
         :percentage="
-          (node[NodeProp.ACTUAL_TIME]! /
-            (plan.planStats.executionTime! ||
-              plan.content[NodeProp.ACTUAL_TIME]! as number)) *
-          100
+          actualTimePercentage
         "
         :percentage2="
-          ((node[NodeProp.CPU_TIME] - node[NodeProp.ACTUAL_TIME]!) /
-            (plan.planStats.executionTime! ||
-              plan.content[NodeProp.ACTUAL_TIME]! as number)) *
-          100
+          cpuTimePercentage
         "
       ></GridProgressBar>
       <!-- time -->
@@ -106,7 +133,7 @@ function formattedProp(propName: keyof typeof NodeProp) {
     >
       <GridProgressBar
         :percentage="
-          (node[NodeProp.ACTUAL_ROWS]! / plan.planStats.maxRows) * 100
+          actualRowsPercentage
         "
       ></GridProgressBar>
       <!-- rows -->
@@ -170,9 +197,7 @@ function formattedProp(propName: keyof typeof NodeProp) {
     >
       <GridProgressBar
         :percentage="
-          Math.round(
-            (node[NodeProp.RESULT_SET_SIZE] / plan.planStats.maxResult) * 100
-          )
+          resultSetPercentage
         "
       ></GridProgressBar>
       <!-- result -->
@@ -185,7 +210,7 @@ function formattedProp(propName: keyof typeof NodeProp) {
           v-if="resultClass"
         ></severity-bullet>
         <span class="flex-grow-1">
-          {{ result(node[NodeProp.RESULT_SET_SIZE]) }}
+          {{ formatResultSize }}
         </span>
       </div>
     </td>
