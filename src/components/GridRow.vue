@@ -258,12 +258,13 @@ function formattedProp(propName: keyof typeof NodeProp) {
       >
         <div class="text-wrap">
           <div
-            v-if="getNodeTypeDescription(node[NodeProp.NODE_TYPE])"
+            v-if="node[NodeProp.NODE_TYPE] && getNodeTypeDescription(node[NodeProp.NODE_TYPE] as string)"
             class="node-description mt-1"
           >
             <span class="node-type">{{ node[NodeProp.NODE_TYPE] }} Node</span>
             <span
-              v-html="getNodeTypeDescription(node[NodeProp.NODE_TYPE])"
+              v-if="node[NodeProp.NODE_TYPE]"
+              v-html="getNodeTypeDescription(node[NodeProp.NODE_TYPE] as string)"
             ></span>
           </div>
           <ul class="nav nav-tabs mt-1">
