@@ -1,7 +1,11 @@
 @use "sass:math";
+@use "sass:color";
+@use "variables" as *;
+@use "base" as *;
 
 $compact-width: 50px;
 $bg-color: #fff;
+
 .plan-node {
   cursor: default;
   text-decoration: none;
@@ -19,10 +23,12 @@ $bg-color: #fff;
     border: 1px solid $line-color;
     border-radius: $border-radius-base;
     background-color: $plan-node-bg;
-    box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.1);
+    box-shadow: 1px 1px 3px 0px rgba(0, 0, 0, 0.1);
 
     &.card {
-      .card-body, .card-header {
+
+      .card-body,
+      .card-header {
         padding: $padding-base $padding-lg;
       }
 
@@ -71,11 +77,13 @@ $bg-color: #fff;
   //hovers
   &:hover,
   &.highlight {
-    $hover-color: rgba(0,0,0,0.4);
+    $hover-color: rgba(0, 0, 0, 0.4);
+
     .plan-node-body {
       box-shadow: 1px 1px 5px 0px $hover-color;
     }
-    .workers > div {
+
+    .workers>div {
       border-color: rgba($hover-color, 0.2);
     }
   }
@@ -84,10 +92,10 @@ $bg-color: #fff;
   &.selected {
     .plan-node-body {
       border-color: $highlight-color;
-      box-shadow: 0px 0px 5px 2px rgba($highlight-color,0.4);
+      box-shadow: 0px 0px 5px 2px rgba($highlight-color, 0.4);
     }
 
-    .workers > div {
+    .workers>div {
       border-color: rgba($highlight-color, 0.2);
     }
   }
@@ -118,7 +126,7 @@ $bg-color: #fff;
     padding: $padding-xl;
     background-color: #fff;
     position: absolute;
-    box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.3);
+    box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.3);
     border-radius: $border-radius-base;
     margin-bottom: $padding-xl;
     z-index: 1;
@@ -135,7 +143,7 @@ $bg-color: #fff;
   }
 
   &.never-executed .plan-node-body {
-    @extend %bg-hatched;
+    @extend %bg-hatched !optional;
   }
 
   .workers {
@@ -146,7 +154,7 @@ $bg-color: #fff;
     height: 100%;
     cursor: pointer;
 
-    > div {
+    >div {
       border: 1px solid $gray-light;
       border-radius: $border-radius-base;
       background-color: $white;
@@ -161,11 +169,12 @@ $bg-color: #fff;
     position: absolute;
     top: 0;
     right: -5px;
-    > div {
+
+    >div {
       position: absolute;
       top: 0;
       background-color: white;
-      border: 1px solid darken($gray-lightest, 3);
+      border: 1px solid color.adjust($gray-lightest, $lightness: -3%);
       border-radius: $border-radius-base;
 
       &:hover {
@@ -184,14 +193,17 @@ $bg-color: #fff;
     .fa-chevron-right {
       display: inline-block;
     }
+
     .fa-chevron-down {
       display: none;
     }
   }
+
   button[aria-expanded='true'] {
     .fa-chevron-right {
       display: none !important;
     }
+
     .fa-chevron-down {
       display: inline-block !important;
     }

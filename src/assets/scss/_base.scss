@@ -1,15 +1,21 @@
 @use "sass:math";
+@use "sass:color";
+@use "sass:map";
+@use "variables" as *;
+
 // Color contrast
 @function color-yiq($color, $dark: $yiq-text-dark, $light: $yiq-text-light) {
-  $r: red($color);
-  $g: green($color);
-  $b: blue($color);
+  $r: color.channel($color, "red", $space: rgb);
+  $g: color.channel($color, "green", $space: rgb);
+  $b: color.channel($color, "blue", $space: rgb);
 
   $yiq: math.div(($r * 299) + ($g * 587) + ($b * 114), 1000);
 
-  @if ($yiq >= $yiq-contrasted-threshold) {
+  @if ($yiq >=$yiq-contrasted-threshold) {
     @return $dark;
-  } @else {
+  }
+
+  @else {
     @return $light;
   }
 }
@@ -44,11 +50,11 @@
 }
 
 $buffers-colors: (
-  hit: map-get($severity-colors, 1),
-  read: map-get($severity-colors, 2),
-  dirtied: map-get($severity-colors, 3),
-  written: map-get($severity-colors, 4),
-) !default;
+  hit: map.get($severity-colors, 1),
+  read: map.get($severity-colors, 2),
+  dirtied: map.get($severity-colors, 3),
+  written: map.get($severity-colors, 4),
+  ) !default;
 
 
 /**
@@ -58,18 +64,21 @@ $buffers-colors: (
   .bg-#{$color} {
     background-color: $value;
   }
+
   .border-#{$color} {
     border-color: $value !important;
   }
 }
 
 
-.btn-group-xs > .btn, .btn-xs {
+.btn-group-xs>.btn,
+.btn-xs {
   padding: .25rem .4rem;
   font-size: $font-size-sm;
   border-radius: .2rem;
 
-  &, .fa {
+  &,
+  .fa {
     line-height: .5;
   }
 }
@@ -81,8 +90,9 @@ $buffers-colors: (
   $color: $gray-lightest;
   $angle: 45deg;
   $progress-height: 1rem !default;
-  background-image: linear-gradient($angle, $color 25%, transparent 25%, transparent 50%, $color 50%, $color 75%, transparent 75%, transparent);
-  background-size: $progress-height $progress-height;
+  background-image: linear-gradient($angle, $color 25%, transparent 25%, transparent 50%, $color 50%, $color 75%, transparent 75%, transparent
+  );
+background-size: $progress-height $progress-height;
 }
 
 .bg-hatched {
@@ -97,6 +107,7 @@ $buffers-colors: (
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   text-overflow: ellipsis;
   overflow: hidden;

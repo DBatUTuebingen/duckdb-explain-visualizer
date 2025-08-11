@@ -65,41 +65,32 @@ export class PlanService {
     flat = flat.concat(_.flattenDeep(recurse(plan.content[NodeProp.PLANS])))
 
     const largest = _.maxBy(flat, NodeProp.ACTUAL_ROWS)
-    if (largest) {
-      plan.content.maxRows = largest[NodeProp.ACTUAL_ROWS] as number
-    }
+    plan.content.maxRows = largest && largest[NodeProp.ACTUAL_ROWS] !== undefined
+      ? largest[NodeProp.ACTUAL_ROWS] as number
+      : 0
 
     const largestScanned = _.maxBy(flat, NodeProp.OPERATOR_ROWS_SCANNED)
-    if (largestScanned) {
-      plan.content.maxRowsScanned = largestScanned[
-        NodeProp.OPERATOR_ROWS_SCANNED
-      ] as number
-    }
+    plan.content.maxRowsScanned = largestScanned && largestScanned[NodeProp.OPERATOR_ROWS_SCANNED] !== undefined
+      ? largestScanned[NodeProp.OPERATOR_ROWS_SCANNED] as number
+      : 0
 
     const largestResult = _.maxBy(flat, NodeProp.RESULT_SET_SIZE)
-    if (largestResult) {
-      plan.content.maxResult = largestResult[NodeProp.RESULT_SET_SIZE]
-    }
+    plan.content.maxResult = largestResult && largestResult[NodeProp.RESULT_SET_SIZE] !== undefined
+      ? largestResult[NodeProp.RESULT_SET_SIZE] as number
+      : 0
 
     const largestEstimate = _.maxBy(flat, function (node: Node) {
-      const cardinality: number = node[NodeProp.EXTRA_INFO][
-        NodeProp.ESTIMATED_ROWS
-      ] as unknown as number
-      return cardinality != null ? cardinality : 0
+      const estimatedRows = node[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS]
+      return estimatedRows ? parseInt(estimatedRows as string, 10) : 0
     })
-
-    if (largestEstimate) {
-      plan.content.maxEstimatedRows = parseInt(
-        largestEstimate[NodeProp.EXTRA_INFO][
-          NodeProp.ESTIMATED_ROWS
-        ] as unknown as string
-      )
-    }
+    plan.content.maxEstimatedRows = largestEstimate && largestEstimate[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS]
+      ? parseInt(largestEstimate[NodeProp.EXTRA_INFO][NodeProp.ESTIMATED_ROWS] as string, 10)
+      : 0
 
     const slowest = _.maxBy(flat, NodeProp.ACTUAL_TIME)
-    if (slowest) {
-      plan.content.maxDuration = slowest[NodeProp.ACTUAL_TIME] as number
-    }
+    plan.content.maxDuration = slowest && slowest[NodeProp.ACTUAL_TIME] !== undefined
+      ? slowest[NodeProp.ACTUAL_TIME] as number
+      : 0
   }
 
   public cleanupSource(source: string) {

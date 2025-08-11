@@ -717,10 +717,10 @@ function updateNodeSize(node: Node, size: [number, number]) {
 </template>
 
 <style lang="scss">
-@import "../assets/scss/variables";
-@import "../assets/scss/pev2";
+@use "../assets/scss/variables" as *;
+@use "../assets/scss/pev2" as *;
+@use "highlight.js/scss/stackoverflow-light.scss" as *;
 @import "splitpanes/dist/splitpanes.css";
-@import "highlight.js/scss/stackoverflow-light.scss";
 
 path {
   stroke-linecap: butt;

@@ -1,17 +1,26 @@
+@use "variables" as *;
+
 $grid-progress-padding-x: 0.5rem;
 $grid-progress-padding-y: 0.25rem;
 $grid-progress-margin: 1px;
+
 .plan-grid {
   // To compensate the transparent background-color for grid-progress-cell
   background-color: white;
   line-height: 0.85em;
-  > table {
+
+  >table {
     // Truly attach borders to th even when collapsed when using sticky
     border-collapse: separate;
     border-spacing: 0;
-    > tbody, > thead, & {
-      > tr {
-        > th, > td {
+
+    >tbody,
+    >thead,
+    & {
+      >tr {
+
+        >th,
+        >td {
           font-size: $font-size-base;
           min-width: 20px;
           padding-left: $grid-progress-padding-x;
@@ -35,6 +44,7 @@ $grid-progress-margin: 1px;
   tr.node {
     cursor: pointer;
   }
+
   .grid-progress-cell {
     position: relative;
     // Without this bottom border disappareas on Firefox
@@ -44,6 +54,7 @@ $grid-progress-margin: 1px;
       margin-top: 1px;
     }
   }
+
   .grid-progress {
     position: absolute;
     width: 100%;

@@ -62,39 +62,48 @@ export interface ExtraInfo {
 
 // Class to create nodes when parsing text for DuckDB Explain Plans
 export class Node {
-  nodeId!: number
+  nodeId!: number;
   size!: [number, number];
   // DuckDB specific properties
   [NodeProp.NODE_TYPE]?: string; // Type of operation in DuckDB (e.g., "Filter", "Scan")
   [NodeProp.NODE_TYPE_EXPLAIN]?: string; // same (without ANALYZE)
   [NodeProp.ACTUAL_TIME]?: number; // Actual timing for the node if available
   [NodeProp.ACTUAL_ROWS]?: number; // Estimated number of rows
-  [NodeProp.PLANS]: Node[];
-  [NodeProp.CPU_TIME]: number;
-  [NodeProp.CUMULATIVE_CARDINALITY]: number;
-  [NodeProp.CUMULATIVE_ROWS_SCANNED]: number;
-  [NodeProp.OPERATOR_ROWS_SCANNED]: number;
-  [NodeProp.RESULT_SET_SIZE]: number;
-  [NodeProp.EXTRA_INFO]: ExtraInfo;
+  [NodeProp.PLANS]!: Node[];
+  [NodeProp.CPU_TIME]?: number;
+  [NodeProp.CUMULATIVE_CARDINALITY]?: number;
+  [NodeProp.CUMULATIVE_ROWS_SCANNED]?: number;
+  [NodeProp.OPERATOR_ROWS_SCANNED]?: number;
+  [NodeProp.RESULT_SET_SIZE]?: number;
+  [NodeProp.EXTRA_INFO]!: ExtraInfo;
   [k: string]:
-    | Node
-    | Node[]
-    | Timing
-    | boolean
-    | number
-    | string
-    | string[]
-    | JSON
-    | object
-    | object[]
-    | undefined
-    | [number, number]
+  | Node
+  | Node[]
+  | Timing
+  | boolean
+  | number
+  | string
+  | string[]
+  | JSON
+  | object
+  | object[]
+  | undefined
+  | [number, number]
 
   constructor(type?: string) {
-    if (!type) {
-      return
+    this.nodeId = 0;
+    this.size = [0, 0];
+    this[NodeProp.PLANS] = [];
+    this[NodeProp.CPU_TIME] = 0;
+    this[NodeProp.CUMULATIVE_CARDINALITY] = 0;
+    this[NodeProp.CUMULATIVE_ROWS_SCANNED] = 0;
+    this[NodeProp.OPERATOR_ROWS_SCANNED] = 0;
+    this[NodeProp.RESULT_SET_SIZE] = 0;
+    this[NodeProp.EXTRA_INFO] = {};
+
+    if (type) {
+      this[NodeProp.NODE_TYPE] = type;
     }
-    this[NodeProp.NODE_TYPE] = type
   }
 }
 
