@@ -2,6 +2,7 @@
 
 declare module '*.vue' {
   import type { DefineComponent } from 'vue'
-  const component: DefineComponent<{}, {}, any>
+  // Use 'object' instead of '{}' for better type safety
+  const component: DefineComponent<object, object, unknown>
   export default component
 }

@@ -18,7 +18,6 @@ import type {
   IPlanContent,
   IPlanStats,
   Node,
-  Settings,
 } from "@/interfaces"
 import {
   HighlightedNodeIdKey,
@@ -54,7 +53,7 @@ interface Props {
 }
 const props = defineProps<Props>()
 
-const version = __APP_VERSION__ // eslint-disable-line no-undef
+const version = __APP_VERSION__  
 
 const rootEl = ref(null) // The root Element of this instance
 const activeTab = ref<string>("")
@@ -63,7 +62,7 @@ const parsed = ref<boolean>(false)
 const plan = ref<IPlan>()
 const planEl = ref()
 const canvasRef = ref<HTMLCanvasElement | null>(null)
-let planStats = reactive<IPlanStats>({} as IPlanStats)
+const planStats = reactive<IPlanStats>({} as IPlanStats)
 const rootNode = computed(() => {
   if (plan.value!.content[NodeProp.CPU_TIME] !== undefined) {
     // plan is analyzed
@@ -106,7 +105,29 @@ const zoomListener = d3
     scale.value = e.transform.k
     drawCanvas()
   })
-const layoutRootNode = ref<null | FlexHierarchyPointNode<Node>>(null)
+
+// Handle zoom from any element
+function handleZoom(event: WheelEvent) {
+  const canvas = canvasRef.value
+  if (!canvas) return
+
+  // Clone the event with the same coordinates
+  const newEvent = new WheelEvent('wheel', {
+    deltaY: event.deltaY,
+    deltaMode: event.deltaMode,
+    clientX: event.clientX,
+    clientY: event.clientY,
+    screenX: event.screenX,
+    screenY: event.screenY,
+    ctrlKey: event.ctrlKey,
+    altKey: event.altKey,
+    shiftKey: event.shiftKey,
+    metaKey: event.metaKey
+  })
+
+  // Let D3's zoom behavior handle the event directly
+  canvas.dispatchEvent(newEvent)
+}const layoutRootNode = ref<null | FlexHierarchyPointNode<Node>>(null)
 const ctes = ref<FlexHierarchyPointNode<Node>[]>([])
 
 const layout = flextree({
@@ -136,7 +157,7 @@ onBeforeMount(() => {
     ) as unknown as IPlanContent
     parsed.value = true
     setActiveTab("plan")
-  } catch (e) {
+  } catch (_) {
     parsed.value = false
     plan.value = undefined
     return
@@ -174,45 +195,68 @@ onBeforeMount(() => {
   doLayout()
 })
 
-function doLayout() {
+
+// Debounced doLayout
+function debounce(fn: (...args: any[]) => void, delay: number) {
+  let timer: ReturnType<typeof setTimeout> | null = null
+  return (...args: any[]) => {
+    if (timer) clearTimeout(timer)
+    timer = setTimeout(() => fn(...args), delay)
+  }
+}
+
+function _doLayout() {
   layoutRootNode.value = layout(tree.value)
   drawCanvas()
 }
+const doLayout = debounce(_doLayout, 0)
 
 onMounted(() => {
   if (!planEl.value) return
   const canvas = canvasRef.value
   if (!canvas) return
 
-  const resizeObserver = new ResizeObserver((entries) => {
-    for (const entry of entries) {
-      const { width, height } = entry.contentRect
-      const pixelRatio = window.devicePixelRatio || 1
-      canvas.width = width * pixelRatio
-      canvas.height = height * pixelRatio
-      canvas.style.width = width + "px"
-      canvas.style.height = height + "px"
-
-      // Recalculate scale to fit entire plan
-      if (layoutRootNode.value) {
-        const extent = getLayoutExtent(layoutRootNode.value)
-        const xScale = width / (extent[1] - extent[0] + 100) // Add padding
-        const yScale = height / (extent[3] - extent[2] + 100) // Add padding
-        const scale = Math.min(1, Math.min(xScale, yScale))
-
-        // Center the plan
-        const tx =
-          (width - (extent[1] - extent[0]) * scale) / 2 - extent[0] * scale
-        const ty =
-          (height - (extent[3] - extent[2]) * scale) / 2 - extent[2] * scale
-
-        d3.select<HTMLCanvasElement, unknown>(canvas).call(
-          zoomListener.transform as any,
-          d3.zoomIdentity.translate(tx, ty).scale(scale)
-        )
-      }
+  // Debounce function
+  function debounce(fn: (...args: any[]) => void, delay: number) {
+    let timer: ReturnType<typeof setTimeout> | null = null
+    return (...args: any[]) => {
+      if (timer) clearTimeout(timer)
+      timer = setTimeout(() => fn(...args), delay)
     }
-  })
+  }
+
+  // Debounced resize handler
+  const handleResize = debounce((entries: ResizeObserverEntry[]) => {
+    // Batch DOM reads
+    const { width, height } = entries[0].contentRect
+    const pixelRatio = window.devicePixelRatio || 1
+    // Batch DOM writes
+    canvas.width = width * pixelRatio
+    canvas.height = height * pixelRatio
+    canvas.style.width = width + "px"
+    canvas.style.height = height + "px"
+
+    // Recalculate scale to fit entire plan
+    if (layoutRootNode.value) {
+      const extent = getLayoutExtent(layoutRootNode.value)
+      const xScale = width / (extent[1] - extent[0] + 100) // Add padding
+      const yScale = height / (extent[3] - extent[2] + 100) // Add padding
+      const scale = Math.min(1, Math.min(xScale, yScale))
+
+      // Center the plan
+      const tx =
+        (width - (extent[1] - extent[0]) * scale) / 2 - extent[0] * scale
+      const ty =
+        (height - (extent[3] - extent[2]) * scale) / 2 - extent[2] * scale
+
+      d3.select<HTMLCanvasElement, unknown>(canvas).call(
+        zoomListener.transform as any,
+        d3.zoomIdentity.translate(tx, ty).scale(scale)
+      )
+    }
+  }, 50) // 50ms debounce
+
+  const resizeObserver = new ResizeObserver(handleResize)
 
   resizeObserver.observe(planEl.value.$el)
   d3.select<HTMLCanvasElement, unknown>(canvas).call(zoomListener as any)
@@ -377,10 +421,9 @@ function centerNode(nodeId: number): void {
   if (!treeNode) {
     return
   }
-  const pixelRatio = window.devicePixelRatio || 1
   let x = -treeNode["x"]
   let y = -treeNode["y"]
-  let k = scale.value
+  const k = scale.value
   x = x * k + rect.width / 2
   y = y * k + rect.height / 2
   const canvas = canvasRef.value
@@ -480,10 +523,15 @@ function updateNodeSize(node: Node, size: [number, number]) {
 </script>
 
 <template>
-  <div v-if="!parsed" class="flex-grow-1 d-flex justify-content-center">
+  <div
+    v-if="!parsed"
+    class="flex-grow-1 d-flex justify-content-center"
+  >
     <div class="card align-self-center border-danger w-50">
       <div class="card-body">
-        <h5 class="card-title text-danger">Couldn't parse plan</h5>
+        <h5 class="card-title text-danger">
+          Couldn't parse plan
+        </h5>
         <h6 class="card-subtitle mb-2 text-body-secondary">
           An error occured while parsing the plan
         </h6>
@@ -492,7 +540,7 @@ function updateNodeSize(node: Node, size: [number, number]) {
             <pre
               class="small p-2 mb-0"
               style="max-height: 200px"
-            ><code v-html="planSource"></code></pre>
+            ><code v-html="planSource" /></pre>
           </div>
           <copy :content="planSource" />
         </div>
@@ -509,16 +557,15 @@ function updateNodeSize(node: Node, size: [number, number]) {
             href="https://github.com/DBatUTuebingen/pev2/issues"
             target="_blank"
             class="btn btn-primary ms-auto"
-            >Open an issue on Github</a
-          >
+          >Open an issue on Github</a>
         </div>
       </div>
     </div>
   </div>
   <div
-    class="plan-container d-flex flex-column overflow-hidden flex-grow-1 bg-light"
     v-else
     ref="rootEl"
+    class="plan-container d-flex flex-column overflow-hidden flex-grow-1 bg-light"
   >
     <div class="d-flex align-items-center">
       <ul class="nav nav-pills">
@@ -527,19 +574,18 @@ function updateNodeSize(node: Node, size: [number, number]) {
             class="nav-link px-2 py-0"
             :class="{ active: activeTab === 'plan' }"
             href="#plan"
-            >Plan</a
-          >
+          >Plan</a>
         </li>
         <li class="nav-item p-1">
           <a
             class="nav-link px-2 py-0 position-relative"
             :class="{ active: activeTab === 'grid' }"
             href="#grid"
-            >Grid
+          >Grid
             <span
+              v-if="!gridIsNotNew"
               class="badge bg-info"
               style="font-size: 0.6em"
-              v-if="!gridIsNotNew"
             >
               new
             </span>
@@ -550,28 +596,28 @@ function updateNodeSize(node: Node, size: [number, number]) {
             class="nav-link px-2 py-0"
             :class="{ active: activeTab === 'raw' }"
             href="#raw"
-            >Raw</a
-          >
+          >Raw</a>
         </li>
         <li class="nav-item p-1">
           <a
             class="nav-link px-2 py-0"
             :class="{ active: activeTab === 'query', disabled: !queryText }"
             href="#query"
-            >Query</a
-          >
+          >Query</a>
         </li>
         <li class="nav-item p-1">
           <a
             class="nav-link px-2 py-0"
             :class="{ active: activeTab === 'stats' }"
             href="#stats"
-            >Stats</a
-          >
+          >Stats</a>
         </li>
       </ul>
       <div class="ms-auto me-2 small">
-        <a href="https://github.com/DBatUTuebingen/pev2" target="_blank">
+        <a
+          href="https://github.com/DBatUTuebingen/pev2"
+          target="_blank"
+        >
           <logo-image />
           duckdb-explain-visualizer 1.0.0
           <!--{{ version }}-->
@@ -585,28 +631,30 @@ function updateNodeSize(node: Node, size: [number, number]) {
       >
         <!-- Plan tab -->
         <div class="d-flex flex-column flex-grow-1 overflow-hidden">
-          <PlanStats></PlanStats>
+          <PlanStats />
           <div class="flex-grow-1 d-flex overflow-hidden">
             <div class="flex-grow-1 overflow-hidden">
               <splitpanes
                 class="default-theme"
-                @resize="viewOptions.diagramWidth = $event[0].size"
+                @resize="viewOptions.diagramWidth = ($event[0] && $event[0].size !== undefined ? $event[0].size : viewOptions.diagramWidth)"
               >
                 <pane
+                  v-if="plan"
                   :size="viewOptions.diagramWidth"
                   class="d-flex flex-column"
-                  v-if="plan"
                 >
                   <diagram
                     ref="diagram"
                     class="d-flex flex-column flex-grow-1 overflow-hidden plan-diagram"
-                  >
-                  </diagram>
+                  />
                 </pane>
-                <pane ref="planEl" class="plan grab-bing position-relative">
+                <pane
+                  ref="planEl"
+                  class="plan grab-bing position-relative"
+                >
                   <div
-                    class="position-absolute m-1 p-1 bottom-0 end-0 rounded bg-white d-flex"
                     v-if="plan"
+                    class="position-absolute m-1 p-1 bottom-0 end-0 rounded bg-white d-flex"
                   >
                     <div
                       class="btn-group btn-group-xs"
@@ -618,7 +666,7 @@ function updateNodeSize(node: Node, size: [number, number]) {
                           active:
                             viewOptions.highlightType === HighlightType.NONE,
                         }"
-                        v-on:click="
+                        @click="
                           viewOptions.highlightType = HighlightType.NONE
                         "
                       >
@@ -631,10 +679,10 @@ function updateNodeSize(node: Node, size: [number, number]) {
                             viewOptions.highlightType ===
                             HighlightType.DURATION,
                         }"
-                        v-on:click="
+                        :disabled="false /*!plan.isAnalyze*/"
+                        @click="
                           viewOptions.highlightType = HighlightType.DURATION
                         "
-                        :disabled="false /*!plan.isAnalyze*/"
                       >
                         duration
                       </button>
@@ -644,11 +692,11 @@ function updateNodeSize(node: Node, size: [number, number]) {
                           active:
                             viewOptions.highlightType === HighlightType.ROWS,
                         }"
-                        v-on:click="
-                          viewOptions.highlightType = HighlightType.ROWS
-                        "
                         :disabled="
                           !rootNode || rootNode[NodeProp.CPU_TIME] === undefined
+                        "
+                        @click="
+                          viewOptions.highlightType = HighlightType.ROWS
                         "
                       >
                         rows
@@ -659,11 +707,11 @@ function updateNodeSize(node: Node, size: [number, number]) {
                           active:
                             viewOptions.highlightType === HighlightType.RESULT,
                         }"
-                        v-on:click="
-                          viewOptions.highlightType = HighlightType.RESULT
-                        "
                         :disabled="
                           !rootNode || rootNode[NodeProp.CPU_TIME] === undefined
+                        "
+                        @click="
+                          viewOptions.highlightType = HighlightType.RESULT
                         "
                       >
                         result
@@ -673,12 +721,15 @@ function updateNodeSize(node: Node, size: [number, number]) {
                   <canvas
                     ref="canvasRef"
                     style="width: 100%; height: 100%"
-                  ></canvas>
-                  <div class="node-overlay">
+                  />
+                  <div
+                    class="node-overlay"
+                    @wheel="handleZoom"
+                  >
                     <div
                       v-for="node in layoutRootNode?.descendants()"
-                      :key="node.data.nodeId"
                       :id="`node-${node.data.nodeId}`"
+                      :key="node.data.nodeId"
                       class="absolute-node"
                     >
                       <plan-node :node="node.data" />
@@ -692,13 +743,13 @@ function updateNodeSize(node: Node, size: [number, number]) {
         </div>
       </div>
       <div
+        v-if="activeTab === 'grid'"
         class="tab-pane flex-grow-1 overflow-hidden position-relative"
         :class="{ 'show active': activeTab === 'grid' }"
-        v-if="activeTab === 'grid'"
       >
         <div class="overflow-hidden d-flex w-100 h-100 flex-column">
-          <plan-stats></plan-stats>
-          <grid class="flex-grow-1 overflow-auto plan-grid"> </grid>
+          <plan-stats />
+          <grid class="flex-grow-1 overflow-auto plan-grid" />
         </div>
       </div>
       <div
@@ -709,21 +760,21 @@ function updateNodeSize(node: Node, size: [number, number]) {
           <div class="overflow-auto flex-grow-1">
             <pre
               class="small p-2 mb-0"
-            ><code v-html="json_(planSource)"></code></pre>
+            ><code v-html="json_(planSource)" /></pre>
           </div>
           <copy :content="planSource" />
         </div>
       </div>
       <div
+        v-if="queryText"
         class="tab-pane flex-grow-1 overflow-hidden position-relative"
         :class="{ 'show active': activeTab === 'query' }"
-        v-if="queryText"
       >
         <div class="overflow-hidden d-flex w-100 h-100">
           <div class="overflow-auto flex-grow-1">
             <pre
               class="small p-2 mb-0"
-            ><code v-html="pgsql_(queryText)"></code></pre>
+            ><code v-html="pgsql_(queryText)" /></pre>
           </div>
         </div>
         <copy :content="queryText" />
@@ -732,7 +783,7 @@ function updateNodeSize(node: Node, size: [number, number]) {
         class="tab-pane flex-grow-1 overflow-auto"
         :class="{ 'show active': activeTab === 'stats' }"
       >
-        <stats v-if="plan"></stats>
+        <stats v-if="plan" />
       </div>
     </div>
   </div>
@@ -766,6 +817,17 @@ canvas {
   top: 0;
   left: 0;
   width: 100%;
+  pointer-events: all;
+
+  /* Ensure wheel events go through to canvas */
+  &:hover {
+    pointer-events: none;
+  }
+
+  /* But keep node interactive elements clickable */
+  :deep(.plan-node) {
+    pointer-events: auto;
+  }
   height: 100%;
   pointer-events: none;
 }

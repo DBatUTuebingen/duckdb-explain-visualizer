@@ -90,12 +90,17 @@ function centerCte() {
     plan.value,
     node[NodeProp.EXTRA_INFO][NodeProp.CTE_NAME] as string
   )
-  cteNode && selectNode?.(cteNode.nodeId, true)
+  if (cteNode) {
+    selectNode?.(cteNode.nodeId, true)
+  }
 }
 </script>
 
 <template>
-  <div ref="outerEl" @mousedown.stop>
+  <div
+    ref="outerEl"
+    @mousedown.stop
+  >
     <div
       :class="[
         'text-start plan-node',
@@ -120,15 +125,15 @@ function centerCte() {
             >
               <span class="text-secondary">
                 <FontAwesomeIcon
+                  v-if="showDetails"
                   fixed-width
                   :icon="faChevronUp"
-                  v-if="showDetails"
-                ></FontAwesomeIcon>
+                />
                 <FontAwesomeIcon
+                  v-else
                   fixed-width
                   :icon="faChevronDown"
-                  v-else
-                ></FontAwesomeIcon>
+                />
               </span>
               {{ nodeName }}
             </h4>
@@ -165,7 +170,7 @@ function centerCte() {
               <span class="text-secondary">group by</span>
               <span
                 v-html="keysToString(node[NodeProp.EXTRA_INFO][NodeProp.GROUPS] as string)"
-              ></span>
+              />
             </div>
             <div v-if="node[NodeProp.EXTRA_INFO][NodeProp.JOIN_TYPE]">
               {{ node[NodeProp.EXTRA_INFO][NodeProp.JOIN_TYPE] }}
@@ -190,7 +195,7 @@ function centerCte() {
               <span class="text-secondary">on</span>
               <span
                 v-html="keysToString(node[NodeProp.EXTRA_INFO][NodeProp.CONDITIONS] as string)"
-              ></span>
+              />
             </div>
             <div
               v-if="node[NodeProp.EXTRA_INFO][NodeProp.FILTER]"
@@ -199,14 +204,18 @@ function centerCte() {
               <span class="text-secondary">on</span>
               <span
                 v-html="keysToString(node[NodeProp.EXTRA_INFO][NodeProp.FILTER] as string)"
-              ></span>
+              />
             </div>
             <div v-if="node[NodeProp.EXTRA_INFO][NodeProp.CTE_NAME]">
-              <a class="text-reset" href="" @click.prevent.stop="centerCte">
+              <a
+                class="text-reset"
+                href=""
+                @click.prevent.stop="centerCte"
+              >
                 <FontAwesomeIcon
                   :icon="faSearch"
                   class="text-secondary"
-                ></FontAwesomeIcon>
+                />
                 <span class="text-secondary">CTE</span>
                 {{ node[NodeProp.EXTRA_INFO][NodeProp.CTE_NAME] }}
               </a>
@@ -216,10 +225,13 @@ function centerCte() {
           <div
             v-if="
               viewOptions.highlightType !== HighlightType.NONE &&
-              highlightValue !== null
+                highlightValue !== null
             "
           >
-            <div class="progress node-bar-container" style="height: 5px">
+            <div
+              class="progress node-bar-container"
+              style="height: 5px"
+            >
               <div
                 class="progress-bar"
                 role="progressbar"
@@ -230,17 +242,18 @@ function centerCte() {
                 aria-valuenow="0"
                 aria-valuemin="0"
                 aria-valuemax="100"
-              ></div>
+              />
             </div>
             <span class="node-bar-label">
-              <span class="text-secondary"
-                >{{ viewOptions.highlightType }}:</span
-              >
-              <span v-html="highlightValue"></span>
+              <span class="text-secondary">{{ viewOptions.highlightType }}:</span>
+              <span v-html="highlightValue" />
             </span>
           </div>
         </div>
-        <plan-node-detail :node="node" v-if="showDetails"></plan-node-detail>
+        <plan-node-detail
+          v-if="showDetails"
+          :node="node"
+        />
       </div>
     </div>
   </div>

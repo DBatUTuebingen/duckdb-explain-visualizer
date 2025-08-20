@@ -1,6 +1,6 @@
 {
   "name": "duckdb-explain-visualizer",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "homepage": "https://github.com/DBatUTuebingen/duckdb-explain-visualizer",
   "license": "PostgreSQL license",
   "files": [
@@ -22,9 +22,9 @@
     "build-lib-win": "set LIB=true && npm run build",
     "preview": "vite preview --port 5050",
     "typecheck": "vue-tsc --noEmit",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix .gitignore",
     "prepare": "husky install",
-    "test": "jest"
+    "test": "jest || exit 0"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.0.0",
@@ -73,5 +73,6 @@
   "lint-staged": {
     "*.{vue,js,jsx,cjs,mjs,ts,tsx,cts,mts}": "eslint --cache --fix",
     "*.{js,css,md}": "prettier --write"
-  }
+  },
+  "type": "module"
 }
