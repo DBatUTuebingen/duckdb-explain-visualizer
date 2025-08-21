@@ -53,7 +53,7 @@ interface Props {
 }
 const props = defineProps<Props>()
 
-const version = __APP_VERSION__  
+const version = __APP_VERSION__
 
 const rootEl = ref(null) // The root Element of this instance
 const activeTab = ref<string>("")
@@ -93,7 +93,7 @@ const scale = ref(1)
 const edgeWeight = computed(() => {
   return d3
     .scaleLinear()
-    .domain([0, planStats.maxRows])
+    .domain([0, Math.max(1, planStats.maxRows)])
     .range([1, padding / 1.5])
 })
 const minScale = 0.2
@@ -615,12 +615,12 @@ function updateNodeSize(node: Node, size: [number, number]) {
       </ul>
       <div class="ms-auto me-2 small">
         <a
-          href="https://github.com/DBatUTuebingen/pev2"
+          href="https://github.com/DBatUTuebingen/duckdb-explain-visualizer"
           target="_blank"
         >
           <logo-image />
-          duckdb-explain-visualizer 1.0.0
-          <!--{{ version }}-->
+          duckdb-explain-visualizer
+          {{ version }}
         </a>
       </div>
     </div>
