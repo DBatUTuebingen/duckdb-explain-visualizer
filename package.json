@@ -1,6 +1,6 @@
 {
   "name": "duckdb-explain-visualizer",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "homepage": "https://github.com/DBatUTuebingen/duckdb-explain-visualizer",
   "license": "PostgreSQL license",
   "files": [
@@ -13,7 +13,7 @@
       "import": "./dist/duckdb-explain-visualizer.mjs",
       "require": "./dist/duckdb-explain-visualizer.umd.js"
     },
-    "./dist/style.css": "./dist/style.css"
+    "./dist/duckdb-explain-visualizer.css": "./dist/duckdb-explain-visualizer.css"
   },
   "scripts": {
     "dev": "vite",
