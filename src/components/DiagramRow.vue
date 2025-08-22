@@ -53,11 +53,19 @@ const calculateCpuTimePercentage = computed(() => {
   return Math.round(((node[NodeProp.CPU_TIME] - node[NodeProp.ACTUAL_TIME]) / denominator) * 100);
 });
 
+const hasCpuTime = computed(() => {
+  return typeof node[NodeProp.CPU_TIME] === 'number' || typeof node[NodeProp.ACTUAL_TIME] === 'number';
+});
+
 const calculateRowsPercentage = computed(() => {
   if (typeof node[NodeProp.ACTUAL_ROWS] !== 'number' || !plan.value.planStats.maxRows) {
     return 0;
   }
   return Math.round((node[NodeProp.ACTUAL_ROWS] / plan.value.planStats.maxRows) * 100);
+});
+
+const hasRows = computed(() => {
+  return typeof node[NodeProp.ACTUAL_ROWS] === 'number';
 });
 
 const calculateResultPercentage = computed(() => {
@@ -119,7 +127,8 @@ watch(
     <td class="node-index">
       <span class="fw-normal small">#{{ node.nodeId }} </span>
     </td>
-    <td class="node-type pe-2">
+    <td class="node-type pe-2"
+        :style="!(hasCpuTime || hasRows || hasResultSetSize) ?{ width: '100%'} : {}">
       <level-divider
         :isSubplan="!!node[NodeProp.EXTRA_INFO][NodeProp.CTE_NAME]"
         :isLastChild="!!isLastChild"
@@ -130,7 +139,7 @@ watch(
       ></level-divider>
       {{ nodeName }}
     </td>
-    <td>
+    <td v-if="hasCpuTime || hasRows || hasResultSetSize">
       <!-- time -->
       <div
         class="progress rounded-0 align-items-center bg-transparent"
@@ -208,5 +217,6 @@ watch(
         ></div>
       </div>
     </td>
+    <td v-else></td>
   </tr>
 </template>
